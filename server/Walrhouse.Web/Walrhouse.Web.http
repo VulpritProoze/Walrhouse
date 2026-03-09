@@ -1,0 +1,6 @@
+@Walrhouse.Web_HostAddress = http://localhost:5196
+
+GET {{Walrhouse.Web_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
