@@ -1,6 +1,6 @@
 using System.Reflection;
 using Microsoft.Extensions.Hosting;
-using Walrhouse.Application.Common.Behaviours;
+using Walrhouse.Application.Common.Behaviors;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -15,11 +15,11 @@ public static class DependencyInjection
         builder.Services.AddMediatR(cfg =>
         {
             cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.AddOpenRequestPreProcessor(typeof(LoggingBehaviour<>));
-            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(AuthorizationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(ValidationBehaviour<,>));
-            cfg.AddOpenBehavior(typeof(PerformanceBehaviour<,>));
+            cfg.AddOpenRequestPreProcessor(typeof(LoggingBehavior<>));
+            cfg.AddOpenBehavior(typeof(UnhandledExceptionBehavior<,>));
+            cfg.AddOpenBehavior(typeof(AuthorizationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            cfg.AddOpenBehavior(typeof(PerformanceBehavior<,>));
         });
     }
 }

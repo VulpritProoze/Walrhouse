@@ -3,20 +3,39 @@ using Walrhouse.Application.Common.Exceptions;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Security;
 
-namespace Walrhouse.Application.Common.Behaviours;
+namespace Walrhouse.Application.Common.Behaviors;
 
-public class AuthorizationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+/// <summary>
+/// Pipeline behavior that handles authorization for MediatR requests based on Authorize attributes.
+/// </summary>
+/// <typeparam name="TRequest">The type of the request.</typeparam>
+/// <typeparam name="TResponse">The type of the response.</typeparam>
+public class AuthorizationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     where TRequest : notnull
 {
     private readonly IUser _user;
     private readonly IIdentityService _identityService;
 
-    public AuthorizationBehaviour(IUser user, IIdentityService identityService)
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AuthorizationBehavior{TRequest, TResponse}"/> class.
+    /// </summary>
+    /// <param name="user">The current user service.</param>
+    /// <param name="identityService">The identity service for checking policies.</param>
+    public AuthorizationBehavior(IUser user, IIdentityService identityService)
     {
         _user = user;
         _identityService = identityService;
     }
 
+    /// <summary>
+    /// Handles the authorization logic for the specified request.
+    /// </summary>
+    /// <param name="request">The incoming request.</param>
+    /// <param name="next">The next handler in the pipeline.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The response from the next handler in the pipeline.</returns>
+    /// <exception cref="UnauthorizedAccessException">Thrown when the user is not authenticated but authorization is required.</exception>
+    /// <exception cref="ForbiddenAccessException">Thrown when the user does not have the required roles or policies.</exception>
     public async Task<TResponse> Handle(
         TRequest request,
         RequestHandlerDelegate<TResponse> next,
