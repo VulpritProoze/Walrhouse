@@ -8,29 +8,29 @@ using Walrhouse.Infrastructure.Identity;
 
 namespace Walrhouse.Infrastructure.Data;
 
-public static class InitialiserExtensions
+public static class InitializerExtensions
 {
-    public static async Task InitialiseDatabaseAsync(this WebApplication app)
+    public static async Task InitializeDatabaseAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
 
-        var initialiser =
-            scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
+        var initializer =
+            scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
 
-        await initialiser.InitialiseAsync();
-        await initialiser.SeedAsync();
+        await initializer.InitializeAsync();
+        await initializer.SeedAsync();
     }
 }
 
-public class ApplicationDbContextInitialiser
+public class ApplicationDbContextInitializer
 {
-    private readonly ILogger<ApplicationDbContextInitialiser> _logger;
+    private readonly ILogger<ApplicationDbContextInitializer> _logger;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
 
-    public ApplicationDbContextInitialiser(
-        ILogger<ApplicationDbContextInitialiser> logger,
+    public ApplicationDbContextInitializer(
+        ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager
@@ -42,7 +42,7 @@ public class ApplicationDbContextInitialiser
         _roleManager = roleManager;
     }
 
-    public async Task InitialiseAsync()
+    public async Task InitializeAsync()
     {
         try
         {
@@ -106,7 +106,7 @@ public class ApplicationDbContextInitialiser
                     ItemCode = "ITEM-001",
                     ItemName = "Sample Seed Item",
                     ItemGroup = Walrhouse.Domain.Enums.ItemGroup.General,
-                    Remarks = "Seeded by ApplicationDbContextInitialiser",
+                    Remarks = "Seeded by ApplicationDbContextInitializer",
                 }
             );
 

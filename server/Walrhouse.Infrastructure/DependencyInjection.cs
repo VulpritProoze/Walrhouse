@@ -36,7 +36,7 @@ public static class DependencyInjection
             provider.GetRequiredService<ApplicationDbContext>()
         );
 
-        builder.Services.AddScoped<ApplicationDbContextInitialiser>();
+        builder.Services.AddScoped<ApplicationDbContextInitializer>();
 
         builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
 
