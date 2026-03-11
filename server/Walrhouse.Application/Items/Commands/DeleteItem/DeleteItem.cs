@@ -3,8 +3,7 @@ using Walrhouse.Application.Common.Security;
 
 namespace Walrhouse.Application.Items.Commands.DeleteItem;
 
-[Authorize]
-public record DeleteItemCommand(int Id) : IRequest;
+public record DeleteItemCommand(string ItemCode) : IRequest;
 
 public class DeleteItemCommandHandler : IRequestHandler<DeleteItemCommand>
 {
@@ -18,13 +17,13 @@ public class DeleteItemCommandHandler : IRequestHandler<DeleteItemCommand>
     public async Task Handle(DeleteItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.Items.FirstOrDefaultAsync(
-            i => i.ItemId == request.Id,
+            i => i.ItemCode == request.ItemCode,
             cancellationToken
         );
 
         if (entity is null)
         {
-            throw new KeyNotFoundException($"Item with id '{request.Id}' was not found.");
+            throw new KeyNotFoundException($"Item with code '{request.ItemCode}' was not found.");
         }
 
         _context.Items.Remove(entity);

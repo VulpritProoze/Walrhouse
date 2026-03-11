@@ -13,13 +13,13 @@ public partial class Item
     /// <exception cref="Exception">Thrown when a primary barcode already exists or the barcode is a duplicate</exception>
     public void AddBarcode(ItemBarcode barcode)
     {
-        if (barcode.IsPrimary && _barcodes.Any(b => b.IsPrimary))
+        if (barcode.IsPrimary && _itemBarcodes.Any(b => b.IsPrimary))
             throw new Exception("This item already has a primary barcode.");
 
-        if (_barcodes.Any(b => b.Barcode == barcode.Barcode))
+        if (_itemBarcodes.Any(b => b.Barcode == barcode.Barcode))
             throw new Exception("This barcode already exists.");
 
-        _barcodes.Add(
+        _itemBarcodes.Add(
             new ItemBarcode
             {
                 ItemCode = barcode.ItemCode,
@@ -37,7 +37,9 @@ public partial class Item
     /// <param name="itemBarcode">The barcode to set as primary (must exist in collection)</param>
     public void ChangePrimaryBarcode(ItemBarcode itemBarcode)
     {
-        var existingInCollection = _barcodes.FirstOrDefault(b => b.Barcode == itemBarcode.Barcode);
+        var existingInCollection = _itemBarcodes.FirstOrDefault(b =>
+            b.Barcode == itemBarcode.Barcode
+        );
 
         if (existingInCollection == null)
             throw new Exception(
@@ -45,7 +47,7 @@ public partial class Item
             );
 
         // Remove primary flag from current primary
-        var oldPrimary = _barcodes.FirstOrDefault(b => b.IsPrimary);
+        var oldPrimary = _itemBarcodes.FirstOrDefault(b => b.IsPrimary);
         if (oldPrimary != null)
             oldPrimary.IsPrimary = false;
 
@@ -71,11 +73,11 @@ public partial class Item
             throw new Exception("Barcode value cannot be empty.");
 
         // Check if barcode already exists
-        if (_barcodes.Any(b => b.Barcode == barcodeValue))
+        if (_itemBarcodes.Any(b => b.Barcode == barcodeValue))
             throw new Exception($"Barcode '{barcodeValue}' already exists for this item.");
 
         // Remove primary flag from current primary
-        var oldPrimary = _barcodes.FirstOrDefault(b => b.IsPrimary);
+        var oldPrimary = _itemBarcodes.FirstOrDefault(b => b.IsPrimary);
         if (oldPrimary != null)
             oldPrimary.IsPrimary = false;
 
@@ -89,7 +91,7 @@ public partial class Item
             IsPrimary = true,
         };
 
-        _barcodes.Add(newPrimaryBarcode);
+        _itemBarcodes.Add(newPrimaryBarcode);
         Barcode = barcodeValue;
     }
 }

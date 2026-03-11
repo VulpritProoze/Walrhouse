@@ -4,10 +4,8 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.Items.Commands.UpdateItem;
 
-[Authorize]
 public record UpdateItemCommand : IRequest
 {
-    public int Id { get; init; }
     public string ItemCode { get; init; } = string.Empty;
     public string ItemName { get; init; } = string.Empty;
     public string? Remarks { get; init; }
@@ -27,13 +25,13 @@ public class UpdateItemCommandHandler : IRequestHandler<UpdateItemCommand>
     public async Task Handle(UpdateItemCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.Items.FirstOrDefaultAsync(
-            i => i.ItemId == request.Id,
+            i => i.ItemCode == request.ItemCode,
             cancellationToken
         );
 
         if (entity is null)
         {
-            throw new KeyNotFoundException($"Item with id '{request.Id}' was not found.");
+            throw new KeyNotFoundException($"Item with code '{request.ItemCode}' was not found.");
         }
 
         entity.ItemCode = request.ItemCode;

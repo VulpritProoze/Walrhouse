@@ -5,8 +5,7 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.Items.Commands.CreateItem;
 
-[Authorize]
-public record CreateItemCommand : IRequest<int>
+public record CreateItemCommand : IRequest<string>
 {
     public string ItemCode { get; init; } = string.Empty;
     public string ItemName { get; init; } = string.Empty;
@@ -14,7 +13,7 @@ public record CreateItemCommand : IRequest<int>
     public ItemGroup ItemGroup { get; init; } = ItemGroup.General;
 }
 
-public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, int>
+public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, string>
 {
     private readonly IApplicationDbContext _context;
 
@@ -23,7 +22,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, int>
         _context = context;
     }
 
-    public async Task<int> Handle(CreateItemCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(CreateItemCommand request, CancellationToken cancellationToken)
     {
         var entity = new Item
         {
@@ -36,6 +35,6 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, int>
         _context.Items.Add(entity);
         await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.ItemId;
+        return entity.ItemCode;
     }
 }

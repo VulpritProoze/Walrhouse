@@ -9,11 +9,6 @@ namespace Walrhouse.Domain.Entities;
 public partial class Item : BaseAuditableEntity
 {
     /// <summary>
-    /// Gets or sets the unique identifier for the item.
-    /// </summary>
-    public int ItemId { get; set; }
-
-    /// <summary>
     /// Gets or sets the unique item code.
     /// This is typically used as the business key for the item.
     /// </summary>
@@ -50,7 +45,7 @@ public partial class Item : BaseAuditableEntity
 
     /// <summary>
     /// Gets the primary barcode for the item.
-    /// This is synchronized with the primary barcode in the Barcodes collection.
+    /// This is synchronized with the primary barcode in the ItemBarcodes collection.
     /// Use <see cref="ChangePrimaryBarcode(string, string?, string?)"/> to modify.
     /// </summary>
     public string? Barcode
@@ -68,14 +63,14 @@ public partial class Item : BaseAuditableEntity
     /// Gets or sets the item group classification.
     /// Used for categorizing items (e.g., General, Electronics, Raw Materials).
     /// </summary>
-    public ItemGroup ItemGroup { get; set; }
+    public ItemGroup? ItemGroup { get; set; }
 
-    private readonly List<ItemBarcode> _barcodes = new();
+    private readonly List<ItemBarcode> _itemBarcodes = new();
 
     /// <summary>
     /// Gets the read-only collection of barcodes associated with this item.
     /// Items can have multiple barcodes for different units of measure or packaging types.
     /// Use <see cref="AddBarcode"/> method to add new barcodes.
     /// </summary>
-    public IReadOnlyCollection<ItemBarcode> Barcodes => _barcodes.AsReadOnly();
+    public IReadOnlyCollection<ItemBarcode> ItemBarcodes => _itemBarcodes.AsReadOnly();
 }

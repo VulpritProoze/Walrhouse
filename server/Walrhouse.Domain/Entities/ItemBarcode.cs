@@ -7,11 +7,6 @@ namespace Walrhouse.Domain.Entities;
 public class ItemBarcode : BaseEntity
 {
     /// <summary>
-    /// Gets or sets the unique identifier for the item barcode.
-    /// </summary>
-    public int ItemBarcodeId { get; set; }
-
-    /// <summary>
     /// Gets or sets the item code this barcode belongs to.
     /// Foreign key to the Item entity.
     /// </summary>

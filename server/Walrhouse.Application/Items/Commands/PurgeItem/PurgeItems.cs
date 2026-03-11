@@ -1,9 +1,11 @@
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Security;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Application.Items.Commands.PurgeItem;
 
-[Authorize]
+[Authorize(Roles = Roles.Administrator)]
+[Authorize(Policy = Policies.CanPurge)]
 public record PurgeItemsCommand : IRequest<int>;
 
 public class PurgeItemsCommandHandler : IRequestHandler<PurgeItemsCommand, int>
