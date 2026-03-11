@@ -32,7 +32,7 @@ public class GetItemsQueryHandler : IRequestHandler<GetItemsQuery, PaginatedList
             .Items.AsNoTracking()
             .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
             .OrderBy(i => i.ItemName)
-            .ThenBy(i => i.Id)
+            .ThenBy(i => i.ItemCode)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

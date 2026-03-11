@@ -4,6 +4,6 @@ public class DeleteItemCommandValidator : AbstractValidator<DeleteItemCommand>
 {
     public DeleteItemCommandValidator()
     {
-        RuleFor(v => v.Id).GreaterThan(0);
+        RuleFor(v => v.ItemCode).NotEmpty().MaximumLength(50);
     }
 }
