@@ -1,6 +1,6 @@
-import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/axios";
-import { getItemsResponseSchema } from "@/lib/schemas/item.schema";
+import { useQuery } from '@tanstack/react-query';
+import { api } from '@/lib/axios';
+import { getItemsResponseSchema } from '@/lib/schemas/item.schema';
 
 type GetItemsParams = {
   pageNumber?: number;
@@ -8,7 +8,7 @@ type GetItemsParams = {
 };
 
 export async function getItems(params: GetItemsParams = {}) {
-  const response = await api.get("/Items", {
+  const response = await api.get('/Items', {
     params: {
       pageNumber: params.pageNumber ?? 1,
       pageSize: params.pageSize ?? 20,
@@ -20,7 +20,7 @@ export async function getItems(params: GetItemsParams = {}) {
 
 export function useGetItems(params: GetItemsParams = {}) {
   return useQuery({
-    queryKey: ["items", params.pageNumber ?? 1, params.pageSize ?? 20],
+    queryKey: ['items', params.pageNumber ?? 1, params.pageSize ?? 20],
     queryFn: () => getItems(params),
   });
 }

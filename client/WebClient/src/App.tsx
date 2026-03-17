@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 
 function App() {
   return (
@@ -19,10 +19,11 @@ function App() {
 
       <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
         Use <code className="font-mono">src/lib/axios.ts</code> for API calls and
-        <code className="ml-1 font-mono">src/lib/schemas/item.schema.ts</code> for runtime validation.
+        <code className="ml-1 font-mono">src/lib/schemas/item.schema.ts</code> for runtime
+        validation.
       </div>
     </main>
-  )
+  );
 }
 
-export default App
+export default App;
