@@ -38,7 +38,16 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ApplicationDbContextInitializer>();
 
-        builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
+        builder
+            .Services.AddAuthentication()
+            .AddBearerToken(
+                IdentityConstants.BearerScheme,
+                options =>
+                {
+                    options.BearerTokenExpiration = TimeSpan.FromMinutes(15);
+                    options.RefreshTokenExpiration = TimeSpan.FromDays(1);
+                }
+            );
 
         builder.Services.AddAuthorizationBuilder();
 
