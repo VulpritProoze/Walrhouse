@@ -7,11 +7,15 @@ import App from './App.tsx';
 import { queryClient } from '@/lib/query-client';
 import { AuthProvider } from '@/features/auth/context/AuthContext.tsx';
 
+import { TooltipProvider } from "@/components/ui/tooltip";
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <TooltipProvider>
+          <App />
+        </TooltipProvider>
       </QueryClientProvider>
     </AuthProvider>
   </StrictMode>,
