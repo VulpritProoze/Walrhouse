@@ -1,5 +1,5 @@
 import ProtectedRoute from '@/components/common/ProtectedRoute';
-import { Roles } from '@/features/auth/types/roles';
+import { Roles } from '@/features/auth';
 
 /**
  * A route guard that requires the user to be an InventoryController.
