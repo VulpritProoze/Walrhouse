@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/features/auth';
 import { Roles } from '@/features/auth';
+import { LoadingScreen } from './LoadingScreen';
 
 interface ProtectedRouteProps {
   /** Which roles are allowed through. Omit to allow any authenticated user. */
@@ -19,23 +20,19 @@ interface ProtectedRouteProps {
  */
 export default function ProtectedRoute({
   allowedRoles,
-  redirectTo = '/login',
+  redirectTo = '/auth/login',
 }: ProtectedRouteProps) {
-  const { user, token, isLoading } = useAuth();
+  const { user, isLoading } = useAuth();
 
   if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-sky-500 border-t-transparent" />
-      </div>
-    );
+    return <LoadingScreen open={true} message="Authenticating..." />;
   }
 
-  if (!token) {
+  if (!user) {
     return <Navigate to={redirectTo} replace />;
   }
 
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+  if (allowedRoles && user && !user.roles.some((r) => (allowedRoles as string[]).includes(r))) {
     // User is authenticated but lacks role — send to a safe landing page
     return <Navigate to="/" replace />;
   }

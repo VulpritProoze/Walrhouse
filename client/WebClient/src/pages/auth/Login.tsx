@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import LoginForm from '@/features/auth';
 import type { LoginCredentials } from '@/features/auth';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 export default function Login() {
+  const navigate = useNavigate();
   // define initial login credentials here (page-level payload definition)
   const initialCreds: LoginCredentials = { identifier: '', password: '' };
 
@@ -32,7 +34,7 @@ export default function Login() {
           <LoginForm
             initial={initialCreds}
             onSuccess={() => {
-              /* handle success at page-level if needed */
+              navigate('/');
             }}
           />
         </CardContent>

@@ -10,44 +10,53 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Package, Calendar, ExternalLink } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const recentScans = [
   {
     id: 'scan-001',
-    sku: 'WH-00123',
-    name: 'Industrial Widget A',
-    location: 'Aisle 3, Shelf B-12',
+    sku: 'PH-10023',
+    name: 'Paracetamol 500mg',
+    binLocation: 'Z1-A-1-1',
     date: '2026-03-19 14:32',
+    expirationDate: '2026-06-01',
     status: 'Verified',
   },
   {
     id: 'scan-002',
-    sku: 'WH-00456',
-    name: 'Steel Bracket B',
-    location: 'Aisle 1, Shelf A-04',
+    sku: 'PH-44056',
+    name: 'Amoxicillin 250mg',
+    binLocation: 'Z1-B-2-4',
     date: '2026-03-19 13:15',
+    expirationDate: '2026-03-15', // Expired
     status: 'Verified',
   },
   {
     id: 'scan-003',
-    sku: 'WH-00789',
-    name: 'Rubber Seal C',
-    location: 'Aisle 5, Shelf D-08',
+    sku: 'PH-70889',
+    name: 'Metformin 500mg',
+    binLocation: 'Z2-C-1-1',
     date: '2026-03-18 16:44',
+    expirationDate: '2026-12-31',
     status: 'Mismatch',
   },
   {
     id: 'scan-004',
-    sku: 'WH-01011',
-    name: 'Copper Fitting D',
-    location: 'Aisle 2, Shelf C-01',
+    sku: 'PH-10511',
+    name: 'Atorvastatin 20mg',
+    binLocation: 'Z1-A-04',
     date: '2026-03-18 09:21',
+    expirationDate: '2026-02-10', // Expired
     status: 'Verified',
   },
 ];
 
 export default function MainContent() {
   const navigate = useNavigate();
+
+  const isExpired = (dateString: string) => {
+    return new Date(dateString) < new Date();
+  };
 
   return (
     <Card className="col-span-2">
@@ -69,11 +78,11 @@ export default function MainContent() {
                   Item Name
                 </TableHead>
                 <TableHead className="text-xs font-medium uppercase tracking-wider hidden md:table-cell">
-                  Location
+                  Bin Location
                 </TableHead>
                 <TableHead className="text-xs font-medium uppercase tracking-wider">
                   <span className="flex items-center gap-1">
-                    <Calendar className="h-3 w-3" /> Date
+                    <Calendar className="h-3 w-3" /> Scan Date
                   </span>
                 </TableHead>
                 <TableHead className="text-xs font-medium uppercase tracking-wider">
@@ -83,38 +92,43 @@ export default function MainContent() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentScans.map((scan) => (
-                <TableRow key={scan.id}>
-                  <TableCell className="font-mono text-xs font-medium">{scan.sku}</TableCell>
-                  <TableCell className="text-sm">{scan.name}</TableCell>
-                  <TableCell className="text-muted-foreground text-xs hidden md:table-cell">
-                    {scan.location}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{scan.date}</TableCell>
-                  <TableCell>
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                        scan.status === 'Verified'
-                          ? 'bg-emerald-500/10 text-emerald-600'
-                          : 'bg-amber-500/10 text-amber-600'
-                      }`}
+              {recentScans.map((scan) => {
+                const expired = isExpired(scan.expirationDate);
+                return (
+                  <TableRow key={scan.id} className={expired ? 'bg-destructive/5' : ''}>
+                    <TableCell className="font-mono text-xs font-medium">{scan.sku}</TableCell>
+                    <TableCell
+                      className={`text-sm ${expired ? 'text-destructive font-medium' : ''}`}
                     >
-                      {scan.status}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => navigate(`/verification`)}
-                    >
-                      <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
-                      <span className="sr-only">View scan detail</span>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+                      {scan.name}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground font-mono text-xs hidden md:table-cell">
+                      {scan.binLocation}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{scan.date}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={
+                          expired ? 'destructive' : scan.status === 'Verified' ? 'success' : 'warning'
+                        }
+                      >
+                        {expired ? 'Expired' : scan.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        onClick={() => navigate(`/verification`)}
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span className="sr-only">View scan detail</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>

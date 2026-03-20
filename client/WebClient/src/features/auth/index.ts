@@ -8,3 +8,4 @@ export * from './hooks/use-auth';
 // Types
 export * from './types/types';
 export * from './types/roles';
+export * from './types/user';

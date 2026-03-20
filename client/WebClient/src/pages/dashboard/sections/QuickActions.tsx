@@ -13,7 +13,15 @@ import {
   CommandItem,
 } from '@/components/ui/command';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Settings2, ScanLine, History, Package, Download, BarChart3, type LucideIcon } from 'lucide-react';
+import {
+  Settings2,
+  ScanLine,
+  History,
+  Package,
+  Download,
+  BarChart3,
+  type LucideIcon,
+} from 'lucide-react';
 
 // All navigable links available to configure
 type QuickLink = {
@@ -47,9 +55,7 @@ export default function QuickActions() {
   };
 
   const togglePendingKey = (key: string) => {
-    setPendingKeys((prev) =>
-      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
-    );
+    setPendingKeys((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]));
   };
 
   const saveSettings = () => {

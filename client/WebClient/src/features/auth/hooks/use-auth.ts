@@ -1,17 +1,9 @@
 import { useContext, createContext } from 'react';
-import type { Roles } from '../types/roles';
-
-export interface User {
-  id: string;
-  username: string;
-  email?: string;
-  role: (typeof Roles)[keyof typeof Roles];
-}
+import { type IUser } from '../types/user';
 
 export interface AuthContextType {
-  user: User | null;
-  token: string | null;
-  login: (token: string, user?: User) => void;
+  user: IUser | null;
+  login: (user: IUser) => void;
   logout: () => void;
   isLoading: boolean;
 }

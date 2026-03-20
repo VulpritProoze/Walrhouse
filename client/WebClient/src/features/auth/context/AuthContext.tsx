@@ -1,37 +1,45 @@
 import { useState, useEffect, type ReactNode } from 'react';
-import { type User, AuthContext } from '../hooks/use-auth';
+import { AuthContext } from '../hooks/use-auth';
+import { type IUser } from '../types/user';
+import { getAuthenticatedUserInfo } from '../api/auth.service';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [user, setUser] = useState<IUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // On mount: try to rehydrate the session by asking the server who we are.
+  // If the HttpOnly cookie is still valid, the server returns 200 + user info.
+  // If expired/missing, it returns 401 — we just stay logged out silently.
   useEffect(() => {
-    const storedToken = localStorage.getItem('auth_token');
-    const storedUser = localStorage.getItem('auth_user');
-    if (storedToken) setToken(storedToken);
-    if (storedUser) setUser(JSON.parse(storedUser));
-    setIsLoading(false);
+    const rehydrate = async () => {
+      try {
+        const { data } = await getAuthenticatedUserInfo();
+        setUser({ id: data.id, email: data.email, roles: data.roles });
+      } catch {
+        // 401 = no valid session — not an error, just stay logged out
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    rehydrate();
   }, []);
 
-  const login = (newToken: string, newUser?: User) => {
-    setToken(newToken);
-    localStorage.setItem('auth_token', newToken);
-    if (newUser) {
-      setUser(newUser);
-      localStorage.setItem('auth_user', JSON.stringify(newUser));
-    }
+  // Called after a successful login — the server already set the cookie,
+  // we just store the user info in React state for the UI.
+  const login = (newUser: IUser) => {
+    setUser(newUser);
   };
 
+  // Called on logout — clears local state. The server endpoint should also
+  // clear the HttpOnly cookie (POST api/Users/logout).
   const logout = () => {
-    setToken(null);
     setUser(null);
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
