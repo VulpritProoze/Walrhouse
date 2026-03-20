@@ -21,7 +21,7 @@ else
 }
 
 app.UseHttpsRedirection();
-app.UseCors(static builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
+app.UseCors();
 
 app.MapOpenApi();
 app.MapScalarApiReference();
