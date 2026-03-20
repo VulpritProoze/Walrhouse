@@ -78,4 +78,30 @@ public class IdentityService : IIdentityService
 
         return result.ToApplicationResult();
     }
+
+    public async Task<(Result Result, IIdentityServiceUser? User)> GetUserByIdAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return (Result.Failure(new[] { "User not found" }), null);
+        }
+
+        return (Result.Success(), user);
+    }
+
+    public async Task<(Result Result, List<string> Roles)> GetUserRolesAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user == null)
+        {
+            return (Result.Failure(new[] { "User not found" }), new List<string>());
+        }
+
+        var roles = await _userManager.GetRolesAsync(user);
+
+        return (Result.Success(), roles.ToList());
+    }
 }

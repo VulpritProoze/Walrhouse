@@ -5,7 +5,6 @@ using Walrhouse.Application.Common.Security;
 
 namespace Walrhouse.Application.Items.Queries.GetItems;
 
-[Authorize]
 public record GetItemsQuery(int PageNumber = 1, int PageSize = 100)
     : IRequest<PaginatedList<ItemDto>>;
 

@@ -27,9 +27,25 @@ public static class DependencyInjection
         {
             options.AddOperationTransformer<ApiExceptionOperationTransformer>();
             options.AddOperationTransformer<IdentityApiOperationTransformer>();
-            options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+            options.AddDocumentTransformer<CookieSecuritySchemeTransformer>();
         });
 
-        builder.Services.AddCors();
+        var allowedOrigins = builder.Configuration.GetSection("AllowedOrigins").Get<String[]>();
+        Guard.Against.Null(
+            allowedOrigins,
+            "Array of configuration strings 'AllowedOrigins' not found."
+        );
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(policy =>
+            {
+                policy
+                    .WithOrigins(allowedOrigins)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
     }
 }

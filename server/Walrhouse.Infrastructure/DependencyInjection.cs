@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -18,7 +19,7 @@ public static class DependencyInjection
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         Guard.Against.Null(
             connectionString,
-            message: "Connection string 'DefaultConnection' not found."
+            message: "Configuration string 'DefaultConnection' not found."
         );
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
@@ -38,21 +39,30 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ApplicationDbContextInitializer>();
 
+        if (builder.Environment.IsProduction())
+        {
+            var domainName = builder.Configuration.GetValue<string>("DomainName");
+            Guard.Against.Null(domainName, "String 'DomainName' not found.");
+
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.Cookie.SameSite = SameSiteMode.Lax;
+                options.Cookie.Domain = domainName;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+        }
+
         builder
-            .Services.AddAuthentication()
-            .AddBearerToken(
-                IdentityConstants.BearerScheme,
-                options =>
-                {
-                    options.BearerTokenExpiration = TimeSpan.FromMinutes(15);
-                    options.RefreshTokenExpiration = TimeSpan.FromDays(1);
-                }
-            );
+            .Services.AddAuthentication(IdentityConstants.ApplicationScheme)
+            .AddIdentityCookies();
 
         builder.Services.AddAuthorizationBuilder();
 
         builder
-            .Services.AddIdentityCore<ApplicationUser>()
+            .Services.AddIdentityCore<ApplicationUser>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = false;
+            })
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddApiEndpoints();
