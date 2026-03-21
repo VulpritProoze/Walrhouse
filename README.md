@@ -21,6 +21,7 @@ The codebase is divided into two primary directories:
 - **Animations**: Framer Motion 12
 - **Validation**: Zod
 - **Icons**: Lucide React
+- **Security Handling**: Cookie-based authentication with ASP.NET Core Identity (ignore token-based configs in the project)
 
 ### Server (Backend)
 - **Runtime**: .NET 10.0
