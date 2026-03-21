@@ -1,11 +1,10 @@
 import CommonLayout from '@/layouts/CommonLayout';
-import { Roles } from '@/features/auth';
 import { ScanHistory, UserAccessHistory } from '@/features/history';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function HistoryPage() {
   return (
-    <CommonLayout role={Roles.InventoryClerk}>
+    <CommonLayout>
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="text-2xl font-semibold">History</h2>

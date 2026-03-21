@@ -4,7 +4,7 @@ import { type IUser } from '../types/user';
 export interface AuthContextType {
   user: IUser | null;
   login: (user: IUser) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
   isLoading: boolean;
 }
 

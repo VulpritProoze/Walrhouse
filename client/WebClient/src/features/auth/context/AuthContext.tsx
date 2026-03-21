@@ -1,7 +1,8 @@
 import { useState, useEffect, type ReactNode } from 'react';
 import { AuthContext } from '../hooks/use-auth';
 import { type IUser } from '../types/user';
-import { getAuthenticatedUserInfo } from '../api/auth.service';
+import { getAuthenticatedUserInfo, logout as apiLogout } from '../api/auth.service';
+import { logger } from '@/lib/utils/logger';
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
@@ -14,7 +15,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const rehydrate = async () => {
       try {
         const { data } = await getAuthenticatedUserInfo();
-        setUser({ id: data.id, email: data.email, roles: data.roles });
+        setUser({
+          id: data.id,
+          email: data.email,
+          firstName: data.firstName,
+          middleName: data.middleName,
+          lastName: data.lastName,
+          roles: data.roles,
+        });
       } catch {
         // 401 = no valid session — not an error, just stay logged out
         setUser(null);
@@ -32,10 +40,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUser(newUser);
   };
 
-  // Called on logout — clears local state. The server endpoint should also
-  // clear the HttpOnly cookie (POST api/Users/logout).
-  const logout = () => {
-    setUser(null);
+  // Called on logout — clears both server-side cookie and local state.
+  const logout = async () => {
+    try {
+      await apiLogout();
+    } catch (err) {
+      // Even if the server call fails, we must clear local state to prevent a locked UI
+      logger.error('Server-side logout failed during session clearance:', err);
+    } finally {
+      setUser(null);
+    }
   };
 
   return (

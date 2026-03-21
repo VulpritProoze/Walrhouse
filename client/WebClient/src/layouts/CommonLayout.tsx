@@ -3,18 +3,22 @@ import { useReducedMotion, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
 import { Header, Nav, Footer, UserButton } from '@/features/layout';
-import { getNavForRole } from '@/features/layout';
+import { getNavForRoles } from '@/features/layout';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
+import { useAuth } from '@/features/auth/hooks/use-auth';
+
 type Props = {
-  role: RoleType;
   children: React.ReactNode;
   navItems?: import('@/features/layout/constants/nav').NavItem[];
 };
 
-export default function CommonLayout({ role, children, navItems }: Props) {
+export default function CommonLayout({ children, navItems }: Props) {
+  const { user } = useAuth();
   const reduce = useReducedMotion();
+
+  const roles = (user?.roles as RoleType[]) || [];
 
   const container = reduce
     ? { initial: {}, animate: {} }
@@ -23,7 +27,7 @@ export default function CommonLayout({ role, children, navItems }: Props) {
         animate: { opacity: 1, y: 0, transition: { duration: 0.18 } },
       };
 
-  const items = navItems ?? getNavForRole(role);
+  const items = navItems ?? getNavForRoles(roles);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col overflow-x-hidden">
@@ -32,7 +36,7 @@ export default function CommonLayout({ role, children, navItems }: Props) {
         className="border-b bg-card/80 backdrop-blur-sm sticky top-0 z-40"
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
-          <Header roleLabel={role} />
+          <Header roles={roles} />
 
           <div className="flex-1 max-w-md hidden md:block">
             <div className="relative">
@@ -52,9 +56,7 @@ export default function CommonLayout({ role, children, navItems }: Props) {
         </div>
       </motion.header>
 
-      <main className={cn('mx-auto max-w-7xl px-4 py-6 flex-1 min-h-0 w-full')}>
-        {children}
-      </main>
+      <main className={cn('mx-auto max-w-7xl px-4 py-6 flex-1 min-h-0 w-full')}>{children}</main>
 
       <div className="mt-auto overflow-hidden">
         <motion.footer {...container} className="border-t bg-card/80">

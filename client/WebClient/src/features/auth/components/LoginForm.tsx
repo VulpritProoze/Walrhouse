@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Spinner } from '@/components/ui/spinner';
-import { LogIn } from 'lucide-react';
+import { LogIn, Info } from 'lucide-react';
 import { loginSchema, type LoginCredentials } from '../types/types';
 import { login as apiLogin, getAuthenticatedUserInfo } from '../api/auth.service';
 import { useAuth } from '../hooks/use-auth';
 import type { AxiosError } from 'axios';
 import { toast } from 'sonner';
+import { getErrorMessage } from '@/lib/utils/error-handler';
+import { AUTH_ERROR_MAPPINGS } from '../api/errors';
+import { logger } from '@/lib/utils/logger';
+import { cn } from '@/lib/utils';
 
 type Props = {
   initial?: LoginCredentials;
@@ -18,15 +24,32 @@ type Props = {
 export default function LoginForm({ initial, onSuccess }: Props) {
   const [identifier, setIdentifier] = useState(initial?.identifier ?? '');
   const [password, setPassword] = useState(initial?.password ?? '');
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { login: contextLogin } = useAuth();
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
+    setErrors({});
     try {
       setLoading(true);
-      const creds = loginSchema.parse({ identifier, password });
+      const result = loginSchema.safeParse({ identifier, password });
+
+      if (!result.success) {
+        const fieldErrors: Record<string, string> = {};
+        result.error.issues.forEach((issue) => {
+          const path = issue.path[0] as string;
+          if (!fieldErrors[path]) {
+            fieldErrors[path] = issue.message;
+          }
+        });
+        setErrors(fieldErrors);
+        return;
+      }
+
+      const creds = result.data;
 
       // 1. Perform the login (cookie mode)
       await apiLogin(
@@ -34,7 +57,8 @@ export default function LoginForm({ initial, onSuccess }: Props) {
           email: creds.identifier,
           password: creds.password,
         },
-        true,
+        rememberMe, // useCookies
+        !rememberMe, // useSessionCookies
       );
 
       // 2. Fetch user information to populate the context
@@ -44,6 +68,9 @@ export default function LoginForm({ initial, onSuccess }: Props) {
       contextLogin({
         id: userInfo.id,
         email: userInfo.email,
+        firstName: userInfo.firstName,
+        middleName: userInfo.middleName,
+        lastName: userInfo.lastName,
         roles: userInfo.roles,
       });
 
@@ -53,14 +80,10 @@ export default function LoginForm({ initial, onSuccess }: Props) {
 
       onSuccess?.();
     } catch (err) {
-      const axiosError = err as AxiosError<{ detail?: string; title?: string }>;
-      const apiMessage = axiosError.response?.data?.detail || axiosError.response?.data?.title;
+      const message = getErrorMessage(err as AxiosError, AUTH_ERROR_MAPPINGS);
+      toast.error(message);
 
-      toast.error(apiMessage || 'An unexpected error occurred during sign in.');
-
-      if (import.meta.env.DEV) {
-        console.error('Login error:', err);
-      }
+      logger.error('Login error:', err);
     } finally {
       setLoading(false);
     }
@@ -77,14 +100,24 @@ export default function LoginForm({ initial, onSuccess }: Props) {
           autoFocus
           value={identifier}
           onChange={(e) => setIdentifier(e.target.value)}
-          placeholder="scan or type to sign in"
+          placeholder="type to sign in"
           aria-label="username or email"
-          className="mt-1"
+          className={cn(
+            'mt-1',
+            errors.identifier && 'border-destructive focus-visible:ring-destructive',
+          )}
         />
+        {errors.identifier && (
+          <p className="mt-1 text-xs font-medium text-destructive">{errors.identifier}</p>
+        )}
       </div>
 
       <div>
-        <Label htmlFor="password" className="block">
+        <Label
+          htmlFor="password"
+          title="Enter your account password"
+          className="block cursor-pointer"
+        >
           Password
         </Label>
         <Input
@@ -94,8 +127,42 @@ export default function LoginForm({ initial, onSuccess }: Props) {
           onChange={(e) => setPassword(e.target.value)}
           placeholder="your password"
           aria-label="password"
-          className="mt-1"
+          className={cn(
+            'mt-1',
+            errors.password && 'border-destructive focus-visible:ring-destructive',
+          )}
         />
+        {errors.password && (
+          <p className="mt-1 text-xs font-medium text-destructive">{errors.password}</p>
+        )}
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="rememberMe"
+          checked={rememberMe}
+          onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+        />
+        <div className="flex items-center gap-1.5 leading-none">
+          <Label
+            htmlFor="rememberMe"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+          >
+            Remember me
+          </Label>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger
+                render={<Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />}
+              />
+              <TooltipContent>
+                <p className="max-w-xs text-xs">
+                  If checked, your session will remain active even after closing the browser.
+                </p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
       </div>
 
       <div className="flex items-center justify-between gap-2">

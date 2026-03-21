@@ -149,6 +149,8 @@ export const register = (data: RegisterRequest) => authApi.post<void>('api/Users
  * @param useCookies - When `true`, the server sets an HttpOnly refresh-token
  *   cookie and returns no body. When `false` (default), tokens are returned in
  *   the response as {@link LoginResponse}.
+ * @param useSessionCookies - When `true` (and `useCookies` is also `true`), 
+ *   the server-issued cookie will be a session cookie (not persistent).
  * @returns Axios response — body is {@link LoginResponse} when `useCookies` is `false`.
  * @throws `401` if the credentials are incorrect.
  *
@@ -160,10 +162,15 @@ export const register = (data: RegisterRequest) => authApi.post<void>('api/Users
  * // Cookie mode (token stored in HttpOnly cookie)
  * await login({ email: 'user@example.com', password: 'P@ssw0rd!' }, true);
  */
-export const login = (data: LoginRequest, useCookies = false) =>
-  authApi.post<LoginResponse>('api/Users/login', data, {
-    params: useCookies ? { useCookies: true } : undefined,
+export const login = (data: LoginRequest, useCookies = false, useSessionCookies = false) => {
+  const params: Record<string, boolean> = {};
+  if (useCookies) params.useCookies = true;
+  if (useSessionCookies) params.useSessionCookies = true;
+
+  return authApi.post<LoginResponse>('api/Users/login', data, {
+    params: Object.keys(params).length > 0 ? params : undefined,
   });
+};
 
 /**
  * Returns a new access token using a valid refresh token.
@@ -296,6 +303,9 @@ export const updateManageInfo = (data: UpdateInfoRequest) =>
 export interface AuthUserInfoResponse {
   id: string;
   email: string | null;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
   roles: string[];
 }
 
@@ -315,3 +325,10 @@ export interface AuthUserInfoResponse {
  */
 export const getAuthenticatedUserInfo = () =>
   authApi.get<AuthUserInfoResponse>('api/Users/info');
+
+/**
+ * Log out the current user by clearing the server-side session cookie.
+ *
+ * @returns Resolves with a `200 OK` or `204 No Content` response on success.
+ */
+export const logout = () => authApi.post<void>('api/Users/logout', {});

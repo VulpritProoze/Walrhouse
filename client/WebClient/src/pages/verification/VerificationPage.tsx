@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import CommonLayout from '@/layouts/CommonLayout';
-import { Roles } from '@/features/auth/types/roles';
 import { Scanner, ItemDetails, ScanSettings } from '@/features/verification';
 import { Button } from '@/components/ui/button';
 import { Settings2 } from 'lucide-react';
@@ -25,7 +24,7 @@ export default function VerificationPage() {
   };
 
   return (
-    <CommonLayout role={Roles.InventoryClerk}>
+    <CommonLayout>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div>
