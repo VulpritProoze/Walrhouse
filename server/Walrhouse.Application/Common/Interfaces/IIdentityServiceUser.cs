@@ -12,4 +12,7 @@ public interface IIdentityServiceUser
     string? UserName { get; }
     string? Email { get; }
     UserAddress? Address { get; }
+    string FirstName { get; }
+    string? MiddleName { get; }
+    string LastName { get; }
 }

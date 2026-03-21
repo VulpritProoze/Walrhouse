@@ -19,7 +19,7 @@ public static class DependencyInjection
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
         Guard.Against.Null(
             connectionString,
-            message: "Configuration string 'DefaultConnection' not found."
+            message: "Configuration string 'ConnectionStrings:DefaultConnection' not found."
         );
 
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditableEntityInterceptor>();
@@ -39,18 +39,24 @@ public static class DependencyInjection
 
         builder.Services.AddScoped<ApplicationDbContextInitializer>();
 
-        if (builder.Environment.IsProduction())
-        {
-            var domainName = builder.Configuration.GetValue<string>("DomainName");
-            Guard.Against.Null(domainName, "String 'DomainName' not found.");
+        var cookieExpiryDays = builder.Configuration.GetValue<int>("CookieExpiryDays");
+        Guard.Against.Null(cookieExpiryDays, "Configuration string 'CookieExpiryDays' not found.");
 
-            builder.Services.ConfigureApplicationCookie(options =>
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            options.ExpireTimeSpan = TimeSpan.FromDays(cookieExpiryDays);
+            options.SlidingExpiration = true;
+
+            if (builder.Environment.IsProduction())
             {
+                var domainName = builder.Configuration.GetValue<string>("DomainName");
+                Guard.Against.Null(domainName, "Configuration string 'DomainName' not found.");
+
                 options.Cookie.SameSite = SameSiteMode.Lax;
                 options.Cookie.Domain = domainName;
                 options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-            });
-        }
+            }
+        });
 
         builder
             .Services.AddAuthentication(IdentityConstants.ApplicationScheme)

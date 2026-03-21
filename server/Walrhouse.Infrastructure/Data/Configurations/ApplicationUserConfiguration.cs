@@ -8,6 +8,10 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
+        builder.Property(u => u.FirstName).HasMaxLength(100).IsRequired();
+        builder.Property(u => u.MiddleName).HasMaxLength(100);
+        builder.Property(u => u.LastName).HasMaxLength(100).IsRequired();
+
         builder.OwnsOne(
             u => u.Address,
             address =>
