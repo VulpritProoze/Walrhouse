@@ -31,24 +31,9 @@ A modern warehouse management and scan verification system designed for high-per
 
 ## Setup & Development
 
-### Backend
-1. Navigate to the `server` directory.
-2. Ensure a PostgreSQL instance is running and configured.
-3. Run the API:
-   ```bash
-   dotnet run --project Walrhouse.Web
-   ```
-
-### Frontend
-1. Navigate to `client/WebClient`.
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Start the development server:
-   ```bash
-   npm run dev
-   ```
+1. Run `dotnet build` at root
+2. Run `dotnet run --project src/Walrhouse.AppHost --launch-profile http`
+3. Navigate to launched Aspire application and find **walrhouse_webclient** url. Client and server runs at the same time. Client proxies to server url
 
 ## License
 
