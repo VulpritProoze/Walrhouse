@@ -2,16 +2,10 @@
 
 A modern warehouse management and scan verification system designed for high-performance item tracking and verification.
 
-## Project Structure
-
-The codebase is divided into two primary directories:
-
-- **`client/WebClient`**: The frontend React application.
-- **`server`**: The backend .NET solution following Clean Architecture patterns.
-
 ## Technical Stack
 
 ### WebClient (Frontend)
+- *Located within Walrhouse.Web/Client*
 - **Runtime & Framework**: React 19 / Vite 7
 - **Language**: TypeScript (using `verbatimModuleSyntax`)
 - **Styling**: Tailwind CSS 4.0
