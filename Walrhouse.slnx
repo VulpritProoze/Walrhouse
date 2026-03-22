@@ -1,0 +1,16 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/src/">
+    <Project Path="src/Walrhouse.AppHost/Walrhouse.AppHost.csproj" DefaultStartup="true" />
+    <Project Path="src/Walrhouse.Application/Walrhouse.Application.csproj" />
+    <Project Path="src/Walrhouse.Domain/Walrhouse.Domain.csproj" />
+    <Project Path="src/Walrhouse.Infrastructure/Walrhouse.Infrastructure.csproj" />
+    <Project Path="src/Walrhouse.ServiceDefaults/Walrhouse.ServiceDefaults.csproj" />
+    <Project Path="src/Walrhouse.Shared/Walrhouse.Shared.csproj" />
+    <Project Path="src/Walrhouse.Web/Walrhouse.Web.csproj" />
+  </Folder>
+</Solution>
