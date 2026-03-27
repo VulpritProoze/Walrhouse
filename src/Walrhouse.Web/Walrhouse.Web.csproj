@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,7 @@
     <SpaRoot>App/WebClient/</SpaRoot>
     <OpenApiDocumentsDirectory>./wwwroot/openapi/</OpenApiDocumentsDirectory>
     <OpenApiGenerateDocumentsOptions>--file-name v1</OpenApiGenerateDocumentsOptions>
+    <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
   </PropertyGroup>
 
   <ItemGroup>
