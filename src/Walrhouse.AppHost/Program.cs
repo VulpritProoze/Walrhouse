@@ -1,11 +1,22 @@
-using Microsoft.Extensions.Hosting;
 using Walrhouse.Shared;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureContainerAppEnvironment("aca-env");
 
-var database = builder.AddConnectionString(Services.Database);
+IResourceBuilder<IResourceWithConnectionString> database;
+
+if (builder.ExecutionContext.IsPublishMode)
+{
+    database = builder
+        .AddPostgres(Services.DatabaseServer)
+        .WithDataVolume()
+        .AddDatabase(Services.Database);
+}
+else
+{
+    database = builder.AddConnectionString(Services.Database);
+}
 
 var web = builder
     .AddProject<Projects.Walrhouse_Web>(Services.WebApi)
