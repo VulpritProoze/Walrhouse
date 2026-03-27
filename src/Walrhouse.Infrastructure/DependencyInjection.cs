@@ -28,7 +28,18 @@ public static class DependencyInjection
             (sp, options) =>
             {
                 options.AddInterceptors(sp.GetServices<ISaveChangesInterceptor>());
-                options.UseNpgsql(connectionString);
+                options.UseNpgsql(
+                    connectionString,
+                    npgsqlOptions =>
+                    {
+                        npgsqlOptions.EnableRetryOnFailure(
+                            maxRetryCount: 5,
+                            maxRetryDelay: TimeSpan.FromSeconds(30),
+                            errorCodesToAdd: null
+                        );
+                        npgsqlOptions.CommandTimeout(60);
+                    }
+                );
                 options.ConfigureWarnings(warnings =>
                     warnings.Ignore(RelationalEventId.PendingModelChangesWarning)
                 );
