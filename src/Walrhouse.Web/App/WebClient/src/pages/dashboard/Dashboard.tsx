@@ -1,18 +1,16 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import CommonLayout from '@/layouts/CommonLayout';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Roles } from '@/features/auth/types/roles';
-import { useAuth } from '@/features/auth/hooks/use-auth';
+// import { Roles } from '@/features/auth/types/roles';
+// import { useAuth } from '@/features/auth/hooks/use-auth';
 import MainContent from './sections/MainContent';
 import QuickActions from './sections/QuickActions';
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  // const { user } = useAuth();
   const reduce = useReducedMotion();
 
   // Primary roles currently assigned to the user session
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const roles = user?.roles ?? [];
+  // const roles = user?.roles ?? [];
 
   /* 
     Determine the role with the highest authority level (Reserved for specific UI logic)
