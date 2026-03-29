@@ -3,14 +3,27 @@ import Dashboard from '@/pages/dashboard/Dashboard';
 import Login from '@/pages/auth/Login';
 import VerificationPage from '@/pages/verification/VerificationPage';
 import HistoryPage from '@/pages/history/HistoryPage';
+import AdminPage from '@/pages/admin/AdminPage';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
+import { Roles } from '@/features/auth/types/roles';
 
 export const router = createBrowserRouter([
   {
     element: <ProtectedRoute />,
     children: [
       { path: '/', element: <Dashboard /> },
-      { path: '/verification', element: <VerificationPage /> },
+      {
+        element: (
+          <ProtectedRoute allowedRoles={[Roles.InventoryClerk, Roles.Administrator]} />
+        ),
+        children: [{ path: '/verification', element: <VerificationPage /> }],
+      },
+      {
+        element: (
+          <ProtectedRoute allowedRoles={[Roles.WarehouseAdministrator, Roles.Administrator]} />
+        ),
+        children: [{ path: '/admin', element: <AdminPage /> }],
+      },
       { path: '/history', element: <HistoryPage /> },
     ],
   },
