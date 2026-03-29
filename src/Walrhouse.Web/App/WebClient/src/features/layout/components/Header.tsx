@@ -42,7 +42,7 @@ export default function Header({
         {primaryRole && (
           <div className="flex items-center gap-1.5">
             <Badge
-              variant="secondary"
+              variant="default"
               className="px-1.5 py-0 text-[10px] uppercase font-bold tracking-tight h-4"
             >
               {primaryRole}
@@ -61,7 +61,9 @@ export default function Header({
                   </TooltipTrigger>
                   <TooltipContent side="right" className="text-xs">
                     <div className="flex flex-col gap-1 py-0.5">
-                      <p className="font-semibold border-b pb-1 mb-1 opacity-70">Additional Roles</p>
+                      <p className="font-semibold border-b pb-1 mb-1 opacity-70">
+                        Additional Roles
+                      </p>
                       {otherRoles.map((role) => (
                         <div key={role} className="flex items-center gap-1.5">
                           <div className="h-1 w-1 rounded-full bg-primary" />

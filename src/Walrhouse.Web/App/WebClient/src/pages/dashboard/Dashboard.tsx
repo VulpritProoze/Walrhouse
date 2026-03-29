@@ -1,30 +1,16 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import CommonLayout from '@/layouts/CommonLayout';
-// import { Roles } from '@/features/auth/types/roles';
-// import { useAuth } from '@/features/auth/hooks/use-auth';
+import type { Roles as RoleType } from '@/features/auth/types/roles';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import MainContent from './sections/MainContent';
 import QuickActions from './sections/QuickActions';
 
 export default function Dashboard() {
-  // const { user } = useAuth();
+  const { user } = useAuth();
   const reduce = useReducedMotion();
 
   // Primary roles currently assigned to the user session
-  // const roles = user?.roles ?? [];
-
-  /* 
-    Determine the role with the highest authority level (Reserved for specific UI logic)
-    Reserved for future use as requested:
-    
-    const activeRole = roles.reduce<Roles>((highest, current) => {
-      const roleCandidate = current as Roles;
-      const isValidRole = Object.values(Roles).includes(roleCandidate);
-      if (!isValidRole) return highest;
-      const currentPriority = RolePriority[roleCandidate] ?? 0;
-      const highestPriority = RolePriority[highest] ?? 0;
-      return currentPriority > highestPriority ? roleCandidate : highest;
-    }, Roles.InventoryClerk as Roles);
-  */
+  const roles = (user?.roles as RoleType[]) ?? [];
 
   const headerAnim = reduce
     ? { initial: {}, animate: {} }
@@ -34,7 +20,7 @@ export default function Dashboard() {
       };
 
   return (
-    <CommonLayout>
+    <CommonLayout roles={roles}>
       <div className="min-h-[60vh] flex flex-col gap-6">
         <motion.div {...headerAnim} className="flex items-center justify-between">
           <div>

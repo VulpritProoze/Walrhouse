@@ -1,10 +1,15 @@
 import CommonLayout from '@/layouts/CommonLayout';
+import type { Roles as RoleType } from '@/features/auth/types/roles';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { ScanHistory, UserAccessHistory } from '@/features/history';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function HistoryPage() {
+  const { user } = useAuth();
+  const roles = (user?.roles as RoleType[]) ?? [];
+
   return (
-    <CommonLayout>
+    <CommonLayout roles={roles}>
       <div className="flex flex-col gap-6">
         <div>
           <h2 className="text-2xl font-semibold">History</h2>

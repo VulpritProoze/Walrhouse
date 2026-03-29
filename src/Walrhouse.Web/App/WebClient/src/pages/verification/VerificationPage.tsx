@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import CommonLayout from '@/layouts/CommonLayout';
+import type { Roles as RoleType } from '@/features/auth/types/roles';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 import { Scanner, ItemDetails, ScanSettings } from '@/features/verification';
 import { Button } from '@/components/ui/button';
 import { Settings2 } from 'lucide-react';
@@ -9,6 +11,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 type View = 'scanner' | 'details' | 'settings';
 
 export default function VerificationPage() {
+  const { user } = useAuth();
+  const roles = (user?.roles as RoleType[]) ?? [];
   const [view, setView] = useState<View>('scanner');
   const [scannedCode, setScannedCode] = useState('');
 
@@ -24,7 +28,7 @@ export default function VerificationPage() {
   };
 
   return (
-    <CommonLayout>
+    <CommonLayout roles={roles}>
       <div className="flex flex-col gap-6">
         <div className="flex items-center justify-between">
           <div>
