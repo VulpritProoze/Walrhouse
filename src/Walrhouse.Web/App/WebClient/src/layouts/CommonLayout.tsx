@@ -7,18 +7,15 @@ import { getNavForRoles } from '@/features/layout';
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
-import { useAuth } from '@/features/auth/hooks/use-auth';
 
 type Props = {
   children: React.ReactNode;
   navItems?: import('@/features/layout/constants/nav').NavItem[];
+  roles: RoleType[];
 };
 
-export default function CommonLayout({ children, navItems }: Props) {
-  const { user } = useAuth();
+export default function CommonLayout({ children, navItems, roles }: Props) {
   const reduce = useReducedMotion();
-
-  const roles = (user?.roles as RoleType[]) || [];
 
   const container = reduce
     ? { initial: {}, animate: {} }
