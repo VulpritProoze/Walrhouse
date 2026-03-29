@@ -24,6 +24,8 @@ else
 
 app.UseHttpsRedirection();
 
+app.UseFileServer();
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 
