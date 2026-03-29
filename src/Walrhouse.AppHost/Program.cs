@@ -4,20 +4,6 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 builder.AddAzureContainerAppEnvironment("aca-env");
 
-// IResourceBuilder<IResourceWithConnectionString> database;
-
-// if (builder.ExecutionContext.IsPublishMode)
-// {
-//     database = builder
-//         .AddPostgres(Services.DatabaseServer)
-//         .WithDataVolume()
-//         .AddDatabase(Services.Database);
-// }
-// else
-// {
-//     database = builder.AddConnectionString(Services.Database);
-// }
-
 var dbParam = builder.AddParameter(Services.Database, secret: true);
 
 var web = builder
