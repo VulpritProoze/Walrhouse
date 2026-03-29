@@ -1,4 +1,4 @@
-name: Client Linting
+name: CI Pipeline
 
 on:
   push:
@@ -12,14 +12,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  lint:
-    name: Lint and Type Check
+  client-lint:
+    name: Client Linting
     runs-on: ubuntu-latest
-    
     defaults:
       run:
         working-directory: src/Walrhouse.Web/App/WebClient
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,3 +37,25 @@ jobs:
 
       - name: TypeScript check
         run: npx tsc
+
+  server-lint:
+    name: Server Linting
+    runs-on: ubuntu-latest
+    needs: client-lint
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Install CSharpier
+        run: dotnet tool install -g csharpier
+
+      - name: Dotnet build
+        run: dotnet build --configuration Release
+
+      - name: CSharpier check
+        run: dotnet csharpier --check .
