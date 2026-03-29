@@ -25,4 +25,10 @@ public static class Services
     /// This service is responsible for hosting the database.
     /// </summary>
     public const string Database = "WalrhouseDb";
+
+    /// <summary>
+    /// The name of the Database Connection String parameter.
+    /// This parameter is used to store the database connection string.
+    /// </summary>
+    public const string DatabaseConnectionString = "ConnectionStrings__WalrhouseDb";
 }
