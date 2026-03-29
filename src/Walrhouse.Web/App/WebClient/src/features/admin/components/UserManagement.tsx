@@ -7,21 +7,23 @@ import {
   TableRow,
   TableCell,
 } from '@/components/ui/table.tsx';
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge/badge.tsx';
-import { UserPlus, Search, MoreHorizontal, ShieldCheck, Ban, Trash2 } from 'lucide-react';
-import type { AdminUser, CreateUserPayload, UserStatus } from '../types/admin';
+import {
+  UserPlus,
+  Search,
+  MoreHorizontal,
+  ShieldCheck,
+  Ban,
+  Trash2,
+  UserCog,
+  Mail,
+  Key,
+} from 'lucide-react';
+import type { AdminUser, UserStatus } from '../types/admin';
 import { Roles, RoleVariant } from '@/features/auth/types/roles';
+import { Checkbox } from '@/components/ui/checkbox.tsx';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,6 +31,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu.tsx';
+import { UserFormDialog } from './dialogs/UserFormDialog';
+import { EmailUpdateDialog } from './dialogs/EmailUpdateDialog';
+import { PasswordUpdateDialog } from './dialogs/PasswordUpdateDialog';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const MOCK_USERS: AdminUser[] = [
@@ -87,204 +92,107 @@ const STATUS_VARIANT: Record<UserStatus, 'default' | 'success' | 'destructive' |
   suspended: 'warning',
 };
 
-const ROLE_OPTIONS = Object.values(Roles);
-
-const emptyForm = (): CreateUserPayload => ({
-  firstName: '',
-  lastName: '',
-  email: '',
-  password: '',
-  roles: [],
-});
-
-// ─── Create User Dialog ───────────────────────────────────────────────────────
-function CreateUserDialog({ onCreated }: { onCreated: (u: AdminUser) => void }) {
-  const [open, setOpen] = useState(false);
-  const [form, setForm] = useState<CreateUserPayload>(emptyForm());
-  const [errors, setErrors] = useState<Partial<Record<keyof CreateUserPayload, string>>>({});
-
-  const set = (field: keyof CreateUserPayload, value: string) =>
-    setForm((f) => ({ ...f, [field]: value }));
-
-  const toggleRole = (role: string) =>
-    setForm((f) => ({
-      ...f,
-      roles: f.roles.includes(role) ? f.roles.filter((r) => r !== role) : [...f.roles, role],
-    }));
-
-  const validate = () => {
-    const e: typeof errors = {};
-    if (!form.firstName.trim()) e.firstName = 'First name is required';
-    if (!form.lastName.trim()) e.lastName = 'Last name is required';
-    if (!form.email.trim()) e.email = 'Email is required';
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email';
-    if (!form.password || form.password.length < 8) e.password = 'Min 8 characters';
-    if (form.roles.length === 0) e.roles = 'Select at least one role';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (!validate()) return;
-    const newUser: AdminUser = {
-      id: `usr-${Date.now()}`,
-      ...form,
-      status: 'active',
-      createdAt: new Date().toISOString(),
-    };
-    onCreated(newUser);
-    setOpen(false);
-    setForm(emptyForm());
-    setErrors({});
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger
-        render={
-          <Button size="sm" className="gap-2">
-            <UserPlus className="h-4 w-4" />
-            Add User
-          </Button>
-        }
-      />
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
-          <DialogDescription>
-            Fill in the details to create a new warehouse account.
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="grid gap-3 py-2">
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs font-medium text-foreground/70 mb-1 block">
-                First Name *
-              </label>
-              <Input
-                value={form.firstName}
-                onChange={(e) => set('firstName', e.target.value)}
-                placeholder="Maria"
-              />
-              {errors.firstName && (
-                <p className="text-xs text-destructive mt-0.5">{errors.firstName}</p>
-              )}
-            </div>
-            <div>
-              <label className="text-xs font-medium text-foreground/70 mb-1 block">
-                Last Name *
-              </label>
-              <Input
-                value={form.lastName}
-                onChange={(e) => set('lastName', e.target.value)}
-                placeholder="Santos"
-              />
-              {errors.lastName && (
-                <p className="text-xs text-destructive mt-0.5">{errors.lastName}</p>
-              )}
-            </div>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1 block">Middle Name</label>
-            <Input
-              value={form.middleName ?? ''}
-              onChange={(e) => set('middleName', e.target.value)}
-              placeholder="P. (optional)"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1 block">Email *</label>
-            <Input
-              type="email"
-              value={form.email}
-              onChange={(e) => set('email', e.target.value)}
-              placeholder="user@walrhouse.com"
-            />
-            {errors.email && <p className="text-xs text-destructive mt-0.5">{errors.email}</p>}
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1 block">
-              Phone Number
-            </label>
-            <Input
-              value={form.phoneNumber ?? ''}
-              onChange={(e) => set('phoneNumber', e.target.value)}
-              placeholder="+63 912 345 6789"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1 block">Password *</label>
-            <Input
-              type="password"
-              value={form.password}
-              onChange={(e) => set('password', e.target.value)}
-              placeholder="Min. 8 characters"
-            />
-            {errors.password && (
-              <p className="text-xs text-destructive mt-0.5">{errors.password}</p>
-            )}
-          </div>
-          <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1.5 block">Roles *</label>
-            <div className="flex flex-wrap gap-2">
-              {ROLE_OPTIONS.map((role) => (
-                <button
-                  key={role}
-                  type="button"
-                  onClick={() => toggleRole(role)}
-                  className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-colors ${
-                    form.roles.includes(role)
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-transparent text-foreground/60 border-border hover:border-foreground/40'
-                  }`}
-                >
-                  {role}
-                </button>
-              ))}
-            </div>
-            {errors.roles && <p className="text-xs text-destructive mt-1">{errors.roles}</p>}
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            <div>
-              <label className="text-xs font-medium text-foreground/70 mb-1 block">City</label>
-              <Input
-                value={form.address?.city ?? ''}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, address: { ...f.address, city: e.target.value } }))
-                }
-                placeholder="Manila"
-              />
-            </div>
-            <div>
-              <label className="text-xs font-medium text-foreground/70 mb-1 block">Province</label>
-              <Input
-                value={form.address?.province ?? ''}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, address: { ...f.address, province: e.target.value } }))
-                }
-                placeholder="Metro Manila"
-              />
-            </div>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button onClick={handleSubmit}>Create User</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function UserManagement() {
   const [users, setUsers] = useState<AdminUser[]>(MOCK_USERS);
   const [search, setSearch] = useState('');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
+  const [passDialogOpen, setPassDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
+  const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   const filtered = users.filter((u) =>
     `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(search.toLowerCase()),
   );
+
+  const isAllSelected = filtered.length > 0 && selectedIds.size === filtered.length;
+
+  const toggleAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(filtered.map((u) => u.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const toggleSelection = (id: string, shiftKey?: boolean) => {
+    const next = new Set(selectedIds);
+
+    if (shiftKey && lastClickedId) {
+      const fromIndex = filtered.findIndex((u) => u.id === lastClickedId);
+      const toIndex = filtered.findIndex((u) => u.id === id);
+
+      if (fromIndex !== -1 && toIndex !== -1) {
+        const start = Math.min(fromIndex, toIndex);
+        const end = Math.max(fromIndex, toIndex);
+        const range = filtered.slice(start, end + 1);
+
+        range.forEach((u) => next.add(u.id));
+        setSelectedIds(next);
+        setLastClickedId(id);
+        return;
+      }
+    }
+
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+
+    setSelectedIds(next);
+    setLastClickedId(id);
+  };
+
+  const clearSelection = () => setSelectedIds(new Set());
+
+  const handleBulkStatusChange = (status: UserStatus) => {
+    setUsers((prev) =>
+      prev.map((u) => (selectedIds.has(u.id) ? { ...u, status } : u))
+    );
+    clearSelection();
+  };
+
+  const handleBulkDelete = () => {
+    setUsers((prev) => prev.filter((u) => !selectedIds.has(u.id)));
+    clearSelection();
+  };
+
+  const handleEdit = (user: AdminUser) => {
+    setEditingUser(user);
+    setDialogOpen(true);
+  };
+
+  const handleEditEmail = (user: AdminUser) => {
+    setEditingUser(user);
+    setEmailDialogOpen(true);
+  };
+
+  const handleResetPassword = (user: AdminUser) => {
+    setEditingUser(user);
+    setPassDialogOpen(true);
+  };
+
+  const handleCreate = () => {
+    setEditingUser(null);
+    setDialogOpen(true);
+  };
+
+  const handleSave = (user: AdminUser) => {
+    if (editingUser) {
+      setUsers((prev) => prev.map((u) => (u.id === user.id ? user : u)));
+    } else {
+      setUsers((prev) => [user, ...prev]);
+    }
+  };
+
+  const handleEmailSave = (id: string, email: string) => {
+    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, email } : u)));
+  };
+
+  const handlePasswordSave = (id: string, pass: string) => {
+    // In a real app, this would be a secure API call
+    console.log(`Password reset for ${id} (new pass: ${pass.length} chars)`);
+  };
 
   const handleStatusChange = (id: string, status: UserStatus) => {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
@@ -307,14 +215,93 @@ export default function UserManagement() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <CreateUserDialog onCreated={(u) => setUsers((prev) => [u, ...prev])} />
+
+        {selectedIds.size > 0 ? (
+          <div className="flex items-center gap-2 animate-in fade-in slide-in-from-right-2 duration-200">
+            <span className="text-sm font-medium text-muted-foreground mr-2">
+              {selectedIds.size} selected
+            </span>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 h-8"
+              onClick={() => handleBulkStatusChange('whitelisted')}
+            >
+              <ShieldCheck className="h-4 w-4" />
+              Whitelist
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-2 h-8"
+              onClick={() => handleBulkStatusChange('blacklisted')}
+            >
+              <Ban className="h-4 w-4" />
+              Blacklist
+            </Button>
+            <Button
+              size="sm"
+              variant="destructive"
+              className="gap-2 h-8"
+              onClick={handleBulkDelete}
+            >
+              <Trash2 className="h-4 w-4" />
+              Delete
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="px-2 h-8 text-muted-foreground"
+              onClick={clearSelection}
+            >
+              Cancel
+            </Button>
+          </div>
+        ) : (
+          <UserFormDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            user={editingUser}
+            onSave={handleSave}
+            trigger={
+              <Button size="sm" className="gap-2" onClick={handleCreate}>
+                <UserPlus className="h-4 w-4" />
+                Add User
+              </Button>
+            }
+          />
+        )}
+
+        {editingUser && (
+          <>
+            <EmailUpdateDialog
+              open={emailDialogOpen}
+              onOpenChange={setEmailDialogOpen}
+              user={editingUser}
+              onSave={handleEmailSave}
+            />
+            <PasswordUpdateDialog
+              open={passDialogOpen}
+              onOpenChange={setPassDialogOpen}
+              user={editingUser}
+              onSave={handlePasswordSave}
+            />
+          </>
+        )}
       </div>
 
       {/* Table */}
-      <div className="rounded-lg border bg-card overflow-hidden">
+      <div className="rounded-lg border bg-card overflow-hidden select-none">
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-[50px]">
+                <Checkbox
+                  checked={isAllSelected}
+                  onCheckedChange={toggleAll}
+                  aria-label="Select all"
+                />
+              </TableHead>
               <TableHead className="w-[80px]">ID</TableHead>
               <TableHead>Name</TableHead>
               <TableHead>Email</TableHead>
@@ -328,13 +315,34 @@ export default function UserManagement() {
           <TableBody>
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-10">
+                <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
                   No users found.
                 </TableCell>
               </TableRow>
             )}
             {filtered.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow
+                key={user.id}
+                data-selected={selectedIds.has(user.id)}
+                className="data-[selected=true]:bg-muted/50"
+              >
+                <TableCell className="w-[50px]">
+                  <div
+                    onClick={(e) => {
+                      // We handle the selection logic here to capture e.shiftKey
+                      // Preventing default on the div avoids double trigger if Checkbox has its own handler
+                      toggleSelection(user.id, e.shiftKey);
+                    }}
+                  >
+                    <Checkbox
+                      checked={selectedIds.has(user.id)}
+                      // We pass an empty function here as we handle logic in the wrapper's onClick
+                      onCheckedChange={() => {}}
+                      aria-label={`Select ${user.firstName}`}
+                      className="cursor-pointer"
+                    />
+                  </div>
+                </TableCell>
                 <TableCell className="font-mono text-xs text-muted-foreground">{user.id}</TableCell>
                 <TableCell>
                   <div className="font-medium">
@@ -386,27 +394,40 @@ export default function UserManagement() {
                         </Button>
                       }
                     />
-                    <DropdownMenuContent align="end">
+                    <DropdownMenuContent align="end" className="w-48">
+                      <DropdownMenuItem onClick={() => handleEdit(user)} className="gap-2">
+                        <UserCog className="h-4 w-4 text-muted-foreground" />
+                        Edit Profile
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleEditEmail(user)} className="gap-2">
+                        <Mail className="h-4 w-4 text-muted-foreground" />
+                        Update Email
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleResetPassword(user)} className="gap-2">
+                        <Key className="h-4 w-4 text-muted-foreground" />
+                        Reset Password
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleStatusChange(user.id, 'whitelisted')}
                         className="gap-2"
                       >
-                        <ShieldCheck className="h-4 w-4 text-green-500" />
+                        <ShieldCheck className="h-4 w-4 text-muted-foreground" />
                         Whitelist
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleStatusChange(user.id, 'blacklisted')}
                         className="gap-2"
                       >
-                        <Ban className="h-4 w-4 text-destructive" />
+                        <Ban className="h-4 w-4 text-muted-foreground" />
                         Blacklist
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleDelete(user.id)}
-                        className="gap-2 text-destructive focus:text-destructive"
+                        className="group gap-2 text-muted-foreground focus:text-destructive focus:bg-destructive/10"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="size-4 text-muted-foreground group-hover:text-destructive group-data-[highlighted]:text-destructive group-focus:text-destructive" />
                         Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
