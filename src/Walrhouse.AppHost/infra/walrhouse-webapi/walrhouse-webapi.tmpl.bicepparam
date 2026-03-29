@@ -6,4 +6,4 @@ param aca_env_outputs_azure_container_registry_endpoint = '{{ .Env.ACA_ENV_AZURE
 param aca_env_outputs_azure_container_registry_managed_identity_id = '{{ .Env.ACA_ENV_AZURE_CONTAINER_REGISTRY_MANAGED_IDENTITY_ID }}'
 param walrhouse_webapi_containerimage = '{{ .Image }}'
 param walrhouse_webapi_containerport = '{{ targetPortOrDefault 8080 }}'
-param walrhousedb_connectionstring = '{{ securedParameter "WalrhouseDb" }}'
+param walrhousedb_value = '{{ securedParameter "WalrhouseDb" }}'
