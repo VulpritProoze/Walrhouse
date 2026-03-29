@@ -1,22 +1,11 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 
 import App from './App.tsx';
-import { queryClient } from '@/lib/query-client';
-import { AuthProvider } from '@/features/auth/context/AuthContext.tsx';
-
-import { TooltipProvider } from "@/components/ui/tooltip";
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <App />
-        </TooltipProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <App />
   </StrictMode>,
 );
