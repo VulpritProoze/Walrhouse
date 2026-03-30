@@ -1,3 +1,4 @@
+using Aspire.Hosting.DevTunnels;
 using Walrhouse.Shared;
 
 var builder = DistributedApplication.CreateBuilder(args);
@@ -22,13 +23,15 @@ var web = builder
 
 if (builder.ExecutionContext.IsRunMode)
 {
-    builder
+    var client = builder
         .AddJavaScriptApp(Services.WebClient, "./../Walrhouse.Web/App/WebClient")
         .WithRunScript("dev")
         .WithReference(web)
         .WaitFor(web)
         .WithHttpEndpoint(env: "PORT")
         .WithExternalHttpEndpoints();
+
+    builder.AddDevTunnel(Services.DevTunnel).WithReference(client);
 }
 
 builder.Build().Run();

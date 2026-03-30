@@ -15,6 +15,12 @@ public static class Services
     public const string WebApi = "walrhouse-webapi";
 
     /// <summary>
+    /// The name of the DevTunnel service.
+    /// This service is responsible for hosting the DevTunnel.
+    /// </summary>
+    public const string DevTunnel = "walrhouse-devtunnel";
+
+    /// <summary>
     /// The name of the Database Server service.
     /// This service is responsible for hosting the database server.
     /// </summary>
