@@ -51,5 +51,5 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
-      - name: Dotnet build
-        run: dotnet build --configuration Release
+      - name: Dotnet build & Analyzers
+        run: dotnet build --configuration Release /p:EnforceCodeStyleInBuild=true /p:AnalysisLevel=latest /warnaserror
