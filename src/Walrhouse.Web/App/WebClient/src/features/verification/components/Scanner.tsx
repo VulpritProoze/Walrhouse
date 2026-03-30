@@ -1,9 +1,9 @@
-import { ScanLine, Maximize, Zap, AlertCircle } from 'lucide-react';
+import { ScanLine, Maximize, Minimize, Zap, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 type ScannerProps = {
   onScan?: (code: string) => void;
@@ -13,6 +13,28 @@ type ScannerProps = {
 export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const [manualCode, setManualCode] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (!containerRef.current) return;
+
+    if (!document.fullscreenElement) {
+      containerRef.current.requestFullscreen().catch((err) => {
+        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0 && !isLoading) {
@@ -45,7 +67,10 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Scanner Feed Container */}
-        <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-black shadow-inner sm:aspect-square">
+        <div
+          ref={containerRef}
+          className="group relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-black shadow-inner sm:aspect-square"
+        >
           <QrScanner
             onScan={handleScan}
             onError={(err) => {
@@ -86,14 +111,25 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
             </div>
           </div>
 
-          {/* Flash/Torch Switch - provided by library but we can style around it if needed */}
-          <div className="absolute right-4 top-4">
+          {/* Top-Right Controls */}
+          <div className="absolute right-4 top-4 flex flex-col gap-2">
             <Button
+              type="button"
               variant="secondary"
               size="icon"
-              className="h-8 w-8 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+              className="h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+              onClick={toggleFullscreen}
+              title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
             >
-              <Zap className="h-4 w-4" />
+              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="icon"
+              className="h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+            >
+              <Zap className="h-5 w-5" />
             </Button>
           </div>
         </div>
