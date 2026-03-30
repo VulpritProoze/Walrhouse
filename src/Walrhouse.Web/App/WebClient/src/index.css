@@ -114,6 +114,19 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  --animate-scan: scan 2s ease-in-out infinite;
+
+  @keyframes scan {
+    0%, 100% {
+      top: 0%;
+      opacity: 0.8;
+    }
+    50% {
+      top: 100%;
+      opacity: 0.4;
+    }
+  }
 }
 
 @layer base {

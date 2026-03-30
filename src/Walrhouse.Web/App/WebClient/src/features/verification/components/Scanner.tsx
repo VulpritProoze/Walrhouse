@@ -1,46 +1,136 @@
-import { ScanLine } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScanLine, Maximize, Zap, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
+import { useState } from 'react';
 
 type ScannerProps = {
   onScan?: (code: string) => void;
+  isLoading?: boolean;
 };
 
-export default function Scanner({ onScan }: ScannerProps) {
+export default function Scanner({ onScan, isLoading }: ScannerProps) {
+  const [manualCode, setManualCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+
+  const handleScan = (detectedCodes: IDetectedBarcode[]) => {
+    if (detectedCodes.length > 0 && !isLoading) {
+      const code = detectedCodes[0].rawValue;
+      onScan?.(code);
+    }
+  };
+
+  const handleManualSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (manualCode.trim() && !isLoading) {
+      onScan?.(manualCode.trim());
+      setManualCode('');
+    }
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <ScanLine className="h-5 w-5 text-primary" />
-          Barcode Scanner
-        </CardTitle>
+    <Card className="w-full overflow-hidden border-none shadow-none sm:border sm:shadow-sm">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
+          <div className="space-y-1">
+            <CardTitle className="flex items-center gap-2 text-xl font-bold tracking-tight">
+              <ScanLine className="h-5 w-5 text-primary" />
+              Item Verification
+            </CardTitle>
+            <CardDescription>Scan a barcode or enter the SKU below</CardDescription>
+          </div>
+          {isLoading && <div className="h-2 w-2 animate-ping rounded-full bg-primary" />}
+        </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Placeholder: camera / scanner feed will go here */}
-        <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/30 h-48">
-          <div className="flex flex-col items-center gap-2 text-muted-foreground">
-            <ScanLine className="h-10 w-10" />
-            <p className="text-sm font-medium">Camera feed placeholder</p>
-            <p className="text-xs">Barcode scanner will appear here</p>
+      <CardContent className="space-y-6">
+        {/* Scanner Feed Container */}
+        <div className="group relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-black shadow-inner sm:aspect-square">
+          <QrScanner
+            onScan={handleScan}
+            onError={(err) => {
+              console.error(err);
+              setError('Could not access camera. Please check permissions.');
+            }}
+            constraints={{ facingMode: 'environment' }}
+            styles={{
+              container: { width: '100%', height: '100%' },
+              video: { width: '100%', height: '100%', objectFit: 'cover' },
+            }}
+            components={{
+              torch: true,
+              finder: false,
+            }}
+          />
+
+          {/* Functional Overlays */}
+          <div className="absolute inset-0 pointer-events-none">
+            {/* Darkened corners for focus */}
+            <div className="absolute inset-0 border-[3rem] border-black/40 sm:border-[4rem]" />
+
+            {/* The "Finder" box */}
+            <div className="absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-lg border-2 border-primary/50 sm:h-64 sm:w-64">
+              {/* Corner markers */}
+              <div className="absolute -left-1 -top-1 h-6 w-6 border-l-4 border-t-4 border-primary" />
+              <div className="absolute -right-1 -top-1 h-6 w-6 border-r-4 border-t-4 border-primary" />
+              <div className="absolute -bottom-1 -left-1 h-6 w-6 border-b-4 border-l-4 border-primary" />
+              <div className="absolute -bottom-1 -right-1 h-6 w-6 border-b-4 border-r-4 border-primary" />
+
+              {/* Scanning animation line */}
+              <div className="absolute left-0 top-0 h-0.5 w-full bg-primary/80 shadow-[0_0_15px_rgba(var(--primary),0.8)] animate-[scan_2s_ease-in-out_infinite]" />
+            </div>
+
+            {/* Device readiness indicators/hints */}
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/60 px-4 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+              ALIGN BARCODE WITHIN THE SQUARE
+            </div>
+          </div>
+
+          {/* Flash/Torch Switch - provided by library but we can style around it if needed */}
+          <div className="absolute right-4 top-4">
+            <Button
+              variant="secondary"
+              size="icon"
+              className="h-8 w-8 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+            >
+              <Zap className="h-4 w-4" />
+            </Button>
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Input
-            placeholder="Or type barcode manually…"
-            autoFocus
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                onScan?.((e.target as HTMLInputElement).value);
-                (e.target as HTMLInputElement).value = '';
-              }
-            }}
-          />
-          <Button variant="default" size="default">
+        {error && (
+          <div className="flex items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+            <AlertCircle className="h-4 w-4" />
+            <span>{error}</span>
+          </div>
+        )}
+
+        {/* Manual Fallback Entry */}
+        <form onSubmit={handleManualSubmit} className="flex gap-2">
+          <div className="relative flex-1">
+            <Input
+              placeholder="SKU or Barcode..."
+              className="h-12 pr-10 text-lg font-medium tracking-wider"
+              value={manualCode}
+              onChange={(e) => setManualCode(e.target.value)}
+              disabled={isLoading}
+              autoFocus
+            />
+            <Maximize className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/40" />
+          </div>
+          <Button
+            type="submit"
+            size="lg"
+            className="px-6 font-bold"
+            disabled={isLoading || !manualCode.trim()}
+          >
             Verify
           </Button>
-        </div>
+        </form>
+
+        <p className="mt-2 text-center text-xs text-muted-foreground uppercase tracking-widest font-semibold">
+          Walrhouse Verification System v1.0
+        </p>
       </CardContent>
     </Card>
   );
