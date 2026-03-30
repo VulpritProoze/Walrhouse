@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Spinner } from '@/components/ui/spinner';
-import { LogIn, Info } from 'lucide-react';
+import { LogIn, Info, Eye, EyeOff } from 'lucide-react';
 import { loginSchema, type LoginCredentials } from '../types/types';
 import { login as apiLogin, getAuthenticatedUserInfo } from '../api/auth.service';
 import { useAuth } from '../hooks/use-auth';
@@ -27,6 +27,7 @@ export default function LoginForm({ initial, onSuccess }: Props) {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login: contextLogin } = useAuth();
 
@@ -120,18 +121,38 @@ export default function LoginForm({ initial, onSuccess }: Props) {
         >
           Password
         </Label>
-        <Input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="your password"
-          aria-label="password"
-          className={cn(
-            'mt-1',
-            errors.password && 'border-destructive focus-visible:ring-destructive',
-          )}
-        />
+        <div className="relative">
+          <Input
+            id="password"
+            type={showPassword ? 'text' : 'password'}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="your password"
+            aria-label="password"
+            className={cn(
+              'mt-1 pr-10',
+              errors.password && 'border-destructive focus-visible:ring-destructive',
+            )}
+          />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-3 py-1 hover:bg-transparent"
+            onClick={() => setShowPassword((prev) => !prev)}
+            aria-label={showPassword ? 'Hide password' : 'Show password'}
+            tabIndex={-1}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            )}
+            <span className="sr-only">
+              {showPassword ? 'Hide password' : 'Show password'}
+            </span>
+          </Button>
+        </div>
         {errors.password && (
           <p className="mt-1 text-xs font-medium text-destructive">{errors.password}</p>
         )}
