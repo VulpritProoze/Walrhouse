@@ -294,7 +294,6 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
               value={manualCode}
               onChange={(e) => setManualCode(e.target.value)}
               disabled={isLoading}
-              autoFocus
             />
             <Maximize className="absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground/40" />
           </div>
