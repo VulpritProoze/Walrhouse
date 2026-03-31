@@ -3,10 +3,10 @@ import ScannerDropdownMenu from './scanner/ScannerDropdownMenu';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-// dropdown menu lives in ./scanner/ScannerDropdownMenu
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useRef, useEffect } from 'react';
 import { logger } from '@/lib/utils/logger';
+import { ensureAudioContext, playSharpTone } from '../lib/audio/beeps';
 
 type ScannerProps = {
   onScan?: (code: string) => void;
@@ -47,75 +47,6 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const [audioBeep, setAudioBeep] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const ensureAudio = () => {
-    if (!audioCtxRef.current) {
-      const win = window as unknown as {
-        AudioContext?: typeof AudioContext;
-        webkitAudioContext?: typeof AudioContext;
-      };
-      const AudioCtor = win.AudioContext ?? win.webkitAudioContext;
-      if (!AudioCtor) {
-        logger.error('No AudioContext available in this environment');
-        return;
-      }
-      audioCtxRef.current = new AudioCtor();
-    }
-  };
-
-  const playBeep = (
-    duration = 180,
-    vol = 0.18
-  ) => {
-    // Single sharp mall-style tone (~2.2kHz) with very quick attack and smooth release
-    try {
-      ensureAudio();
-      const ctx = audioCtxRef.current;
-      if (!ctx) {
-        logger.warn('AudioContext unavailable, skipping beep');
-        return;
-      }
-
-      const now = ctx.currentTime + 0.01;
-      const toneDur = duration / 1000; // seconds
-      const freq = 2200; // slightly sharper
-      const attack = 0.002; // very quick attack
-      const release = 0.08; // smoother release
-
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.setValueAtTime(freq, now);
-
-      // envelope: tiny attack, sustain, then smooth release using setTargetAtTime
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.linearRampToValueAtTime(vol, now + attack);
-      // start release at toneDur; use setTargetAtTime for a smooth exponential-like decay
-      g.gain.setTargetAtTime(0.0001, now + toneDur, 0.02);
-
-      o.connect(g);
-      g.connect(ctx.destination);
-      o.start(now);
-      // stop after tone duration + release buffer
-      o.stop(now + toneDur + release + 0.02);
-
-      const finalStopMs = Math.round((now + toneDur + release + 0.05 - ctx.currentTime) * 1000);
-      setTimeout(() => {
-        try {
-          o.disconnect();
-        } catch (e) {
-          logger.error('Error disconnecting oscillator', e);
-        }
-        try {
-          g.disconnect();
-        } catch (e) {
-          logger.error('Error disconnecting gain', e);
-        }
-      }, Math.max(finalStopMs, 250));
-    } catch (err) {
-      logger.error('Audio playback error in playBeep()', err);
-    }
-  };
-
   const refreshCamera = () => {
     // bumping the key will remount the QrScanner, causing it to re-request the camera
     setScannerKey((k) => k + 1);
@@ -124,7 +55,10 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0 && !isLoading) {
       const code = detectedCodes[0].rawValue;
-      if (audioBeep) playBeep();
+      if (audioBeep) {
+        audioCtxRef.current = ensureAudioContext(audioCtxRef.current);
+        if (audioCtxRef.current) playSharpTone(audioCtxRef.current, 180, 0.18);
+      }
       onScan?.(code);
     }
   };
