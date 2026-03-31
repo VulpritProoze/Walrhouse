@@ -1,4 +1,19 @@
-import { ScanLine, Maximize, Minimize, Zap, ZapOff, AlertCircle } from 'lucide-react';
+import {
+  ScanLine,
+  Maximize,
+  Minimize,
+  Zap,
+  ZapOff,
+  AlertCircle,
+  Settings,
+  RefreshCw,
+} from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,6 +57,13 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
     setTorchOn((v) => !v);
   };
 
+  const [scannerKey, setScannerKey] = useState(0);
+
+  const refreshCamera = () => {
+    // bumping the key will remount the QrScanner, causing it to re-request the camera
+    setScannerKey((k) => k + 1);
+  };
+
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0 && !isLoading) {
       const code = detectedCodes[0].rawValue;
@@ -78,6 +100,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
           className="group relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-black shadow-inner sm:aspect-square"
         >
           <QrScanner
+            key={scannerKey}
             onScan={handleScan}
             onError={(err) => {
               logger.error('Scanner error:', err);
@@ -119,6 +142,39 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-black/60 px-4 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
               ALIGN BARCODE WITHIN THE SQUARE
             </div>
+          </div>
+
+          {/* Top-Left Controls */}
+          <div className="absolute left-4 top-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="icon"
+                  className="h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+                  title="Scanner settings"
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent side="bottom" align="start" className="w-64">
+                <DropdownMenuItem
+                  onClick={refreshCamera}
+                  className="flex items-start gap-3 px-3 py-2"
+                >
+                  <RefreshCw className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                  <div className="flex flex-col text-left">
+                    <span className="text-sm font-medium">Refresh camera</span>
+                    <span className="text-xs text-muted-foreground">
+                      Remounts the scanner to re-request camera permissions and reinitialize the
+                      stream.
+                    </span>
+                  </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Top-Right Controls */}
