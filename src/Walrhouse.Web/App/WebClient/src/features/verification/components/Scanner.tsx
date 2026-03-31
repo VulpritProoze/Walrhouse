@@ -1,9 +1,10 @@
-import { ScanLine, Maximize, Minimize, Zap, AlertCircle } from 'lucide-react';
+import { ScanLine, Maximize, Minimize, Zap, ZapOff, AlertCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useRef, useEffect } from 'react';
+import { logger } from '@/lib/utils/logger';
 
 type ScannerProps = {
   onScan?: (code: string) => void;
@@ -14,6 +15,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const [manualCode, setManualCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [torchOn, setTorchOn] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,11 +31,15 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
 
     if (!document.fullscreenElement) {
       containerRef.current.requestFullscreen().catch((err) => {
-        console.error(`Error attempting to enable fullscreen: ${err.message}`);
+        logger.error('Error attempting to enable fullscreen:', err);
       });
     } else {
       document.exitFullscreen();
     }
+  };
+
+  const toggleTorch = () => {
+    setTorchOn((v) => !v);
   };
 
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
@@ -43,7 +49,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
     }
   };
 
-  const handleManualSubmit = (e?: React.FormEvent) => {
+  const handleManualSubmit = (e?: React.SyntheticEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (manualCode.trim() && !isLoading) {
       onScan?.(manualCode.trim());
@@ -74,16 +80,20 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
           <QrScanner
             onScan={handleScan}
             onError={(err) => {
-              console.error(err);
+              logger.error('Scanner error:', err);
               setError('Could not access camera. Please check permissions.');
             }}
-            constraints={{ facingMode: 'environment' }}
+            constraints={
+              {
+                facingMode: 'environment',
+                advanced: [{ torch: torchOn }],
+              } as unknown as MediaTrackConstraints
+            }
             styles={{
               container: { width: '100%', height: '100%' },
               video: { width: '100%', height: '100%', objectFit: 'cover' },
             }}
             components={{
-              torch: true,
               finder: false,
             }}
           />
@@ -128,8 +138,14 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
               variant="secondary"
               size="icon"
               className="h-10 w-10 rounded-full bg-black/40 text-white hover:bg-black/60 border-none backdrop-blur-md"
+              onClick={toggleTorch}
+              title={torchOn ? 'Turn torch off' : 'Turn torch on'}
             >
-              <Zap className="h-5 w-5" />
+              {torchOn ? (
+                <Zap className="h-5 w-5 text-yellow-300" />
+              ) : (
+                <ZapOff className="h-5 w-5" />
+              )}
             </Button>
           </div>
         </div>
