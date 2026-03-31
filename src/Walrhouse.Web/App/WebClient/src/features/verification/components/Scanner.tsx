@@ -7,6 +7,7 @@ import {
   AlertCircle,
   Settings,
   RefreshCw,
+  Volume,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -17,6 +18,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useRef, useEffect } from 'react';
 import { logger } from '@/lib/utils/logger';
@@ -56,8 +58,58 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const toggleTorch = () => {
     setTorchOn((v) => !v);
   };
-
   const [scannerKey, setScannerKey] = useState(0);
+  const [audioBeep, setAudioBeep] = useState(true);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const ensureAudio = () => {
+    if (!audioCtxRef.current) {
+      const win = window as unknown as {
+        AudioContext?: typeof AudioContext;
+        webkitAudioContext?: typeof AudioContext;
+      };
+      const AudioCtor = win.AudioContext ?? win.webkitAudioContext;
+      if (!AudioCtor) {
+        logger.error('No AudioContext available in this environment');
+        return;
+      }
+      audioCtxRef.current = new AudioCtor();
+    }
+  };
+
+  const playBeep = (duration = 120, freq = 1000, vol = 0.08) => {
+    try {
+      ensureAudio();
+      const ctx = audioCtxRef.current!;
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = 'sine';
+      o.frequency.value = freq;
+      g.gain.value = vol;
+      o.connect(g);
+      g.connect(ctx.destination);
+      o.start();
+      setTimeout(() => {
+        try {
+          o.stop();
+        } catch (stopErr) {
+          logger.error('Error stopping oscillator', stopErr);
+        }
+        try {
+          o.disconnect();
+        } catch (discErr) {
+          logger.error('Error disconnecting oscillator', discErr);
+        }
+        try {
+          g.disconnect();
+        } catch (discErr) {
+          logger.error('Error disconnecting gain node', discErr);
+        }
+      }, duration);
+    } catch (err) {
+      logger.error('Audio playback error in playBeep()', err);
+    }
+  };
 
   const refreshCamera = () => {
     // bumping the key will remount the QrScanner, causing it to re-request the camera
@@ -67,6 +119,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0 && !isLoading) {
       const code = detectedCodes[0].rawValue;
+      if (audioBeep) playBeep();
       onScan?.(code);
     }
   };
@@ -77,6 +130,16 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
       onScan?.(manualCode.trim());
       setManualCode('');
     }
+  };
+
+  // Narrow local type to allow passing `torch` inside `advanced` without unsafe double-cast
+  type ExtendedMediaTrackConstraints = MediaTrackConstraints & {
+    advanced?: Array<Record<string, unknown>>;
+  };
+
+  const scannerConstraints: ExtendedMediaTrackConstraints = {
+    facingMode: 'environment',
+    advanced: [{ torch: torchOn }],
   };
 
   return (
@@ -106,12 +169,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
               logger.error('Scanner error:', err);
               setError('Could not access camera. Please check permissions.');
             }}
-            constraints={
-              {
-                facingMode: 'environment',
-                advanced: [{ torch: torchOn }],
-              } as unknown as MediaTrackConstraints
-            }
+            constraints={scannerConstraints}
             styles={{
               container: { width: '100%', height: '100%' },
               video: { width: '100%', height: '100%', objectFit: 'cover' },
@@ -168,11 +226,25 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
                   <div className="flex flex-col text-left">
                     <span className="text-sm font-medium">Refresh camera</span>
                     <span className="text-xs text-muted-foreground">
-                      Remounts the scanner to re-request camera permissions and reinitialize the
-                      stream.
+                      Remount scanner and re-request camera permissions.
                     </span>
                   </div>
                 </DropdownMenuItem>
+
+                <div className="h-px bg-border my-1" />
+
+                <div className="flex items-center justify-between gap-3 px-3 py-2">
+                  <div className="flex items-start gap-3">
+                    <Volume className="h-4 w-4 mt-0.5 text-muted-foreground" />
+                    <div className="flex flex-col text-left">
+                      <span className="text-sm font-medium">Audio beep</span>
+                      <span className="text-xs text-muted-foreground">
+                        Play a short beep when a code is scanned.
+                      </span>
+                    </div>
+                  </div>
+                  <Switch checked={audioBeep} onCheckedChange={(v) => setAudioBeep(!!v)} />
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
