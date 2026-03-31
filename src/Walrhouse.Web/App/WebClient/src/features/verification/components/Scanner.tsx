@@ -62,35 +62,55 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
     }
   };
 
-  const playBeep = (duration = 120, freq = 1000, vol = 0.08) => {
+  const playBeep = (
+    duration = 180,
+    vol = 0.18
+  ) => {
+    // Single sharp mall-style tone (~2.2kHz) with very quick attack and smooth release
     try {
       ensureAudio();
-      const ctx = audioCtxRef.current!;
+      const ctx = audioCtxRef.current;
+      if (!ctx) {
+        logger.warn('AudioContext unavailable, skipping beep');
+        return;
+      }
+
+      const now = ctx.currentTime + 0.01;
+      const toneDur = duration / 1000; // seconds
+      const freq = 2200; // slightly sharper
+      const attack = 0.002; // very quick attack
+      const release = 0.08; // smoother release
+
       const o = ctx.createOscillator();
       const g = ctx.createGain();
       o.type = 'sine';
-      o.frequency.value = freq;
-      g.gain.value = vol;
+      o.frequency.setValueAtTime(freq, now);
+
+      // envelope: tiny attack, sustain, then smooth release using setTargetAtTime
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.linearRampToValueAtTime(vol, now + attack);
+      // start release at toneDur; use setTargetAtTime for a smooth exponential-like decay
+      g.gain.setTargetAtTime(0.0001, now + toneDur, 0.02);
+
       o.connect(g);
       g.connect(ctx.destination);
-      o.start();
+      o.start(now);
+      // stop after tone duration + release buffer
+      o.stop(now + toneDur + release + 0.02);
+
+      const finalStopMs = Math.round((now + toneDur + release + 0.05 - ctx.currentTime) * 1000);
       setTimeout(() => {
         try {
-          o.stop();
-        } catch (stopErr) {
-          logger.error('Error stopping oscillator', stopErr);
-        }
-        try {
           o.disconnect();
-        } catch (discErr) {
-          logger.error('Error disconnecting oscillator', discErr);
+        } catch (e) {
+          logger.error('Error disconnecting oscillator', e);
         }
         try {
           g.disconnect();
-        } catch (discErr) {
-          logger.error('Error disconnecting gain node', discErr);
+        } catch (e) {
+          logger.error('Error disconnecting gain', e);
         }
-      }, duration);
+      }, Math.max(finalStopMs, 250));
     } catch (err) {
       logger.error('Audio playback error in playBeep()', err);
     }
