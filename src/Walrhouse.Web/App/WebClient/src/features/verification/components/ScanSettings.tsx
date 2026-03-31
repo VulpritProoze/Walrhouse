@@ -1,9 +1,12 @@
 import { Settings2 } from 'lucide-react';
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Switch } from '@/components/ui/switch';
 
 export default function ScanSettings() {
+  const [autoConfirm, setAutoConfirm] = useState(false);
   return (
     <Card className="w-full">
       <CardHeader>
@@ -21,7 +24,7 @@ export default function ScanSettings() {
             When enabled, items matching the expected list will be automatically confirmed without
             manual review.
           </p>
-          <div className="h-5 w-9 rounded-full bg-muted" title="Toggle placeholder" />
+          <Switch checked={autoConfirm} onCheckedChange={(v) => setAutoConfirm(!!v)} />
         </div>
         <Separator />
       </CardContent>
