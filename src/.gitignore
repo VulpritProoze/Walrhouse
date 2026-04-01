@@ -28,3 +28,4 @@ Desktop.ini
 
 # Not to commit
 DEVELOPMENT.md
+**/appsettings.Development.json
