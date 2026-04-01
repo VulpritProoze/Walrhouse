@@ -29,6 +29,11 @@ public partial class Item
                 IsPrimary = barcode.IsPrimary,
             }
         );
+
+        if (barcode.IsPrimary)
+        {
+            Barcode = barcode.Barcode;
+        }
     }
 
     /// <summary>
