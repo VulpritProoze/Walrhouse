@@ -56,7 +56,10 @@ public static class DependencyInjection
         builder.Services.AddScoped<ApplicationDbContextInitializer>();
 
         var cookieExpiryDays = builder.Configuration.GetValue<int>("CookieExpiryDays");
-        Guard.Against.Null(cookieExpiryDays, "Configuration string 'CookieExpiryDays' not found.");
+        Guard.Against.Null(
+            cookieExpiryDays,
+            message: "Configuration string 'CookieExpiryDays' not found."
+        );
 
         builder.Services.ConfigureApplicationCookie(options =>
         {
