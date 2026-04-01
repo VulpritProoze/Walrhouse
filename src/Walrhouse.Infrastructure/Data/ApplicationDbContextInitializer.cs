@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Domain.Constants;
 using Walrhouse.Domain.Entities;
 using Walrhouse.Infrastructure.Identity;
@@ -32,13 +32,15 @@ public class ApplicationDbContextInitializer
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IConfiguration _configuration;
+    private readonly IHostEnvironment _env;
 
     public ApplicationDbContextInitializer(
         ILogger<ApplicationDbContextInitializer> logger,
         ApplicationDbContext context,
         UserManager<ApplicationUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        IConfiguration configuration
+        IConfiguration configuration,
+        IHostEnvironment env
     )
     {
         _logger = logger;
@@ -46,17 +48,24 @@ public class ApplicationDbContextInitializer
         _userManager = userManager;
         _roleManager = roleManager;
         _configuration = configuration;
+        _env = env;
     }
 
     public async Task InitializeAsync()
     {
         try
         {
-            // In Development, we wipe and recreate the database for rapid iteration
-            // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
-            await _context.Database.EnsureDeletedAsync();
-            await _context.Database.EnsureCreatedAsync();
-            // _context.Database.Migrate();
+            if (_env.IsProduction())
+            {
+                _context.Database.Migrate();
+            }
+            else
+            {
+                // In Development, we wipe and recreate the database for rapid iteration
+                // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
+                await _context.Database.EnsureDeletedAsync();
+                await _context.Database.EnsureCreatedAsync();
+            }
         }
         catch (Exception ex)
         {
