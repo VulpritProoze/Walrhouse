@@ -1,11 +1,9 @@
-using Walrhouse.Domain.Events.Items;
-
 namespace Walrhouse.Domain.Entities;
 
 /// <summary>
 /// Represents an inventory item in the warehouse management system.
 /// </summary>
-public partial class Item : BaseAuditableEntity
+public class Item : BaseAuditableEntity
 {
     /// <summary>
     /// Gets or sets the unique item code.
