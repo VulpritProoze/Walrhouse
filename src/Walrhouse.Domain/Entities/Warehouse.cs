@@ -13,5 +13,5 @@ public class Warehouse : BaseEntity
     /// <summary>
     /// This represents the name of the warehouse.
     /// </summary>
-    public required string WarehouseName { get; set; }
+    public string? WarehouseName { get; set; }
 }
