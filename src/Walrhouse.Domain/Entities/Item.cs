@@ -26,4 +26,8 @@ public class Item : BaseAuditableEntity
     /// Used for categorizing items (e.g., General, Medicines, etc.)
     /// </summary>
     public ItemGroup ItemGroup { get; set; } = ItemGroup.General;
+
+    public required string UgpEntry { get; set; }
+
+    public required UoMGroup UoMGroup { get; set; }
 }
