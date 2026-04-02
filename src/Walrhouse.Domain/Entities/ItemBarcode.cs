@@ -15,7 +15,7 @@ public class ItemBarcode : BaseEntity
     /// <summary>
     /// Gets or sets the navigation property to the parent Item.
     /// </summary>
-    public Item Item { get; set; } = null!;
+    public required Item Item { get; set; }
 
     /// <summary>
     /// Gets or sets the barcode value.
