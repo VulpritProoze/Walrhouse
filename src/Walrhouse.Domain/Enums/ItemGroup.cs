@@ -7,6 +7,6 @@ public enum ItemGroup
     [Display(Name = "General")]
     General = 1,
 
-    [Display(Name = "Medicinal Supplies")]
+    [Display(Name = "Medical Supplies")]
     Medicines = 2,
 }
