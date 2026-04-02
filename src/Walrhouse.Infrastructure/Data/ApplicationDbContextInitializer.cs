@@ -126,23 +126,6 @@ public class ApplicationDbContextInitializer
                 }
             }
         }
-
-        // Default data
-        // Seed, if necessary
-        if (!_context.Items.Any())
-        {
-            _context.Items.Add(
-                new Item
-                {
-                    ItemCode = "ITEM-001",
-                    ItemName = "Sample Seed Item",
-                    ItemGroup = Walrhouse.Domain.Enums.ItemGroup.General,
-                    Remarks = "Seeded by ApplicationDbContextInitializer",
-                }
-            );
-
-            await _context.SaveChangesAsync();
-        }
     }
 }
 

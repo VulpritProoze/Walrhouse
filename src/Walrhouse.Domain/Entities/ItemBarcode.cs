@@ -20,21 +20,10 @@ public class ItemBarcode : BaseEntity
     /// <summary>
     /// Gets or sets the barcode value.
     /// </summary>
-    public required string Barcode { get; set; }
+    public required string Value { get; set; }
 
     /// <summary>
     /// Gets or sets the barcode type/format (e.g., UPC, EAN13, Code128, QR).
     /// </summary>
-    public string? BarcodeType { get; set; }
-
-    /// <summary>
-    /// Gets or sets the unit of measure this barcode represents (e.g., "Box", "Piece", "Case", "Pallet").
-    /// </summary>
-    public string? UnitOfMeasure { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether this is the primary/default barcode for the item.
-    /// Only one barcode per item should be marked as primary.
-    /// </summary>
-    public bool IsPrimary { get; set; } = false;
+    public string? Format { get; set; }
 }

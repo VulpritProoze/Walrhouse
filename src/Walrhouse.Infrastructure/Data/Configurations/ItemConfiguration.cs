@@ -12,11 +12,5 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
         builder.Property(i => i.ItemName).HasMaxLength(200);
         builder.Property(i => i.Barcode).HasMaxLength(100);
         builder.Property(i => i.Remarks).HasMaxLength(500);
-        builder
-            .HasMany(i => i.ItemBarcodes)
-            .WithOne(b => b.Item)
-            .HasForeignKey(b => b.ItemCode)
-            .HasPrincipalKey(i => i.ItemCode)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
