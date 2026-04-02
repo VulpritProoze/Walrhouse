@@ -17,16 +17,6 @@ public class Stock : BaseEntity
     public required Item Item { get; set; }
 
     /// <summary>
-    /// Foreign key to Bin entity.
-    /// </summary>
-    public required string BinId { get; set; }
-
-    /// <summary>
-    /// Navigation props to Bin entity.
-    /// </summary>
-    public required Bin Bin { get; set; }
-
-    /// <summary>
     /// Represents the numerical quantity of
     /// current stock on hand of an item.
     /// </summary>
