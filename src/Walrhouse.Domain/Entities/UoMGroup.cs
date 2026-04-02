@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 namespace Walrhouse.Domain.Entities;
 
 /// <summary>
-/// Represents an inventory item in the warehouse management system.
+/// Represents a group of unit of measurements of an item.
 /// </summary>
 public class UoMGroup : BaseAuditableEntity
 {
