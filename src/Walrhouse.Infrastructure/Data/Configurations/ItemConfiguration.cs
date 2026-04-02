@@ -10,7 +10,5 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
     {
         builder.Property(i => i.ItemCode).HasMaxLength(50).IsRequired();
         builder.Property(i => i.ItemName).HasMaxLength(200);
-        builder.Property(i => i.Barcode).HasMaxLength(100);
-        builder.Property(i => i.Remarks).HasMaxLength(500);
     }
 }
