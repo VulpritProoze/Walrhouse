@@ -10,14 +10,14 @@ public partial class Item
     /// Validates that duplicate barcodes are not added and ensures only one primary barcode exists.
     /// </summary>
     /// <param name="barcode">The barcode to add to the collection</param>
-    /// <exception cref="Exception">Thrown when a primary barcode already exists or the barcode is a duplicate</exception>
+    /// <exception cref="DomainException">Thrown when a primary barcode already exists or the barcode is a duplicate</exception>
     public void AddBarcode(ItemBarcode barcode)
     {
         if (barcode.IsPrimary && _itemBarcodes.Any(b => b.IsPrimary))
-            throw new Exception("This item already has a primary barcode.");
+            throw new DomainException("This item already has a primary barcode.");
 
         if (_itemBarcodes.Any(b => b.Barcode == barcode.Barcode))
-            throw new Exception("This barcode already exists.");
+            throw new DomainException("This barcode already exists.");
 
         _itemBarcodes.Add(
             new ItemBarcode
@@ -47,7 +47,7 @@ public partial class Item
         );
 
         if (existingInCollection == null)
-            throw new Exception(
+            throw new DomainException(
                 $"Barcode '{itemBarcode.Barcode}' not found in collection for this item."
             );
 
@@ -75,11 +75,11 @@ public partial class Item
     )
     {
         if (string.IsNullOrWhiteSpace(barcodeValue))
-            throw new Exception("Barcode value cannot be empty.");
+            throw new DomainException("Barcode value cannot be empty.");
 
         // Check if barcode already exists
         if (_itemBarcodes.Any(b => b.Barcode == barcodeValue))
-            throw new Exception($"Barcode '{barcodeValue}' already exists for this item.");
+            throw new DomainException($"Barcode '{barcodeValue}' already exists for this item.");
 
         // Remove primary flag from current primary
         var oldPrimary = _itemBarcodes.FirstOrDefault(b => b.IsPrimary);
