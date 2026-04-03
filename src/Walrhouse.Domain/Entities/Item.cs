@@ -25,7 +25,7 @@ public class Item : BaseAuditableEntity
     /// Gets or sets the item group classification.
     /// Used for categorizing items (e.g., General, Medicines, etc.)
     /// </summary>
-    public Enums.ItemGroup ItemGroup { get; set; } = Enums.ItemGroup.General;
+    public ItemGroup? ItemGroup { get; set; } = Enums.ItemGroup.General;
 
     public required string UgpEntry { get; set; }
 
