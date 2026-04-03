@@ -15,7 +15,7 @@ A modern warehouse management and scan verification system designed for high-per
 - **Animations**: Framer Motion 12
 - **Validation**: Zod
 - **Icons**: Lucide React
-- **Security Handling**: Cookie-based authentication with ASP.NET Core Identity (ignore token-based configs in the project)
+- **Security Handling**: Cookie-based authentication with ASP.NET Core Identity.
 
 ### Server (Backend)
 - **Runtime**: .NET 10.0
