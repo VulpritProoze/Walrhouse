@@ -5,13 +5,7 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.Items.Commands.CreateItem;
 
-public record CreateItemCommand : IRequest<string>
-{
-    public string ItemCode { get; init; } = string.Empty;
-    public string ItemName { get; init; } = string.Empty;
-    public string? Remarks { get; init; }
-    public ItemGroup ItemGroup { get; init; } = ItemGroup.General;
-}
+public record CreateItemCommand : IRequest<string> { }
 
 public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, string>
 {
@@ -24,17 +18,6 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
 
     public async Task<string> Handle(CreateItemCommand request, CancellationToken cancellationToken)
     {
-        var entity = new Item
-        {
-            ItemCode = request.ItemCode,
-            ItemName = request.ItemName,
-            Remarks = request.Remarks,
-            ItemGroup = request.ItemGroup,
-        };
-
-        _context.Items.Add(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return entity.ItemCode;
+        return "";
     }
 }
