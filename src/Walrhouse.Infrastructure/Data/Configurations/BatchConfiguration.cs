@@ -13,7 +13,7 @@ public class BatchConfiguration : IEntityTypeConfiguration<Batch>
     {
         builder.Property(b => b.BatchNumber).HasMaxLength(64).IsRequired();
         builder.Property(b => b.ItemCode).HasMaxLength(64).IsRequired();
-        builder.Property(b => b.ExpiryDate).HasColumnType("datetimeoffset");
+        builder.Property(b => b.ExpiryDate).HasColumnType("timestamp with time zone"); // PostgreSQL uses 'timestamp with time zone' (alias: timestamptz)
         builder.Property(b => b.Status).HasMaxLength(64).IsRequired();
         builder.Property(b => b.BinNo).HasMaxLength(64).IsRequired();
         builder
