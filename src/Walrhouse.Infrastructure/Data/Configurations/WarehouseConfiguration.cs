@@ -9,6 +9,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
     public void Configure(EntityTypeBuilder<Warehouse> builder)
     {
         builder.Property(w => w.WarehouseCode).HasMaxLength(64).IsRequired();
+        builder.HasIndex(w => w.WarehouseCode).IsUnique();
         builder.Property(w => w.WarehouseName).HasMaxLength(256);
     }
 }

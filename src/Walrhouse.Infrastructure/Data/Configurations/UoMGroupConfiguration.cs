@@ -9,6 +9,7 @@ public class UoMGroupConfiguration : IEntityTypeConfiguration<UoMGroup>
     public void Configure(EntityTypeBuilder<UoMGroup> builder)
     {
         builder.Property(g => g.UgpEntry).HasMaxLength(64).IsRequired();
+        builder.HasIndex(g => g.UgpEntry).IsUnique();
         builder
             .Property(g => g.UoMGroupLinesJson)
             .HasColumnName("UoMGroupLines")

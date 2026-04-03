@@ -9,10 +9,12 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
     public void Configure(EntityTypeBuilder<Item> builder)
     {
         builder.Property(i => i.ItemCode).HasMaxLength(64).IsRequired();
+        builder.HasIndex(i => i.ItemCode).IsUnique();
         builder.Property(i => i.ItemName).HasMaxLength(256);
         builder.Property(i => i.Remarks).HasMaxLength(1024);
         builder.Property(i => i.ItemGroup).HasMaxLength(128);
         builder.Property(i => i.UgpEntry).HasMaxLength(64).IsRequired();
+        builder.HasIndex(i => i.UgpEntry);
         builder
             .HasOne(i => i.UoMGroup)
             .WithMany()

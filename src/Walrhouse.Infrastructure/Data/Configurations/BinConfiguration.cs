@@ -9,6 +9,7 @@ public class BinConfiguration : IEntityTypeConfiguration<Bin>
     public void Configure(EntityTypeBuilder<Bin> builder)
     {
         builder.Property(b => b.BinNo).HasMaxLength(64).IsRequired();
+        builder.HasIndex(b => b.BinNo).IsUnique();
         builder.Property(b => b.BinName).HasMaxLength(256).IsRequired();
         builder.Property(b => b.WarehouseCode).HasMaxLength(64).IsRequired();
 
