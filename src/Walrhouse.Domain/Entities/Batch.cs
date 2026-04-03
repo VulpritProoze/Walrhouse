@@ -40,6 +40,7 @@ public class Batch : BaseAuditableEntity
     /// <summary>
     /// This represents the Expiration Date of this
     /// batch of item, measured in UTC.
+    /// Note: Any time component of ExpiryDate is normalized to UTC midnight.
     /// </summary>
     public required DateTimeOffset ExpiryDate
     {
