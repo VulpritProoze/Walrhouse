@@ -27,7 +27,28 @@ public class Item : BaseAuditableEntity
     /// </summary>
     public ItemGroup? ItemGroup { get; set; } = Enums.ItemGroup.General;
 
+    /// <summary>
+    /// Gets or sets the unique identifier of the UoM group associated
+    /// with this item.
+    /// This is a foreign key to the UoMGroup entity, which defines the various
+    /// units of measurement and their conversion factors for this item.
+    /// </summary>
     public required string UgpEntry { get; set; }
 
+    /// <summary>
+    /// Gets or sets the navigation property to the UoMGroup entity.
+    ///
+    /// </summary>
     public required UoMGroup UoMGroup { get; set; }
+
+    /// <summary>
+    /// Gets or sets the barcode value associated with this item.
+    /// This is used for scanning and identification purposes in the warehouse.
+    /// </summary>
+    public required string BarcodeValue { get; set; }
+
+    /// <summary>
+    /// Gets or sets the barcode format/type (e.g., UPC, EAN13, Code128, QR).
+    /// </summary>
+    public BarcodeFormat? BarcodeFormat { get; set; }
 }
