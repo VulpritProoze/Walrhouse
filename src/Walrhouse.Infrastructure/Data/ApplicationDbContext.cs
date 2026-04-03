@@ -13,12 +13,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
         : base(options) { }
 
     public DbSet<Item> Items => Set<Item>();
-
-    public DbSet<ItemBarcode> ItemBarcodes => Set<ItemBarcode>();
+    public DbSet<Bin> Bins => Set<Bin>();
+    public DbSet<Batch> Batches => Set<Batch>();
+    public DbSet<Stock> Stocks => Set<Stock>();
+    public DbSet<UoMGroup> UoMGroups => Set<UoMGroup>();
+    public DbSet<Warehouse> Warehouses => Set<Warehouse>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.Ignore(typeof(UoMGroupLine));
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

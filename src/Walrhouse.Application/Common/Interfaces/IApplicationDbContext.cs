@@ -5,7 +5,11 @@ namespace Walrhouse.Application.Common.Interfaces;
 public interface IApplicationDbContext
 {
     DbSet<Item> Items { get; }
-    DbSet<ItemBarcode> ItemBarcodes { get; }
+    DbSet<Bin> Bins { get; }
+    DbSet<Batch> Batches { get; }
+    DbSet<Stock> Stocks { get; }
+    DbSet<UoMGroup> UoMGroups { get; }
+    DbSet<Warehouse> Warehouses { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
