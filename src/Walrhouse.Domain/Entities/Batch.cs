@@ -37,7 +37,7 @@ public class Batch : BaseAuditableEntity
     /// <summary>
     /// Foreign key to Bin entity.
     /// </summary>
-    public required string BinId { get; set; }
+    public required string BinNo { get; set; }
 
     /// <summary>
     /// Navigation props to Bin entity.
