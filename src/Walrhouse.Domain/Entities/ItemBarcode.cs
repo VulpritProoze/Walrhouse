@@ -4,7 +4,7 @@ namespace Walrhouse.Domain.Entities;
 /// Represents a barcode associated with an item.
 /// Items can have multiple barcodes for different units of measure or packaging types.
 /// </summary>
-public class ItemBarcode : BaseEntity
+public class ItemBarcode : BaseAuditableEntity
 {
     /// <summary>
     /// Gets or sets the item code this barcode belongs to.

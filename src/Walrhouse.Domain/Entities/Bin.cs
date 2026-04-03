@@ -4,7 +4,7 @@ namespace Walrhouse.Domain.Entities;
 /// This entity represents the various bin locations scattered
 /// throughout the warehouse.
 /// </summary>
-public class Bin : BaseEntity
+public class Bin : BaseAuditableEntity
 {
     /// <summary>
     /// Unique identifier of the bin / shelf

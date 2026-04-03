@@ -3,7 +3,7 @@ namespace Walrhouse.Domain.Entities;
 /// <summary>
 /// This entity represents the warehouse/s.
 /// </summary>
-public class Warehouse : BaseEntity
+public class Warehouse : BaseAuditableEntity
 {
     /// <summary>
     /// This represents the unique identifier of the warehouse.

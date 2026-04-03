@@ -4,7 +4,7 @@ namespace Walrhouse.Domain.Entities;
 /// This entity represents the overall tracking of stock
 /// of an item.
 /// </summary>
-public class Stock : BaseEntity
+public class Stock : BaseAuditableEntity
 {
     /// <summary>
     /// Foreign key to Item entity.
