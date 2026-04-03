@@ -12,6 +12,6 @@ public class UoMGroupConfiguration : IEntityTypeConfiguration<UoMGroup>
         builder
             .Property(g => g.UoMGroupLinesJson)
             .HasColumnName("UoMGroupLines")
-            .HasColumnType("nvarchar(max)");
+            .HasColumnType("jsonb");
     }
 }
