@@ -8,26 +8,26 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
 {
     public void Configure(EntityTypeBuilder<ApplicationUser> builder)
     {
-        builder.Property(u => u.FirstName).HasMaxLength(100).IsRequired();
-        builder.Property(u => u.MiddleName).HasMaxLength(100);
-        builder.Property(u => u.LastName).HasMaxLength(100).IsRequired();
+        builder.Property(u => u.FirstName).HasMaxLength(128).IsRequired();
+        builder.Property(u => u.MiddleName).HasMaxLength(128);
+        builder.Property(u => u.LastName).HasMaxLength(128).IsRequired();
 
         builder.OwnsOne(
             u => u.Address,
             address =>
             {
-                address.Property(a => a.Line1).HasColumnName("AddressLine1").HasMaxLength(200);
-                address.Property(a => a.Line2).HasColumnName("AddressLine2").HasMaxLength(200);
-                address.Property(a => a.City).HasColumnName("AddressCity").HasMaxLength(100);
+                address.Property(a => a.Line1).HasColumnName("AddressLine1").HasMaxLength(256);
+                address.Property(a => a.Line2).HasColumnName("AddressLine2").HasMaxLength(256);
+                address.Property(a => a.City).HasColumnName("AddressCity").HasMaxLength(128);
                 address
                     .Property(a => a.StateOrProvince)
                     .HasColumnName("AddressStateOrProvince")
-                    .HasMaxLength(100);
+                    .HasMaxLength(128);
                 address
                     .Property(a => a.PostalCode)
                     .HasColumnName("AddressPostalCode")
-                    .HasMaxLength(20);
-                address.Property(a => a.Country).HasColumnName("AddressCountry").HasMaxLength(100);
+                    .HasMaxLength(32);
+                address.Property(a => a.Country).HasColumnName("AddressCountry").HasMaxLength(128);
             }
         );
 
