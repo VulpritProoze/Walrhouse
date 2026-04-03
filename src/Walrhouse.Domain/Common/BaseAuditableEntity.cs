@@ -24,4 +24,9 @@ public abstract class BaseAuditableEntity : BaseEntity
     /// Gets or sets the identifier of the last modifier.
     /// </summary>
     public string? LastModifiedBy { get; set; }
+
+    /// <summary>
+    /// Gets or sets the soft delete flag.
+    /// </summary>
+    public bool IsDeleted { get; set; } = false;
 }
