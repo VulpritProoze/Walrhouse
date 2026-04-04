@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Walrhouse.Application.Warehouses.Commands.DeleteWarehouse;
 
 public class DeleteWarehouseCommandValidator : AbstractValidator<DeleteWarehouseCommand>

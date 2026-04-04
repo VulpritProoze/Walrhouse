@@ -1,5 +1,3 @@
-using AutoMapper;
-using Walrhouse.Application.Common.Mappings;
 using Walrhouse.Domain.Entities;
 
 namespace Walrhouse.Application.Warehouses.Queries;

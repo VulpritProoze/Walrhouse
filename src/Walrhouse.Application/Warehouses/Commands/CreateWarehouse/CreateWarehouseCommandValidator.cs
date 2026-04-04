@@ -1,5 +1,3 @@
-using FluentValidation;
-
 namespace Walrhouse.Application.Warehouses.Commands.CreateWarehouse;
 
 public class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouseCommand>
