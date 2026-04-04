@@ -12,7 +12,7 @@ Purpose
 -------
 Create or extend minimal-API endpoint files under `src/Walrhouse.Web/Endpoints` using the project template.
 
-See canonical template: [docs/ai/web/endpoints.md](docs/ai/web/endpoints.md)
+See canonical template: [docs/ai/web/endpoints.md](../../../docs/ai/web/endpoints.md)
 
 Behavior (short)
 ----------------
