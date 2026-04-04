@@ -1,12 +1,8 @@
 ---
 name: commit
 description: "Use when: create atomic commits from unstaged or uncommitted changes following docs/ai/commits.md. Continuously sift changes and build patch-based atomic commits."
-applyTo: "**/*"
-inputs:
-  - mode: dry-run|auto  # dry-run = propose only, auto = perform commits after approval
-  - allowPush: boolean  # default false; push only when true and branch is non-main
-outputs:
-  - commitsPerformed: list
+user-invocable: true
+argument-hint: "mode: dry-run|auto; allowPush: boolean (optional)"
 ---
 
 # Commit Skill

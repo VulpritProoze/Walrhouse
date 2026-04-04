@@ -1,13 +1,7 @@
 ---
 name: create docs
 description: "Use when: create agent-reference documentation. Generates a markdown doc under `docs/ai` describing a concept, tool, or workflow for agents to reference."
-inputs:
-  - topic: The short topic or title for the doc (required)
-  - fileName: Optional file name (slug). If omitted, agent should create a safe slug from topic.
-  - audience: Optional (developers | agents | reviewers). Default: developers.
-  - format: Optional (short|detailed). Default: detailed.
-outputs:
-  - createdFilePath: Path of the created markdown file under `docs/ai`.
+argument-hint: "topic: string (required); fileName: string (optional); audience: developers|agents|reviewers (default: developers); format: short|detailed (default: detailed)"
 ---
 
 Goal
