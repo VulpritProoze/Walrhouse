@@ -1,0 +1,17 @@
+using Walrhouse.Domain.Entities;
+
+namespace Walrhouse.Application.Warehouses.Queries.GetWarehouses;
+
+public class WarehouseDto
+{
+    public string WarehouseCode { get; set; } = string.Empty;
+    public string? WarehouseName { get; set; }
+
+    public class Mapping : Profile
+    {
+        public Mapping()
+        {
+            CreateMap<Warehouse, WarehouseDto>();
+        }
+    }
+}
