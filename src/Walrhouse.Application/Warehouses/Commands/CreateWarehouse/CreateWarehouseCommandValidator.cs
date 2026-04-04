@@ -9,11 +9,11 @@ public class CreateWarehouseCommandValidator : AbstractValidator<CreateWarehouse
         RuleFor(x => x.WarehouseCode)
             .NotEmpty()
             .WithMessage("WarehouseCode is required.")
-            .MaximumLength(100)
-            .WithMessage("WarehouseCode must be at most 100 characters.");
+            .MaximumLength(64)
+            .WithMessage("WarehouseCode must be at most 64 characters.");
 
         RuleFor(x => x.WarehouseName)
-            .MaximumLength(200)
-            .WithMessage("WarehouseName must be at most 200 characters.");
+            .MaximumLength(256)
+            .WithMessage("WarehouseName must be at most 256 characters.");
     }
 }
