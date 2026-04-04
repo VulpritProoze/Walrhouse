@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using Walrhouse.Application.Common.Interfaces;
 
 namespace Walrhouse.Application.Warehouses.Commands.DeleteWarehouse;
@@ -20,12 +21,7 @@ public class DeleteWarehouseCommandHandler : IRequestHandler<DeleteWarehouseComm
             cancellationToken
         );
 
-        if (entity is null)
-        {
-            throw new KeyNotFoundException(
-                $"Warehouse with code '{request.WarehouseCode}' was not found."
-            );
-        }
+        Guard.Against.Null(entity, nameof(entity));
 
         // Soft-delete: mark entity as deleted instead of hard-removing it.
         entity.IsDeleted = true;

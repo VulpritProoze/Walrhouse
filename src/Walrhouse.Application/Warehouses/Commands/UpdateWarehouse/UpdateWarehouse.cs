@@ -1,3 +1,4 @@
+using Ardalis.GuardClauses;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Domain.Entities;
 
@@ -23,12 +24,7 @@ public class UpdateWarehouseCommandHandler : IRequestHandler<UpdateWarehouseComm
             .Where(w => !w.IsDeleted && w.WarehouseCode == code)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (entity is null)
-        {
-            throw new KeyNotFoundException(
-                $"Warehouse with code '{request.WarehouseCode}' was not found."
-            );
-        }
+        Guard.Against.Null(entity, nameof(entity));
 
         entity.WarehouseName = request.WarehouseName?.Trim();
 
