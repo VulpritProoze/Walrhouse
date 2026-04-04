@@ -15,6 +15,10 @@ Purpose
 -------
 Provide consistent command scaffolding and validator patterns for `Walrhouse.Application` features.
 
+Canonical example
+-----------------
+Use `Warehouse` for command examples going forward (see `src/Walrhouse.Application/Warehouses/Commands`).
+
 When to use
 -----------
 - Scaffolding create/update/delete/purge operations.
@@ -88,7 +92,8 @@ public class Create<Entity>Validator : AbstractValidator<Create<Entity>Command>
 
 Example files referenced
 ------------------------
-- [src/Walrhouse.Application/Items/Commands/CreateItem/CreateItem.cs](src/Walrhouse.Application/Items/Commands/CreateItem/CreateItem.cs)
+- [src/Walrhouse.Application/Warehouses/Commands/CreateWarehouse/CreateWarehouse.cs](src/Walrhouse.Application/Warehouses/Commands/CreateWarehouse/CreateWarehouse.cs)
+    (see `Warehouse` command examples in `src/Walrhouse.Application/Warehouses/Commands`)
 
 Change / PR note
 ----------------

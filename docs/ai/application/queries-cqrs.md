@@ -15,6 +15,10 @@ Purpose
 -------
 Standardize query scaffolding for batch (paginated) and single-entity reads.
 
+Canonical example
+-----------------
+These templates use `Warehouse` as the canonical example (see `src/Walrhouse.Application/Warehouses/Queries` for concrete implementations).
+
 When to use
 -----------
 - Creating list endpoints (paginated) and read-by-id queries.
@@ -108,7 +112,8 @@ public class Get<Entity>ByIdValidator : AbstractValidator<Get<Entity>ByIdQuery>
 
 Example files referenced
 ------------------------
-- [src/Walrhouse.Application/Items/Queries/GetItems.cs](src/Walrhouse.Application/Items/Queries/GetItems.cs)
+- [src/Walrhouse.Application/Warehouses/Queries/GetWarehouses.cs](src/Walrhouse.Application/Warehouses/Queries/GetWarehouses.cs)
+    (see `Warehouse` query examples in `src/Walrhouse.Application/Warehouses/Queries`)
 
 Change / PR note
 ----------------

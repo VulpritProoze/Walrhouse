@@ -73,8 +73,99 @@ public class <Entity>Endpoints : IEndpointGroup
         var result = await sender.Send(new Get<Entity>ByIdQuery(id));
         return result == null ? TypedResults.NotFound() : TypedResults.Ok(result);
     }
+
+    [EndpointName(nameof(Update<Entity>))]
+    [EndpointSummary("Update an existing <Entity>")]
+    public static async Task<Results<NoContent, NotFoundHttpResult, BadRequestHttpResult>> Update<Entity>(
+        ISender sender,
+        [FromRoute] string id,
+        [FromBody] Update<Entity>Command request
+    )
+    {
+        // load/validate/apply handled by Application layer
+        await sender.Send(request);
+        return TypedResults.NoContent();
+    }
+
+    [EndpointName(nameof(Delete<Entity>))]
+    [EndpointSummary("Soft-delete an existing <Entity>")]
+    public static async Task<Results<NoContent, NotFoundHttpResult>> Delete<Entity>(
+        ISender sender,
+        [FromRoute] string id
+    )
+    {
+        await sender.Send(new Delete<Entity>Command(id));
+        return TypedResults.NoContent();
+    }
 }
 ```
+
+Update / Delete examples
+------------------------
+Add handlers for update and delete when scaffolding full CRUD. Examples below follow the same thin-endpoint pattern and delegate to Application commands.
+
+```csharp
+    public static void Map(RouteGroupBuilder groupBuilder)
+    {
+        groupBuilder.MapPost("", Create<Entity>).RequireAuthorization();
+        groupBuilder.MapGet("{id}", Get<Entity>ById).RequireAuthorization();
+        groupBuilder.MapPut("{id}", Update<Entity>).RequireAuthorization();
+        groupBuilder.MapDelete("{id}", Delete<Entity>).RequireAuthorization();
+    }
+
+    [EndpointName(nameof(Update<Entity>))]
+    [EndpointSummary("Update an existing <Entity>")]
+    public static async Task<Results<NoContent, NotFoundHttpResult, BadRequest<<Entity>Dto>>> Update<Entity>(
+        ISender sender,
+        [FromRoute] string id,
+        [FromBody] Update<Entity>Command command
+    )
+    {
+        var exists = await sender.Send(new Get<Entity>ByIdQuery(id));
+        if (exists == null)
+            return TypedResults.NotFound();
+
+        await sender.Send(command);
+        return TypedResults.NoContent();
+    }
+
+    [EndpointName(nameof(Delete<Entity>))]
+    [EndpointSummary("Soft-delete a <Entity> by identifier")]
+    public static async Task<Results<NoContent, NotFoundHttpResult>> Delete<Entity>(
+        ISender sender,
+        [FromRoute] string id
+    )
+    {
+        var exists = await sender.Send(new Get<Entity>ByIdQuery(id));
+        if (exists == null)
+            return TypedResults.NotFound();
+
+        await sender.Send(new Delete<Entity>Command(id));
+        return TypedResults.NoContent();
+    }
+```
+
+Return type guidance
+--------------------
+- Prefer `Task<IResult>` (or a concrete `Task<Ok<T>>`, `Task<NoContent>`, etc.) when your endpoint only ever returns a single HTTP result.
+- Use `Results<...>` only when the endpoint can return multiple different HTTP results (success + different error responses). Keep the number of variants small and explicit.
+
+Common `Results<>` choices
+-------------------------
+Possible result values you may use inside `Results<>`:
+
+- `Ok<T>`
+- `Created<T>`
+- `NoContent`
+- `Accepted`
+- `BadRequest<T>`
+- `NotFound<T>`
+- `Unauthorized`
+- `Forbidden`
+- `Conflict<T>`
+- `UnprocessableEntity<T>`
+
+When in doubt, prefer the simpler `IResult`/single-result signature and document the expected responses in the endpoint summary.
 
 Notes & conventions
 -------------------
@@ -85,13 +176,15 @@ Notes & conventions
 
 Example invocations (agent prompts)
 ----------------------------------
-- "Scaffold endpoints for `Item` with Create and GetById handlers. Create file `src/Walrhouse.Web/Endpoints/Item.cs` using the Web endpoints template; require auth on all routes." 
+- "Scaffold endpoints for `Warehouse` with Create and GetById handlers. Create file `src/Walrhouse.Web/Endpoints/Warehouse.cs` using the Web endpoints template; require auth on all routes." 
 - "Add MapPut and MapDelete to `src/Walrhouse.Web/Endpoints/Warehouse.cs` following the endpoint template. Use `WarehouseCode` as identifier in route parameter." 
 
 Related files / links
 ---------------------
+- DTO conventions: [docs/ai/application/dtos-cqrs.md](docs/ai/application/dtos-cqrs.md)
 - Example endpoint file: [src/Walrhouse.Web/Endpoints/Users.cs](src/Walrhouse.Web/Endpoints/Users.cs)
-- Application query example: [src/Walrhouse.Application/Items/Queries/GetItems.cs](src/Walrhouse.Application/Items/Queries/GetItems.cs)
+- Canonical Warehouse endpoint: [src/Walrhouse.Web/Endpoints/Warehouse.cs](src/Walrhouse.Web/Endpoints/Warehouse.cs)
+- Application query example: [src/Walrhouse.Application/Warehouses/Queries/GetWarehouses.cs](src/Walrhouse.Application/Warehouses/Queries/GetWarehouses.cs)
 - DTO conventions: [docs/ai/application/dtos-cqrs.md](docs/ai/application/dtos-cqrs.md)
 
 Change / PR note

@@ -20,6 +20,10 @@ When to use
 - Creating DTOs for projection in queries.
 - Ensuring mapping profiles follow conventions used across the project.
 
+Canonical example
+-----------------
+This document uses `WarehouseDto` as the canonical DTO example. See `src/Walrhouse.Application/Warehouses/Queries/WarehouseDto.cs`.
+
 Quick run / usage commands
 -------------------------
 
