@@ -24,11 +24,23 @@ public class CreateWarehouseCommandHandler : IRequestHandler<CreateWarehouseComm
 
         var existing = await _context
             .Warehouses.AsQueryable()
-            .Where(w => !w.IsDeleted && w.WarehouseCode == code)
+            .Where(w => w.WarehouseCode == code)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (existing is not null)
-            return existing.WarehouseCode; // return existing code for idempotency
+        {
+            if (!existing.IsDeleted)
+                return existing.WarehouseCode; // return existing code for idempotency
+
+            // Restore a soft-deleted warehouse: wipe current stored values,
+            // apply incoming values, and un-delete the record.
+            existing.WarehouseName = request.WarehouseName?.Trim();
+            existing.IsDeleted = false;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return existing.WarehouseCode;
+        }
 
         var warehouse = new Warehouse
         {
