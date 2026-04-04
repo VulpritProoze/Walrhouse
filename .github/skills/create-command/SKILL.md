@@ -33,3 +33,7 @@ Crucial
 Always prefer operating on non–soft-deleted entities by filtering with the `IsDeleted` flag (e.g. include `.Where(e => !e.IsDeleted)` in reads and checks). Do not delete or update soft-deleted entities unless the user explicitly requests it.
 For updates: do not apply updates to entities where `IsDeleted == true`.
 Hard deletes should be reserved for `purge` commands/actions only.
+
+Test
+--------
+- Run `dotnet build src/Walrhouse.AppHost` to ensure generated code compiles.

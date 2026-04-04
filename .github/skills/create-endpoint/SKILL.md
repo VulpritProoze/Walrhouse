@@ -27,3 +27,7 @@ Notes
 - Do not commit automatically; use the `commit` skill to create commits.
 - Follow `docs/ai/web/endpoints.md` and Application-layer naming conventions when referencing queries/commands/DTOs.
 - Check `GlobalUsings.cs` for commonly used namespaces to include in the generated files.
+
+Test
+--------
+- Run `dotnet build src/Walrhouse.AppHost` to ensure generated code compiles.
