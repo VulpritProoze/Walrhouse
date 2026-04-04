@@ -49,7 +49,8 @@ public class <Entity>Endpoints : IEndpointGroup
     {
         groupBuilder.MapPost("", Create<Entity>).RequireAuthorization();
         groupBuilder.MapGet("{id}", Get<Entity>ById).RequireAuthorization();
-        // add MapPut, MapDelete as needed
+        groupBuilder.MapPut("{id}", Update<Entity>).RequireAuthorization();
+        groupBuilder.MapDelete("{id}", Delete<Entity>).RequireAuthorization();
     }
 
     [EndpointName(nameof(Create<Entity>))]
@@ -98,51 +99,6 @@ public class <Entity>Endpoints : IEndpointGroup
         return TypedResults.NoContent();
     }
 }
-```
-
-Update / Delete examples
-------------------------
-Add handlers for update and delete when scaffolding full CRUD. Examples below follow the same thin-endpoint pattern and delegate to Application commands.
-
-```csharp
-    public static void Map(RouteGroupBuilder groupBuilder)
-    {
-        groupBuilder.MapPost("", Create<Entity>).RequireAuthorization();
-        groupBuilder.MapGet("{id}", Get<Entity>ById).RequireAuthorization();
-        groupBuilder.MapPut("{id}", Update<Entity>).RequireAuthorization();
-        groupBuilder.MapDelete("{id}", Delete<Entity>).RequireAuthorization();
-    }
-
-    [EndpointName(nameof(Update<Entity>))]
-    [EndpointSummary("Update an existing <Entity>")]
-    public static async Task<Results<NoContent, NotFoundHttpResult, BadRequest<<Entity>Dto>>> Update<Entity>(
-        ISender sender,
-        [FromRoute] string id,
-        [FromBody] Update<Entity>Command command
-    )
-    {
-        var exists = await sender.Send(new Get<Entity>ByIdQuery(id));
-        if (exists == null)
-            return TypedResults.NotFound();
-
-        await sender.Send(command);
-        return TypedResults.NoContent();
-    }
-
-    [EndpointName(nameof(Delete<Entity>))]
-    [EndpointSummary("Soft-delete a <Entity> by identifier")]
-    public static async Task<Results<NoContent, NotFoundHttpResult>> Delete<Entity>(
-        ISender sender,
-        [FromRoute] string id
-    )
-    {
-        var exists = await sender.Send(new Get<Entity>ByIdQuery(id));
-        if (exists == null)
-            return TypedResults.NotFound();
-
-        await sender.Send(new Delete<Entity>Command(id));
-        return TypedResults.NoContent();
-    }
 ```
 
 Return type guidance
