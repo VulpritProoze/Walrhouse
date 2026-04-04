@@ -27,6 +27,7 @@ Notes
 - Do not commit automatically; use the `commit` skill to create commits.
 - Follow `Walrhouse.Application` naming and mapping conventions.
 - Check `GlobalUsings.cs` for commonly used namespaces to include in the generated files.
+- Use Ardalis.GuardClauses instead of throwing classic exceptions if possible.
 
 Crucial
 --------

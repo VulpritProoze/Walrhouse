@@ -31,6 +31,7 @@ Notes
 - Always use projection (`ProjectTo`) and `AsNoTracking()` for list queries.
 - Do not commit automatically; use the `commit` skill to create commits.
 - Check `GlobalUsings.cs` for commonly used namespaces to include in the generated files.
+- Use Ardalis.GuardClauses instead of throwing classic exceptions if possible.
 
 Crucial
 --------
