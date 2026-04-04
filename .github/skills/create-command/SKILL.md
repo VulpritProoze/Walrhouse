@@ -26,6 +26,7 @@ Notes
 -----
 - Do not commit automatically; use the `commit` skill to create commits.
 - Follow `Walrhouse.Application` naming and mapping conventions.
+- Check `GlobalUsings.cs` for commonly used namespaces to include in the generated files.
 
 Crucial
 --------
