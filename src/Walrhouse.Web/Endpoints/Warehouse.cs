@@ -34,11 +34,13 @@ public class Warehouse : IEndpointGroup
 
     [EndpointName(nameof(GetWarehouses))]
     [EndpointSummary("Get paginated list of warehouses")]
-    public static async Task<Ok<PaginatedList<WarehouseDto>>> GetWarehouses(
+    public static async Task<IResult> GetWarehouses(
         ISender sender,
-        [FromQuery] GetWarehousesQuery query
+        [FromQuery] int pageNumber = 1,
+        [FromQuery] int pageSize = 100
     )
     {
+        var query = new GetWarehousesQuery(pageNumber, pageSize);
         var result = await sender.Send(query);
         return TypedResults.Ok(result);
     }
