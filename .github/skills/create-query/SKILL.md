@@ -30,3 +30,9 @@ Notes
 -----
 - Always use projection (`ProjectTo`) and `AsNoTracking()` for list queries.
 - Do not commit automatically; use the `commit` skill to create commits.
+
+Crucial
+--------
+Always prefer operating on non–soft-deleted entities by filtering with the `IsDeleted` flag (e.g. include `.Where(e => !e.IsDeleted)` in read handlers). Do not return or act on soft-deleted entities unless the user explicitly requests it.
+For updates: do not apply updates to entities where `IsDeleted == true`.
+Only a `purge` command or action may perform a hard delete.
