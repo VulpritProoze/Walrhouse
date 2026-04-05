@@ -23,9 +23,8 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             .Where(b => b.BinNo == binNo)
             .SingleOrDefaultAsync(cancellationToken);
 
-        var providedWarehouseCode = request.WarehouseCode.Trim();
         var warehouse = await _context.Warehouses.FirstOrDefaultAsync(
-            w => w.WarehouseCode == providedWarehouseCode,
+            w => w.WarehouseCode == request.WarehouseCode.Trim(),
             cancellationToken
         );
 
@@ -37,7 +36,7 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
                 return existing.BinNo; // idempotent
 
             existing.BinName = request.BinName.Trim();
-            existing.WarehouseCode = providedWarehouseCode;
+            existing.WarehouseCode = request.WarehouseCode.Trim();
             existing.Warehouse = warehouse;
             existing.IsDeleted = false;
 
@@ -50,7 +49,7 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
         {
             BinNo = binNo,
             BinName = request.BinName.Trim(),
-            WarehouseCode = providedWarehouseCode,
+            WarehouseCode = request.WarehouseCode.Trim(),
             Warehouse = warehouse
         };
 

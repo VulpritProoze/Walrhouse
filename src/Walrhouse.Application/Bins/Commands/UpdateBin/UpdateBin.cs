@@ -16,7 +16,7 @@ public class UpdateBinCommandHandler : IRequestHandler<UpdateBinCommand>
 
     public async Task Handle(UpdateBinCommand request, CancellationToken cancellationToken)
     {
-        var binNo = (request.BinNo ?? string.Empty).Trim();
+        var binNo = request.BinNo.Trim();
 
         var entity = await _context
             .Bins.AsQueryable()
@@ -30,15 +30,14 @@ public class UpdateBinCommandHandler : IRequestHandler<UpdateBinCommand>
 
         if (!string.IsNullOrWhiteSpace(request.WarehouseCode))
         {
-            var warehouseCode = request.WarehouseCode.Trim();
             var warehouse = await _context.Warehouses.FirstOrDefaultAsync(
-                w => w.WarehouseCode == warehouseCode,
+                w => w.WarehouseCode == request.WarehouseCode.Trim(),
                 cancellationToken
             );
 
             Guard.Against.Null(warehouse, nameof(warehouse));
 
-            entity.WarehouseCode = warehouseCode;
+            entity.WarehouseCode = request.WarehouseCode.Trim();
             entity.Warehouse = warehouse;
         }
 
