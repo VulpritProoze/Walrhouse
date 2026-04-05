@@ -46,7 +46,7 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for cookie expiry days.
     /// </summary>
-    public const string CookieExpiryDaysParameter = "cookie-expiry-days";
+    public const string CookieExpiryDaysParameter = "CookieExpiryDays";
 
     /// <summary>
     /// The environment variable name for the administrator email.
@@ -56,7 +56,7 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for the administrator email.
     /// </summary>
-    public const string SeedAdminEmailParameter = "seed-admin-email";
+    public const string SeedAdminEmailParameter = "SeedAdminEmail";
 
     /// <summary>
     /// The environment variable name for the administrator first name.
@@ -66,7 +66,7 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for the administrator first name.
     /// </summary>
-    public const string SeedAdminFirstNameParameter = "seed-admin-first-name";
+    public const string SeedAdminFirstNameParameter = "SeedAdminFirstName";
 
     /// <summary>
     /// The environment variable name for the administrator last name.
@@ -76,7 +76,7 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for the administrator last name.
     /// </summary>
-    public const string SeedAdminLastNameParameter = "seed-admin-last-name";
+    public const string SeedAdminLastNameParameter = "SeedAdminLastName";
 
     /// <summary>
     /// The environment variable name for the administrator password.
@@ -86,7 +86,7 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for the administrator password.
     /// </summary>
-    public const string SeedAdminPasswordParameter = "seed-admin-password";
+    public const string SeedAdminPasswordParameter = "SeedAdminPassword";
 
     /// <summary>
     /// The environment variable name for the Azure Key Vault endpoint.
@@ -96,5 +96,5 @@ public static class Services
     /// <summary>
     /// The AppHost parameter name for the Azure Key Vault endpoint.
     /// </summary>
-    public const string AzureKeyVaultEndpointParameter = "azure-key-vault-endpoint";
+    public const string AzureKeyVaultEndpointParameter = "AzureKeyVaultEndpoint";
 }
