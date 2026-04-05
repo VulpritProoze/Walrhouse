@@ -55,17 +55,10 @@ public class ApplicationDbContextInitializer
     {
         try
         {
-            if (_env.IsProduction())
-            {
-                _context.Database.Migrate();
-            }
-            else
-            {
-                // In Development, we wipe and recreate the database for rapid iteration
-                // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
-                await _context.Database.EnsureDeletedAsync();
-                await _context.Database.EnsureCreatedAsync();
-            }
+            // In Development, we wipe and recreate the database for rapid iteration
+            // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
+            await _context.Database.EnsureDeletedAsync();
+            await _context.Database.EnsureCreatedAsync();
         }
         catch (Exception ex)
         {
