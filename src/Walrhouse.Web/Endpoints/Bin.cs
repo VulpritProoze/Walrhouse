@@ -59,8 +59,8 @@ public class Bin : IEndpointGroup
         [FromBody] UpdateBinCommand? command
     )
     {
-        var payload = command ?? new UpdateBinCommand(binNo, null!);
-        var cmd = new UpdateBinCommand(binNo, payload.BinName);
+        var payload = command ?? new UpdateBinCommand(binNo, null, null);
+        var cmd = new UpdateBinCommand(binNo, payload.BinName, payload.WarehouseCode);
 
         await sender.Send(cmd);
         return TypedResults.NoContent();

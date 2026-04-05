@@ -3,7 +3,7 @@ using Walrhouse.Application.Common.Interfaces;
 
 namespace Walrhouse.Application.Bins.Commands.UpdateBin;
 
-public record UpdateBinCommand(string BinNo, string BinName, string WarehouseCode) : IRequest;
+public record UpdateBinCommand(string BinNo, string? BinName, string? WarehouseCode) : IRequest;
 
 public class UpdateBinCommandHandler : IRequestHandler<UpdateBinCommand>
 {
