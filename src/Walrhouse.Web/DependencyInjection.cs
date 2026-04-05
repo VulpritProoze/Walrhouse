@@ -36,10 +36,27 @@ public static class DependencyInjection
         var keyVaultUri = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
         if (!string.IsNullOrWhiteSpace(keyVaultUri))
         {
-            builder.Configuration.AddAzureKeyVault(
-                new Uri(keyVaultUri),
-                new DefaultAzureCredential()
-            );
+            var failFast =
+                builder.Configuration.GetValue<bool?>("AZURE_KEY_VAULT_FAIL_FAST") ?? false;
+
+            try
+            {
+                builder.Configuration.AddAzureKeyVault(
+                    new Uri(keyVaultUri),
+                    new DefaultAzureCredential()
+                );
+            }
+            catch (Exception ex)
+            {
+                if (failFast)
+                {
+                    throw;
+                }
+
+                Console.Error.WriteLine(
+                    $"Key Vault configuration load failed for '{keyVaultUri}'. Continuing startup with existing configuration. Error: {ex.Message}"
+                );
+            }
         }
     }
 }
