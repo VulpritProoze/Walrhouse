@@ -1,8 +1,8 @@
-namespace Walrhouse.Application.Bins.Queries.GetBinByBinNo;
+namespace Walrhouse.Application.Bins.Queries.GetBin;
 
-public class GetBinByBinNoQueryValidator : AbstractValidator<GetBinByBinNoQuery>
+public class GetBinQueryValidator : AbstractValidator<GetBinQuery>
 {
-    public GetBinByBinNoQueryValidator()
+    public GetBinQueryValidator()
     {
         RuleFor(x => x.BinNo)
             .NotEmpty()

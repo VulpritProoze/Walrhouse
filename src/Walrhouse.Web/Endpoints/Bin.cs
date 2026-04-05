@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Walrhouse.Application.Bins.Commands.CreateBin;
 using Walrhouse.Application.Bins.Commands.DeleteBin;
 using Walrhouse.Application.Bins.Commands.UpdateBin;
-using Walrhouse.Application.Bins.Queries.GetBinByBinNo;
+using Walrhouse.Application.Bins.Queries.GetBin;
 using Walrhouse.Application.Bins.Queries.GetBins;
 
 namespace Walrhouse.Web.Endpoints;
@@ -36,7 +36,7 @@ public class Bin : IEndpointGroup
     [EndpointSummary("Get a single bin by bin number")]
     public static async Task<Results<Ok<BinDto>, NotFound>> GetBin(ISender sender, string binNo)
     {
-        var dto = await sender.Send(new GetBinByBinNoQuery(binNo));
+        var dto = await sender.Send(new GetBinQuery(binNo));
         return dto is null ? TypedResults.NotFound() : TypedResults.Ok(dto);
     }
 
