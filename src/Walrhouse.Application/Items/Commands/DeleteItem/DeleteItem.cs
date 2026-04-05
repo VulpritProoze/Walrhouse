@@ -1,5 +1,6 @@
+using Ardalis.GuardClauses;
+using Microsoft.EntityFrameworkCore;
 using Walrhouse.Application.Common.Interfaces;
-using Walrhouse.Application.Common.Security;
 
 namespace Walrhouse.Application.Items.Commands.DeleteItem;
 
@@ -21,12 +22,10 @@ public class DeleteItemCommandHandler : IRequestHandler<DeleteItemCommand>
             cancellationToken
         );
 
-        if (entity is null)
-        {
-            throw new KeyNotFoundException($"Item with code '{request.ItemCode}' was not found.");
-        }
+        Guard.Against.Null(entity, nameof(entity));
 
-        _context.Items.Remove(entity);
+        entity.IsDeleted = true;
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 }
