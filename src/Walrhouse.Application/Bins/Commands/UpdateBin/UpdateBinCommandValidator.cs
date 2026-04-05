@@ -1,4 +1,3 @@
-using FluentValidation;
 using Walrhouse.Application.Common.Interfaces;
 
 namespace Walrhouse.Application.Bins.Commands.UpdateBin;
