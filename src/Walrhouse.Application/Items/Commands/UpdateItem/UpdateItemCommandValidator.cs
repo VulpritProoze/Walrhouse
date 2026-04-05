@@ -21,14 +21,10 @@ public class UpdateItemCommandValidator : AbstractValidator<UpdateItemCommand>
         RuleFor(x => x.BarcodeFormat).IsInEnum().WithMessage("Invalid BarcodeFormat value.");
 
         RuleFor(x => x.UgpEntry)
-            .NotEmpty()
-            .WithMessage("UgpEntry is required.")
             .MaximumLength(64)
             .WithMessage("UgpEntry must be at most 64 characters.");
 
         RuleFor(x => x.BarcodeValue)
-            .NotEmpty()
-            .WithMessage("BarcodeValue is required.")
             .MaximumLength(256)
             .WithMessage("BarcodeValue must be at most 256 characters.");
 
