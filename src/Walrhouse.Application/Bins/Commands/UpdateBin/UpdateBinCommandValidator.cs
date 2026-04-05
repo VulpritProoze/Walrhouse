@@ -1,3 +1,4 @@
+using FluentValidation;
 using Walrhouse.Application.Common.Interfaces;
 
 namespace Walrhouse.Application.Bins.Commands.UpdateBin;
@@ -13,9 +14,11 @@ public class UpdateBinCommandValidator : AbstractValidator<UpdateBinCommand>
             .WithMessage("BinNo must be at most 64 characters.");
 
         RuleFor(x => x.BinName)
-            .NotEmpty()
-            .WithMessage("BinName is required.")
             .MaximumLength(256)
             .WithMessage("BinName must be at most 256 characters.");
+
+        RuleFor(x => x.WarehouseCode)
+            .MaximumLength(64)
+            .WithMessage("WarehouseCode must be at most 64 characters.");
     }
 }
