@@ -16,22 +16,18 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
 
     public async Task<string> Handle(CreateBinCommand request, CancellationToken cancellationToken)
     {
-        var binNo = (request.BinNo ?? string.Empty).Trim();
+        var binNo = request.BinNo.Trim();
 
         var existing = await _context
             .Bins.AsQueryable()
             .Where(b => b.BinNo == binNo)
             .SingleOrDefaultAsync(cancellationToken);
 
-        var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
-        Warehouse? warehouse = null;
-        if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
-        {
-            warehouse = await _context.Warehouses.FirstOrDefaultAsync(
-                w => w.WarehouseCode == providedWarehouseCode,
-                cancellationToken
-            );
-        }
+        var providedWarehouseCode = request.WarehouseCode.Trim();
+        var warehouse = await _context.Warehouses.FirstOrDefaultAsync(
+            w => w.WarehouseCode == providedWarehouseCode,
+            cancellationToken
+        );
 
         Guard.Against.Null(warehouse, nameof(warehouse));
 
@@ -40,14 +36,9 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             if (!existing.IsDeleted)
                 return existing.BinNo; // idempotent
 
-            existing.BinName = (request.BinName ?? string.Empty).Trim();
-
-            if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
-            {
-                existing.WarehouseCode = providedWarehouseCode;
-                existing.Warehouse = warehouse;
-            }
-
+            existing.BinName = request.BinName.Trim();
+            existing.WarehouseCode = providedWarehouseCode;
+            existing.Warehouse = warehouse;
             existing.IsDeleted = false;
 
             await _context.SaveChangesAsync(cancellationToken);
@@ -58,7 +49,7 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
         var bin = new Bin
         {
             BinNo = binNo,
-            BinName = (request.BinName ?? string.Empty).Trim(),
+            BinName = request.BinName.Trim(),
             WarehouseCode = providedWarehouseCode,
             Warehouse = warehouse
         };
