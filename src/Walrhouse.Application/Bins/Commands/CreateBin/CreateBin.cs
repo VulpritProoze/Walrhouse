@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Domain.Entities;
 
@@ -32,9 +31,9 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
                 w => w.WarehouseCode == providedWarehouseCode,
                 cancellationToken
             );
-
-            Guard.Against.Null(warehouse, nameof(warehouse));
         }
+
+        Guard.Against.Null(warehouse, nameof(warehouse));
 
         if (existing is not null)
         {
