@@ -79,6 +79,10 @@ resource walrhouse_webapi 'Microsoft.App/containerApps@2025-02-02-preview' = {
               secretRef: 'connectionstrings--walrhousedb'
             }
             {
+              name: 'AZURE_CLIENT_ID'
+              value: reference(aca_env_outputs_azure_container_registry_managed_identity_id, '2023-01-31').clientId
+            }
+            {
               name: 'ASPNETCORE_ENVIRONMENT'
               value: aspnetcore_environment_value
             }
