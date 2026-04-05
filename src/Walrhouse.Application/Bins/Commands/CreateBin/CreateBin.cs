@@ -24,35 +24,6 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             .Where(b => b.BinNo == binNo)
             .SingleOrDefaultAsync(cancellationToken);
 
-
-        if (existing is not null)
-        {
-            if (!existing.IsDeleted)
-                return existing.BinNo; // idempotent
-
-            existing.BinName = (request.BinName ?? string.Empty).Trim();
-
-            var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
-            if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
-            {
-                var warehouse = await _context.Warehouses.FirstOrDefaultAsync(
-                    w => w.WarehouseCode == providedWarehouseCode,
-                    cancellationToken
-                );
-
-                Guard.Against.Null(warehouse, nameof(warehouse));
-
-                existing.WarehouseCode = providedWarehouseCode;
-                existing.Warehouse = warehouse;
-            }
-
-            existing.IsDeleted = false;
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return existing.BinNo;
-        }
-
         var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
         Domain.Entities.Warehouse? warehouse = null;
         if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
@@ -63,6 +34,26 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             );
 
             Guard.Against.Null(warehouse, nameof(warehouse));
+        }
+
+        if (existing is not null)
+        {
+            if (!existing.IsDeleted)
+                return existing.BinNo; // idempotent
+
+            existing.BinName = (request.BinName ?? string.Empty).Trim();
+
+            if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
+            {
+                existing.WarehouseCode = providedWarehouseCode;
+                existing.Warehouse = warehouse;
+            }
+
+            existing.IsDeleted = false;
+
+            await _context.SaveChangesAsync(cancellationToken);
+
+            return existing.BinNo;
         }
 
         var bin = new Bin
