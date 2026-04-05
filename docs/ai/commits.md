@@ -12,6 +12,7 @@ Rules
 - Use Conventional Commits: `type(scope): description` (description < 100 chars).
 - Keep commits atomic: one logical change per commit. Commit each edit/change you make (not every file), and include only files you edited.
 - Always check branch: never commit directly to `main` — create/checkout a feature or task branch first.
+- Priority naming for scope: `feature e.g. fix(warehouse)` - `project e.g. feat(application)` - `[specific] e.g. docs(commands-cqrs)` or can also combine `fix(application-warehouse)` on some cases only.
 
 Commit message structure
 - Header: `type(scope): short description`  
