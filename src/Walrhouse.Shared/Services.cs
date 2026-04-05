@@ -97,4 +97,14 @@ public static class Services
     /// The AppHost parameter name for the Azure Key Vault endpoint.
     /// </summary>
     public const string AzureKeyVaultEndpointParameter = "AzureKeyVaultEndpoint";
+
+    /// <summary>
+    /// The environment variable name for selecting a user-assigned managed identity.
+    /// </summary>
+    public const string AzureClientId = "AZURE_CLIENT_ID";
+
+    /// <summary>
+    /// The AppHost parameter name for the managed identity client id.
+    /// </summary>
+    public const string AzureClientIdParameter = "AzureClientId";
 }
