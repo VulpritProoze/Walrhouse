@@ -1,0 +1,52 @@
+name: Database Migrate
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "GitHub environment name to run under"
+        required: false
+        default: "production"
+
+permissions:
+  contents: read
+
+jobs:
+  migrate:
+    name: Apply EF Core migrations
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    env:
+      ConnectionStrings__WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Validate required secret
+        run: |
+          if [ -z "${ConnectionStrings__WalrhouseDb}" ]; then
+            echo "Missing required secret: AZURE_WALRHOUSE_DB"
+            exit 1
+          fi
+
+      - name: Install dotnet-ef
+        run: |
+          dotnet tool install --global dotnet-ef --version "10.*"
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
+      - name: Restore solution
+        run: dotnet restore Walrhouse.slnx
+
+      - name: Apply migrations
+        run: >
+          dotnet ef database update
+          --project src/Walrhouse.Infrastructure/Walrhouse.Infrastructure.csproj
+          --startup-project src/Walrhouse.Web/Walrhouse.Web.csproj
+          --context ApplicationDbContext
+          --verbose
