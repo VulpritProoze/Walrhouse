@@ -37,4 +37,34 @@ public static class Services
     /// This parameter is used to store the database connection string.
     /// </summary>
     public const string DatabaseConnectionString = "ConnectionStrings__WalrhouseDb";
+
+    /// <summary>
+    /// The environment variable name for cookie expiry days.
+    /// </summary>
+    public const string CookieExpiryDays = "CookieExpiryDays";
+
+    /// <summary>
+    /// The environment variable name for the administrator email.
+    /// </summary>
+    public const string SeedAdminEmail = "SeedUsers__Administrator__Email";
+
+    /// <summary>
+    /// The environment variable name for the administrator first name.
+    /// </summary>
+    public const string SeedAdminFirstName = "SeedUsers__Administrator__FirstName";
+
+    /// <summary>
+    /// The environment variable name for the administrator last name.
+    /// </summary>
+    public const string SeedAdminLastName = "SeedUsers__Administrator__LastName";
+
+    /// <summary>
+    /// The environment variable name for the administrator password.
+    /// </summary>
+    public const string SeedAdminPassword = "SeedUsers__Administrator__Password";
+
+    /// <summary>
+    /// The environment variable name for the Azure Key Vault endpoint.
+    /// </summary>
+    public const string AzureKeyVaultEndpoint = "AZURE_KEY_VAULT_ENDPOINT";
 }
