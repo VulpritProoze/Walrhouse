@@ -12,6 +12,7 @@ var adminEmail = builder.AddParameter(Services.SeedAdminEmailParameter);
 var adminFirstName = builder.AddParameter(Services.SeedAdminFirstNameParameter);
 var adminLastName = builder.AddParameter(Services.SeedAdminLastNameParameter);
 var azureKeyVaultEndpoint = builder.AddParameter(Services.AzureKeyVaultEndpointParameter);
+var azureClientId = builder.AddParameter(Services.AzureClientIdParameter);
 
 var web = builder
     .AddProject<Projects.Walrhouse_Web>(Services.WebApi)
@@ -22,6 +23,7 @@ var web = builder
     .WithEnvironment(Services.SeedAdminLastName, adminLastName)
     .WithEnvironment(Services.CookieExpiryDays, cookieExpiryDays)
     .WithEnvironment(Services.AzureKeyVaultEndpoint, azureKeyVaultEndpoint)
+    .WithEnvironment(Services.AzureClientId, azureClientId)
     .WithExternalHttpEndpoints()
     .WithAspNetCoreEnvironment()
     .WithUrlForEndpoint(
