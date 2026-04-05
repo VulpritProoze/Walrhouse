@@ -4,30 +4,33 @@ A modern warehouse management and scan verification system designed for high-per
 
 ## Technical Stack
 
-### WebClient (Frontend)
-- *Located within Walrhouse.Web/Client*
-- **Runtime & Framework**: React 19 / Vite 7
-- **Language**: TypeScript (using `verbatimModuleSyntax`)
-- **Styling**: Tailwind CSS 4.0
-- **UI Architecture**: Shadcn UI (integrated with `@base-ui/react`)
-- **State & Data**: TanStack Query (React Query) v5 & Axios
-- **Routing**: React Router 7
-- **Animations**: Framer Motion 12
-- **Validation**: Zod
-- **Icons**: Lucide React
-- **Security Handling**: Cookie-based authentication with ASP.NET Core Identity.
+- Backend: .NET 10, ASP.NET Core (Minimal API)
+- Application Architecture: Clean Architecture + CQRS (MediatR-style handlers/behaviors)
+- Frontend: React (served via Walrhouse.Web client app)
+- Data Access: Entity Framework Core
+- Database: PostgreSQL
+- Cloud/Hosting: Azure Container Apps (via .NET Aspire AppHost)
+- IaC/Provisioning: Bicep + Azure Developer CLI (azd)
+- Secrets/Config: Azure Key Vault + azd environment management
+- API Docs: OpenAPI + Scalar UI
 
-### Server (Backend)
-- **Runtime**: .NET 10.0
-- **Architecture**: Clean Architecture
-  - **Walrhouse.Domain**: Enterprise logic and entities.
-  - **Walrhouse.Application**: Use cases and business rules.
-  - **Walrhouse.Infrastructure**: Data access (EF Core) and external services.
-  - **Walrhouse.Web**: API endpoints and configuration.
-- **Database**: PostgreSQL (Npgsql)
-- **ORM**: Entity Framework Core 10
-- **API Specification**: Scalar / OpenAPI (Swagger replacement)
-- **Security**: ASP.NET Core Identity
+## Architecture
+
+Walrhouse follows a Clean Architecture layout with clear boundaries between domain, application, infrastructure, and web delivery concerns.
+
+- `src/Walrhouse.Domain`: Core business rules, entities, value objects, domain events
+- `src/Walrhouse.Application`: Use cases, commands/queries, validators, behaviors, DTO mappings
+- `src/Walrhouse.Infrastructure`: Persistence, identity, external integrations, EF Core implementation details
+- `src/Walrhouse.Web`: HTTP API, middleware, endpoint wiring, static web host and API surface
+- `src/Walrhouse.AppHost`: .NET Aspire orchestration, service composition, deployment-time environment mapping
+
+This structure keeps business logic independent from delivery and infrastructure details, enabling cleaner testing and easier long-term maintenance.
+
+## Acknowledgements
+
+This project is heavily inspired by and references Jason Taylor's Clean Architecture template and guidance.
+
+Special thanks to Jason Taylor for shaping most of the architectural patterns and development practices used in this repository.
 
 ## Setup & Development
 
