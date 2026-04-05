@@ -12,6 +12,8 @@ param walrhouse_webapi_containerport string
 @secure()
 param walrhousedb_value string
 
+param aspnetcore_environment_value string
+
 param aca_env_outputs_azure_container_registry_endpoint string
 
 param aca_env_outputs_azure_container_registry_managed_identity_id string
@@ -78,7 +80,7 @@ resource walrhouse_webapi 'Microsoft.App/containerApps@2025-02-02-preview' = {
             }
             {
               name: 'ASPNETCORE_ENVIRONMENT'
-              value: 'Development'
+              value: aspnetcore_environment_value
             }
           ]
         }
