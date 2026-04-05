@@ -7,6 +7,7 @@ param aca_env_outputs_azure_container_registry_managed_identity_id = '{{ .Env.AC
 param walrhouse_webapi_containerimage = '{{ .Image }}'
 param walrhouse_webapi_containerport = '{{ targetPortOrDefault 8080 }}'
 param walrhousedb_value = '{{ securedParameter "WalrhouseDb" }}'
+param azureclientid_value = '{{ .Env.AZURE_CLIENT_ID }}'
 param azurekeyvaultendpoint_value = '{{ .Env.AZURE_KEY_VAULT_ENDPOINT }}'
 param cookieexpirydays_value = '{{ .Env.CookieExpiryDays }}'
 param seedadminemail_value = '{{ .Env.SeedAdminEmail }}'
