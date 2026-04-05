@@ -27,13 +27,16 @@ Notes
 - Do not commit automatically; use the `commit` skill to create commits.
 - Follow `Walrhouse.Application` naming and mapping conventions.
 - Check `GlobalUsings.cs` for commonly used namespaces to include in the generated files.
-- Use Ardalis.GuardClauses instead of throwing classic exceptions if possible.
+ - Use Ardalis.GuardClauses instead of throwing classic exceptions if possible.
+ - If a field references another entity (e.g., `WarehouseCode`), query it first, `Guard.Against.Null` if missing, then assign.
 
 Crucial
 --------
-Always prefer operating on non–soft-deleted entities by filtering with the `IsDeleted` flag (e.g. include `.Where(e => !e.IsDeleted)` in reads and checks). Do not delete or update soft-deleted entities unless the user explicitly requests it.
-For updates: do not apply updates to entities where `IsDeleted == true`.
-Hard deletes should be reserved for `purge` commands/actions only.
+Always prefer non–soft-deleted entities (`Where(e => !e.IsDeleted)`). Do not modify soft-deleted entities unless requested.
+- Create: if match exists and `IsDeleted == true`, restore it (reset fields, update collections, set `IsDeleted = false`).
+- Update: require only the identifier; other fields optional — null means "no change".
+- Collections: modify the existing navigation collection (clear+add or sync); don't replace it.
+Hard deletes are for `purge` actions only.
 
 Test
 --------
