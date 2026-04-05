@@ -20,10 +20,10 @@ References
 Behavior (short)
 ----------------
 - If `queryType` is `list` (default): generate a paginated `Get<Entity>s` query and handler.
-- If `queryType` is `single`: ask which identifier to use (e.g., `Id`, `ItemCode`, `Sku`) if `idParameter` is not provided, then generate `Get<Entity>ById` query and handler and a simple validator.
+- If `queryType` is `single`: ask which identifier to use (e.g., `Id`, `ItemCode`, `Sku`) if `idParameter` is not provided, then generate `Get<Entity>` query and handler and a simple validator.
 - Create folder `src/Walrhouse.Application/<Entity>/Queries/<QueryName>/` and files:
   - `<QueryName>.cs` (handler + record)
-  - `<QueryName>Validator.cs` (for single-entity queries or when parameters exist)
+  - `<QueryName>QueryValidator.cs` (for single-entity queries or when parameters exist)
 - Return `createdFiles` and a short `summary`.
 
 Notes
