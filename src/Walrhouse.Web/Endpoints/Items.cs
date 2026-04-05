@@ -63,7 +63,8 @@ public class Items : IEndpointGroup
         [FromBody] UpdateItemCommand? command
     )
     {
-        var payload = command ?? new UpdateItemCommand(itemCode, null, null, null, null, null, null);
+        var payload =
+            command ?? new UpdateItemCommand(itemCode, null, null, null, null, null, null);
         var cmd = new UpdateItemCommand(
             itemCode,
             payload.ItemName,
