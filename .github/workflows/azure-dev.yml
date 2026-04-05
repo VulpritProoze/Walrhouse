@@ -46,10 +46,12 @@ jobs:
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:
+          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
 
       - name: Deploy Application
         run: azd deploy --no-prompt
         env:
+          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
         
