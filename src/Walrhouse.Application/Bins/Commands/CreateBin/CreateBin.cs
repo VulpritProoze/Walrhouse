@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Domain.Entities;
 
@@ -23,13 +24,28 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             .Where(b => b.BinNo == binNo)
             .SingleOrDefaultAsync(cancellationToken);
 
+
         if (existing is not null)
         {
             if (!existing.IsDeleted)
                 return existing.BinNo; // idempotent
 
             existing.BinName = (request.BinName ?? string.Empty).Trim();
-            existing.WarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
+
+            var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
+            if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
+            {
+                var warehouse = await _context.Warehouses.FirstOrDefaultAsync(
+                    w => w.WarehouseCode == providedWarehouseCode,
+                    cancellationToken
+                );
+
+                Guard.Against.Null(warehouse, nameof(warehouse));
+
+                existing.WarehouseCode = providedWarehouseCode;
+                existing.Warehouse = warehouse;
+            }
+
             existing.IsDeleted = false;
 
             await _context.SaveChangesAsync(cancellationToken);
@@ -37,12 +53,24 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             return existing.BinNo;
         }
 
+        var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
+        Domain.Entities.Warehouse? warehouse = null;
+        if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
+        {
+            warehouse = await _context.Warehouses.FirstOrDefaultAsync(
+                w => w.WarehouseCode == providedWarehouseCode,
+                cancellationToken
+            );
+
+            Guard.Against.Null(warehouse, nameof(warehouse));
+        }
+
         var bin = new Bin
         {
             BinNo = binNo,
             BinName = (request.BinName ?? string.Empty).Trim(),
-            WarehouseCode = (request.WarehouseCode ?? string.Empty).Trim(),
-            Warehouse = null!
+            WarehouseCode = providedWarehouseCode,
+            Warehouse = warehouse ?? null!
         };
 
         _context.Bins.Add(bin);
