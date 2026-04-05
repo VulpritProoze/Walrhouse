@@ -25,7 +25,7 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             .SingleOrDefaultAsync(cancellationToken);
 
         var providedWarehouseCode = (request.WarehouseCode ?? string.Empty).Trim();
-        Domain.Entities.Warehouse? warehouse = null;
+        Warehouse? warehouse = null;
         if (!string.IsNullOrWhiteSpace(providedWarehouseCode))
         {
             warehouse = await _context.Warehouses.FirstOrDefaultAsync(
@@ -61,7 +61,7 @@ public class CreateBinCommandHandler : IRequestHandler<CreateBinCommand, string>
             BinNo = binNo,
             BinName = (request.BinName ?? string.Empty).Trim(),
             WarehouseCode = providedWarehouseCode,
-            Warehouse = warehouse ?? null!
+            Warehouse = warehouse
         };
 
         _context.Bins.Add(bin);
