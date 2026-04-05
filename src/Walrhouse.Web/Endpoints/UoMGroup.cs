@@ -5,6 +5,7 @@ using Walrhouse.Application.UoMGroups.Commands.DeleteUoMGroup;
 using Walrhouse.Application.UoMGroups.Commands.UpdateUoMGroup;
 using Walrhouse.Application.UoMGroups.Queries.GetUoMGroup;
 using Walrhouse.Application.UoMGroups.Queries.GetUoMGroups;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Web.Endpoints;
 
@@ -12,11 +13,21 @@ public class UoMGroup : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateUoMGroup, "").RequireAuthorization();
-        groupBuilder.MapGet(GetUoMGroups, "").RequireAuthorization();
-        groupBuilder.MapGet(GetUoMGroup, "{ugpEntry}").RequireAuthorization();
-        groupBuilder.MapPut(UpdateUoMGroup, "{ugpEntry}").RequireAuthorization();
-        groupBuilder.MapDelete(DeleteUoMGroup, "{ugpEntry}").RequireAuthorization();
+        groupBuilder
+            .MapPost(CreateUoMGroup, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetUoMGroups, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetUoMGroup, "{ugpEntry}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapPut(UpdateUoMGroup, "{ugpEntry}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapDelete(DeleteUoMGroup, "{ugpEntry}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(CreateUoMGroup))]

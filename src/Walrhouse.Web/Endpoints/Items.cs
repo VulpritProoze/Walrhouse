@@ -6,6 +6,7 @@ using Walrhouse.Application.Items.Commands.DeleteItem;
 using Walrhouse.Application.Items.Commands.UpdateItem;
 using Walrhouse.Application.Items.Queries.GetItem;
 using Walrhouse.Application.Items.Queries.GetItems;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Web.Endpoints;
 
@@ -13,11 +14,21 @@ public class Items : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateItem, "").RequireAuthorization();
-        groupBuilder.MapGet(GetItems, "").RequireAuthorization();
-        groupBuilder.MapGet(GetItem, "{itemCode}").RequireAuthorization();
-        groupBuilder.MapPut(UpdateItem, "{itemCode}").RequireAuthorization();
-        groupBuilder.MapDelete(DeleteItem, "{itemCode}").RequireAuthorization();
+        groupBuilder
+            .MapPost(CreateItem, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetItems, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetItem, "{itemCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapPut(UpdateItem, "{itemCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapDelete(DeleteItem, "{itemCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(CreateItem))]

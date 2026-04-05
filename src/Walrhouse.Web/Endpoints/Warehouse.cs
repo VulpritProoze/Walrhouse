@@ -5,6 +5,7 @@ using Walrhouse.Application.Warehouses.Commands.DeleteWarehouse;
 using Walrhouse.Application.Warehouses.Commands.UpdateWarehouse;
 using Walrhouse.Application.Warehouses.Queries.GetWarehouse;
 using Walrhouse.Application.Warehouses.Queries.GetWarehouses;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Web.Endpoints;
 
@@ -12,11 +13,21 @@ public class Warehouse : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateWarehouse, "").RequireAuthorization();
-        groupBuilder.MapGet(GetWarehouses, "").RequireAuthorization();
-        groupBuilder.MapGet(GetWarehouse, "{warehouseCode}").RequireAuthorization();
-        groupBuilder.MapPut(UpdateWarehouse, "{warehouseCode}").RequireAuthorization();
-        groupBuilder.MapDelete(DeleteWarehouse, "{warehouseCode}").RequireAuthorization();
+        groupBuilder
+            .MapPost(CreateWarehouse, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetWarehouses, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetWarehouse, "{warehouseCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapPut(UpdateWarehouse, "{warehouseCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapDelete(DeleteWarehouse, "{warehouseCode}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(CreateWarehouse))]

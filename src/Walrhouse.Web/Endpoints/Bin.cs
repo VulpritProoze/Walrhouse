@@ -5,6 +5,7 @@ using Walrhouse.Application.Bins.Commands.DeleteBin;
 using Walrhouse.Application.Bins.Commands.UpdateBin;
 using Walrhouse.Application.Bins.Queries.GetBin;
 using Walrhouse.Application.Bins.Queries.GetBins;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Web.Endpoints;
 
@@ -12,11 +13,11 @@ public class Bin : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateBin, "").RequireAuthorization();
-        groupBuilder.MapGet(GetBins, "").RequireAuthorization();
-        groupBuilder.MapGet(GetBin, "{binNo}").RequireAuthorization();
-        groupBuilder.MapPut(UpdateBin, "{binNo}").RequireAuthorization();
-        groupBuilder.MapDelete(DeleteBin, "{binNo}").RequireAuthorization();
+        groupBuilder.MapPost(CreateBin, "").RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder.MapGet(GetBins, "").RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder.MapGet(GetBin, "{binNo}").RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder.MapPut(UpdateBin, "{binNo}").RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder.MapDelete(DeleteBin, "{binNo}").RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(GetBins))]

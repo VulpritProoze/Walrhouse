@@ -5,6 +5,7 @@ using Walrhouse.Application.Batches.Commands.DeleteBatch;
 using Walrhouse.Application.Batches.Commands.UpdateBatch;
 using Walrhouse.Application.Batches.Queries.GetBatch;
 using Walrhouse.Application.Batches.Queries.GetBatches;
+using Walrhouse.Domain.Constants;
 
 namespace Walrhouse.Web.Endpoints;
 
@@ -12,11 +13,21 @@ public class Batch : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost(CreateBatch, "").RequireAuthorization();
-        groupBuilder.MapGet(GetBatches, "").RequireAuthorization();
-        groupBuilder.MapGet(GetBatch, "{batchNumber}").RequireAuthorization();
-        groupBuilder.MapPut(UpdateBatch, "{batchNumber}").RequireAuthorization();
-        groupBuilder.MapDelete(DeleteBatch, "{batchNumber}").RequireAuthorization();
+        groupBuilder
+            .MapPost(CreateBatch, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetBatches, "")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapGet(GetBatch, "{batchNumber}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapPut(UpdateBatch, "{batchNumber}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
+        groupBuilder
+            .MapDelete(DeleteBatch, "{batchNumber}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(GetBatches))]
