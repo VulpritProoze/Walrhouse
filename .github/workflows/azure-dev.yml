@@ -56,14 +56,13 @@ jobs:
             "AZURE_SUBSCRIPTION_ID=${{ env.AZURE_SUBSCRIPTION_ID }}"
             "AZURE_TENANT_ID=${{ env.AZURE_TENANT_ID }}"
             "AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }}"
-            "AZURE_WALRHOUSE_DB=${{ env.WalrhouseDb }}"
-            "WalrhouseDb=${{ env.WalrhouseDb }}"
+            "WalrhouseDb=${{ env.AZURE_WALRHOUSE_DB }}"
             "AZURE_KEY_VAULT_ENDPOINT=${{ env.AZURE_KEY_VAULT_ENDPOINT }}"
-            "CookieExpiryDays=${{ env.CookieExpiryDays }}"
-            "SeedAdminEmail=${{ env.SeedAdminEmail }}"
-            "SeedAdminFirstName=${{ env.SeedAdminFirstName }}"
-            "SeedAdminLastName=${{ env.SeedAdminLastName }}"
-            "SeedAdminPassword=${{ env.SeedAdminPassword }}"
+            "CookieExpiryDays=${{ env.COOKIE_EXPIRY_DAYS }}"
+            "SeedAdminEmail=${{ env.SEED_ADMIN_EMAIL }}"
+            "SeedAdminFirstName=${{ env.SEED_ADMIN_FIRST_NAME }}"
+            "SeedAdminLastName=${{ env.SEED_ADMIN_LAST_NAME }}"
+            "SeedAdminPassword=${{ env.SEED_ADMIN_PASSWORD }}"
           ) | Set-Content -Path $envFile -Encoding UTF8
         shell: pwsh
 
