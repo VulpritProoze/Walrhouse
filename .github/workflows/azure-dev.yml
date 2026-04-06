@@ -46,24 +46,24 @@ jobs:
 
       - name: Prepare azd environment file
         run: |
-          $envDir = Join-Path ".azure" "$Env:AZURE_ENV_NAME"
+          $envDir = Join-Path ".azure" "${{ env.AZURE_ENV_NAME }}"
           New-Item -ItemType Directory -Path $envDir -Force | Out-Null
           $envFile = Join-Path $envDir ".env"
 
           @(
-            "AZURE_ENV_NAME=$Env:AZURE_ENV_NAME"
-            "AZURE_LOCATION=$Env:AZURE_LOCATION"
-            "AZURE_SUBSCRIPTION_ID=$Env:AZURE_SUBSCRIPTION_ID"
-            "AZURE_TENANT_ID=$Env:AZURE_TENANT_ID"
-            "AZURE_CLIENT_ID=$Env:AZURE_CLIENT_ID"
-            "AZURE_WALRHOUSE_DB=$Env:WalrhouseDb"
-            "WalrhouseDb=$Env:WalrhouseDb"
-            "AZURE_KEY_VAULT_ENDPOINT=$Env:AZURE_KEY_VAULT_ENDPOINT"
-            "CookieExpiryDays=$Env:CookieExpiryDays"
-            "SeedAdminEmail=$Env:SeedAdminEmail"
-            "SeedAdminFirstName=$Env:SeedAdminFirstName"
-            "SeedAdminLastName=$Env:SeedAdminLastName"
-            "SeedAdminPassword=$Env:SeedAdminPassword"
+            "AZURE_ENV_NAME=${{ env.AZURE_ENV_NAME }}"
+            "AZURE_LOCATION=${{ env.AZURE_LOCATION }}"
+            "AZURE_SUBSCRIPTION_ID=${{ env.AZURE_SUBSCRIPTION_ID }}"
+            "AZURE_TENANT_ID=${{ env.AZURE_TENANT_ID }}"
+            "AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }}"
+            "AZURE_WALRHOUSE_DB=${{ env.WalrhouseDb }}"
+            "WalrhouseDb=${{ env.WalrhouseDb }}"
+            "AZURE_KEY_VAULT_ENDPOINT=${{ env.AZURE_KEY_VAULT_ENDPOINT }}"
+            "CookieExpiryDays=${{ env.CookieExpiryDays }}"
+            "SeedAdminEmail=${{ env.SeedAdminEmail }}"
+            "SeedAdminFirstName=${{ env.SeedAdminFirstName }}"
+            "SeedAdminLastName=${{ env.SeedAdminLastName }}"
+            "SeedAdminPassword=${{ env.SeedAdminPassword }}"
           ) | Set-Content -Path $envFile -Encoding UTF8
         shell: pwsh
 
