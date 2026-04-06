@@ -68,7 +68,7 @@ jobs:
         shell: pwsh
 
       - name: Provision Infrastructure
-        run: azd provision --no-prompt --environment "$AZURE_ENV_NAME"
+        run: azd provision --no-prompt --environment "${{ env.AZURE_ENV_NAME }}"
 
       - name: Deploy Application
-        run: azd deploy --no-prompt --environment "$AZURE_ENV_NAME"
+        run: azd deploy --no-prompt --environment "${{ env.AZURE_ENV_NAME }}"
