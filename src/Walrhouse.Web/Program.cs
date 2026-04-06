@@ -11,12 +11,12 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
-// If caller requested a one-off seed run, execute the idempotent seeder and exit.
+// If caller requested a one-off seed run, execute production-safe seeding and exit.
 if (args.Contains("seed", StringComparer.OrdinalIgnoreCase))
 {
     using var scope = app.Services.CreateScope();
     var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
-    await initializer.TrySeedAsync();
+    await initializer.SeedProductionAsync();
     return;
 }
 

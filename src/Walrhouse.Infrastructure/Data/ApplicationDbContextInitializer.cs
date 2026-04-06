@@ -120,6 +120,24 @@ public class ApplicationDbContextInitializer
             }
         }
     }
+
+    /// <summary>
+    /// Production-friendly seeding that will resolve any akvs:// references from configuration
+    /// using the startup resolver before performing idempotent seeding.
+    /// </summary>
+    public async Task SeedProductionAsync()
+    {
+        try
+        {
+            // akvs:// values are resolved during Web startup via AddKeyVaultIfConfigured.
+            await TrySeedAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while performing production seeding.");
+            throw;
+        }
+    }
 }
 
 public class SeedUser
