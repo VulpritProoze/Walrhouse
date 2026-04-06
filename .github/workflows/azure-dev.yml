@@ -15,17 +15,6 @@ jobs:
   build:
     if: ${{ (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
-      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
-      AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
-      WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
-      AzureClientId: ${{ vars.AZURE_CLIENT_ID }}
-      AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
-      SeedAdminPassword: ${{ secrets.SEED_ADMIN_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,7 +52,7 @@ jobs:
             "AZURE_CLIENT_ID=$Env:AZURE_CLIENT_ID"
             "WalrhouseDb=$Env:WalrhouseDb"
             "AzureClientId=$Env:AzureClientId"
-            "AzureKeyVaultEndpoint=$Env:AzureKeyVaultEndpoint"
+            "AzureKeyVaultEndpoint=$Env:AZURE_KEY_VAULT_ENDPOINT"
             "CookieExpiryDays=$Env:CookieExpiryDays"
             "SeedAdminEmail=$Env:SeedAdminEmail"
             "SeedAdminFirstName=$Env:SeedAdminFirstName"
