@@ -53,6 +53,18 @@ jobs:
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
 
+      - name: Set azd environment parameters
+        run: |
+          azd env set WalrhouseDb "$Env:WalrhouseDb"
+          azd env set AzureClientId "$Env:AzureClientId"
+          azd env set AzureKeyVaultEndpoint "$Env:AzureKeyVaultEndpoint"
+          azd env set CookieExpiryDays "$Env:CookieExpiryDays"
+          azd env set SeedAdminEmail "$Env:SeedAdminEmail"
+          azd env set SeedAdminFirstName "$Env:SeedAdminFirstName"
+          azd env set SeedAdminLastName "$Env:SeedAdminLastName"
+          azd env set SeedAdminPassword "$Env:SeedAdminPassword"
+        shell: pwsh
+
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:
