@@ -53,16 +53,27 @@ jobs:
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
 
-      - name: Set azd environment parameters
+      - name: Prepare azd environment file
         run: |
-          azd env set WalrhouseDb "$Env:WalrhouseDb"
-          azd env set AzureClientId "$Env:AzureClientId"
-          azd env set AzureKeyVaultEndpoint "$Env:AzureKeyVaultEndpoint"
-          azd env set CookieExpiryDays "$Env:CookieExpiryDays"
-          azd env set SeedAdminEmail "$Env:SeedAdminEmail"
-          azd env set SeedAdminFirstName "$Env:SeedAdminFirstName"
-          azd env set SeedAdminLastName "$Env:SeedAdminLastName"
-          azd env set SeedAdminPassword "$Env:SeedAdminPassword"
+          $envDir = Join-Path ".azure" "$Env:AZURE_ENV_NAME"
+          New-Item -ItemType Directory -Path $envDir -Force | Out-Null
+          $envFile = Join-Path $envDir ".env"
+
+          @(
+            "AZURE_ENV_NAME=$Env:AZURE_ENV_NAME"
+            "AZURE_LOCATION=$Env:AZURE_LOCATION"
+            "AZURE_SUBSCRIPTION_ID=$Env:AZURE_SUBSCRIPTION_ID"
+            "AZURE_TENANT_ID=$Env:AZURE_TENANT_ID"
+            "AZURE_CLIENT_ID=$Env:AZURE_CLIENT_ID"
+            "WalrhouseDb=$Env:WalrhouseDb"
+            "AzureClientId=$Env:AzureClientId"
+            "AzureKeyVaultEndpoint=$Env:AzureKeyVaultEndpoint"
+            "CookieExpiryDays=$Env:CookieExpiryDays"
+            "SeedAdminEmail=$Env:SeedAdminEmail"
+            "SeedAdminFirstName=$Env:SeedAdminFirstName"
+            "SeedAdminLastName=$Env:SeedAdminLastName"
+            "SeedAdminPassword=$Env:SeedAdminPassword"
+          ) | Set-Content -Path $envFile -Encoding UTF8
         shell: pwsh
 
       - name: Provision Infrastructure
