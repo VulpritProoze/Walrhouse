@@ -33,6 +33,7 @@
     "git add": true,
     "git commit": true,
     "git rev-parse": true,
-    "dotnet build": true
+    "dotnet build": true,
+    "git rev-list": true
   }
 }
