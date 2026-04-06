@@ -11,6 +11,15 @@ builder.AddWebServices();
 
 var app = builder.Build();
 
+// If caller requested a one-off seed run, execute the idempotent seeder and exit.
+if (args.Contains("seed", StringComparer.OrdinalIgnoreCase))
+{
+    using var scope = app.Services.CreateScope();
+    var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+    await initializer.TrySeedAsync();
+    return;
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
