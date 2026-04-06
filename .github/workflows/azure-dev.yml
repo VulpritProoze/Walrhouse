@@ -1,5 +1,10 @@
 on:
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "GitHub environment name to run under"
+        required: false
+        default: "production"
   workflow_run:
     workflows: ["CI Pipeline"]
     types: [completed]
@@ -15,6 +20,7 @@ jobs:
   build:
     if: ${{ (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'production' }}
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
@@ -24,8 +30,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Install azd
         uses: Azure/setup-azd@v2
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -42,7 +50,6 @@ jobs:
             --tenant-id "$Env:AZURE_TENANT_ID"
         shell: pwsh
 
-
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:
@@ -54,4 +61,3 @@ jobs:
         env:
           WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
-        
