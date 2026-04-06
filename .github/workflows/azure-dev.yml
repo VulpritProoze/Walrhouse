@@ -17,8 +17,54 @@ permissions:
   contents: read
 
 jobs:
-  build:
-    if: ${{ (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main') || github.event_name == 'workflow_dispatch' }}
+  build-main:
+    if: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    env:
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
+      AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install azd
+        uses: Azure/setup-azd@v2
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.x
+            9.x
+            10.x
+
+      - name: Log in with Azure (Federated Credentials)
+        run: |
+          azd auth login `
+            --client-id "$Env:AZURE_CLIENT_ID" `
+            --federated-credential-provider "github" `
+            --tenant-id "$Env:AZURE_TENANT_ID"
+        shell: pwsh
+
+      - name: Provision Infrastructure
+        run: azd provision --no-prompt
+        env:
+          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
+          AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
+          AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+          AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+
+      - name: Deploy Application
+        run: azd deploy --no-prompt
+        env:
+          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
+          AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
+
+  build-dispatch:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment || 'production' }}
     env:
@@ -37,7 +83,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: | 
+          dotnet-version: |
             8.x
             9.x
             10.x
