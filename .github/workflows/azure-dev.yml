@@ -25,7 +25,7 @@ jobs:
       WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
       AzureClientId: ${{ vars.AZURE_CLIENT_ID }}
       AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
-      CookieExpiryDays: ${{ secrets.COOKIE_EXPIRY_DAYS || '14' }}
+      CookieExpiryDays: '14'
       SeedAdminEmail: ${{ secrets.SEED_ADMIN_EMAIL || 'admin@walrhouse.local' }}
       SeedAdminFirstName: ${{ secrets.SEED_ADMIN_FIRST_NAME || 'Admin' }}
       SeedAdminLastName: ${{ secrets.SEED_ADMIN_LAST_NAME || 'User' }}
