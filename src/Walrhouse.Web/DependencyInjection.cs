@@ -60,64 +60,7 @@ public static class DependencyInjection
             }
         }
 
-        ResolveAkvConnectionStringIfNeeded(builder);
-    }
-
-    private static void ResolveAkvConnectionStringIfNeeded(IHostApplicationBuilder builder)
-    {
-        const string connectionStringKey = "ConnectionStrings:WalrhouseDb";
-        var connectionStringValue = builder.Configuration[connectionStringKey];
-        if (string.IsNullOrWhiteSpace(connectionStringValue))
-        {
-            return;
-        }
-
-        if (!TryParseAkvReference(connectionStringValue, out var vaultName, out var secretName))
-        {
-            return;
-        }
-
-        var configuredVaultEndpoint = builder.Configuration["AZURE_KEY_VAULT_ENDPOINT"];
-        var vaultUri = !string.IsNullOrWhiteSpace(configuredVaultEndpoint)
-            ? new Uri(configuredVaultEndpoint)
-            : new Uri($"https://{vaultName}.vault.azure.net/");
-
-        try
-        {
-            var client = new SecretClient(vaultUri, new DefaultAzureCredential());
-            var secret = client.GetSecret(secretName);
-            builder.Configuration[connectionStringKey] = secret.Value.Value;
-        }
-        catch (Exception ex)
-        {
-            Console.Error.WriteLine(
-                $"Failed to resolve Key Vault connection string reference '{connectionStringValue}'. Error: {ex.Message}"
-            );
-        }
-    }
-
-    private static bool TryParseAkvReference(
-        string value,
-        out string vaultName,
-        out string secretName
-    )
-    {
-        vaultName = string.Empty;
-        secretName = string.Empty;
-
-        if (!value.StartsWith("akvs://", StringComparison.OrdinalIgnoreCase))
-        {
-            return false;
-        }
-
-        var parts = value["akvs://".Length..].Split('/', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length < 3)
-        {
-            return false;
-        }
-
-        vaultName = parts[1];
-        secretName = parts[2];
-        return true;
+        // Resolve any akvs:// references across configuration using the shared extension
+        builder.ResolveAkvsReferences();
     }
 }
