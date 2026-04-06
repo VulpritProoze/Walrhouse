@@ -22,6 +22,14 @@ jobs:
       AZURE_ENV_NAME: ${{ vars.AZURE_ENV_NAME }}
       AZURE_LOCATION: ${{ vars.AZURE_LOCATION }}
       AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+      WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
+      AzureClientId: ${{ vars.AZURE_CLIENT_ID }}
+      AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+      CookieExpiryDays: ${{ secrets.COOKIE_EXPIRY_DAYS || '14' }}
+      SeedAdminEmail: ${{ secrets.SEED_ADMIN_EMAIL || 'admin@walrhouse.local' }}
+      SeedAdminFirstName: ${{ secrets.SEED_ADMIN_FIRST_NAME || 'Admin' }}
+      SeedAdminLastName: ${{ secrets.SEED_ADMIN_LAST_NAME || 'User' }}
+      SeedAdminPassword: ${{ secrets.SEED_ADMIN_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,13 +56,10 @@ jobs:
       - name: Provision Infrastructure
         run: azd provision --no-prompt
         env:
-          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
-          AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
           AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
 
       - name: Deploy Application
         run: azd deploy --no-prompt
         env:
-          WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
