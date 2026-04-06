@@ -55,6 +55,8 @@ jobs:
         env:
           WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
           AZURE_WALRHOUSE_DB: ${{ secrets.AZURE_WALRHOUSE_DB }}
+          AzureKeyVaultEndpoint: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+          AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
 
       - name: Deploy Application
         run: azd deploy --no-prompt
