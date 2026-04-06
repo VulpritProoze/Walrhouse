@@ -1,10 +1,5 @@
 on:
   workflow_dispatch:
-    inputs:
-      environment:
-        description: "GitHub environment name to run under"
-        required: false
-        default: "production"
   workflow_run:
     workflows: ["CI Pipeline"]
     types: [completed]
@@ -67,7 +62,6 @@ jobs:
   build-dispatch:
     if: ${{ github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
-    environment: ${{ inputs.environment || 'production' }}
     env:
       AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
