@@ -9,6 +9,7 @@ import {
   Edit,
   Plus,
   Settings,
+  ShieldCheck,
   Layers,
   MoreVertical,
   Warehouse,
@@ -62,7 +63,7 @@ export default function WarehouseManagement() {
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarGroup>
                 <div className="px-2 mb-2">
-                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
+                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-sm font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
                     <div className="flex items-center gap-2">
                       <LayoutPanelLeft className="h-4 w-4" />
                       Infrastructure
@@ -102,9 +103,9 @@ export default function WarehouseManagement() {
             <Collapsible defaultOpen className="group/collapsible">
               <SidebarGroup className="mt-2 pt-2 border-t border-sidebar-border/50">
                 <div className="px-2 mb-2">
-                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-xs font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
+                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-sm font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
                     <div className="flex items-center gap-2">
-                      <Settings className="h-4 w-4" />
+                      <ShieldCheck className="h-4 w-4" />
                       System
                     </div>
                     <ChevronRight className="h-3 w-3 transition-transform duration-200" />
