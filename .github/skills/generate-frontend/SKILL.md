@@ -43,6 +43,7 @@ Templates & Conventions
   - `import { Button } from 'src/components/ui/button'`
 - If the repo uses a different path (e.g., `src/components/ui` vs `components/ui`), detect and use the existing path.
 - Icons use `lucide-react`
+- Always use the `<CommonLayout>` wrapper for pages; extract user.roles from AuthContext and pass to layout;
 
 Shadcn guidance
 ---------------
