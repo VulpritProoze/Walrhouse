@@ -9,19 +9,21 @@ permissions:
 
 jobs:
   seed:
+    environment:
+      name: Production
     name: Run Seed
     runs-on: ubuntu-latest
     env:
-      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID || secrets.AZURE_CLIENT_ID }}
-      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID || secrets.AZURE_TENANT_ID }}
-      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID || secrets.AZURE_SUBSCRIPTION_ID }}
-      AZURE_KEY_VAULT_ENDPOINT: ${{ vars.AZURE_KEY_VAULT_ENDPOINT || secrets.AZURE_KEY_VAULT_ENDPOINT }}
-      ConnectionStrings__WalrhouseDb: ${{ vars.WalrhouseDb || secrets.WalrhouseDb || secrets.AZURE_WALRHOUSE_DB }}
-      SeedUsers__Administrator__Email: ${{ vars.SeedAdminEmail || secrets.SeedAdminEmail || secrets.SEED_ADMIN_EMAIL }}
-      SeedUsers__Administrator__FirstName: ${{ vars.SeedAdminFirstName || secrets.SeedAdminFirstName || secrets.SEED_ADMIN_FIRST_NAME }}
-      SeedUsers__Administrator__LastName: ${{ vars.SeedAdminLastName || secrets.SeedAdminLastName || secrets.SEED_ADMIN_LAST_NAME }}
-      SeedUsers__Administrator__Password: ${{ vars.SeedAdminPassword || secrets.SeedAdminPassword || secrets.SEED_ADMIN_PASSWORD }}
-      CookieExpiryDays: ${{ vars.CookieExpiryDays || secrets.COOKIE_EXPIRY_DAYS || secrets.CookieExpiryDays }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_KEY_VAULT_ENDPOINT: ${{ secrets.AZURE_KEY_VAULT_ENDPOINT }}
+      ConnectionStrings__WalrhouseDb: ${{ secrets.AZURE_WALRHOUSE_DB }}
+      SeedUsers__Administrator__Email: ${{ vars.SEED_ADMIN_EMAIL }}
+      SeedUsers__Administrator__FirstName: ${{ vars.SEED_ADMIN_FIRST_NAME }}
+      SeedUsers__Administrator__LastName: ${{ vars.SEED_ADMIN_LAST_NAME }}
+      SeedUsers__Administrator__Password: ${{ secrets.SEED_ADMIN_PASSWORD }}
+      CookieExpiryDays: ${{ vars.COOKIE_EXPIRY_DAYS }}
 
     steps:
       - name: Checkout
