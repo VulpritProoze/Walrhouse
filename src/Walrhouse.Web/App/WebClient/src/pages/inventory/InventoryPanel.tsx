@@ -13,6 +13,7 @@ import {
   type InventoryFeature,
 } from '@/features/inventory/components/InventorySidebar';
 import { BarcodeGenerator } from '@/features/inventory/components/BarcodeGenerator';
+import { ItemsMasterList } from '@/features/inventory/components/ItemsMasterList';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import CommonLayout from '@/layouts/CommonLayout';
@@ -41,27 +42,7 @@ const InventoryPanel = () => {
               title="Items Master List"
               description="Manage SKU, item attributes, and stock levels."
             />
-            <div className="flex gap-4 items-center mb-6">
-              <div className="relative flex-1">
-                <Search
-                  className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                  size={18}
-                />
-                <Input
-                  placeholder="Search items by SKU, name, or barcode..."
-                  className="pl-10 h-10 ring-offset-background border-none shadow-sm bg-white"
-                />
-              </div>
-            </div>
-            <div className="border border-dashed border-muted rounded-xl p-12 bg-muted/5 flex flex-col items-center justify-center text-center">
-              <Layers size={48} className="text-muted-foreground/30 mb-4" strokeWidth={1} />
-              <p className="text-muted-foreground font-medium">
-                Items Master CRUD list will be implemented here.
-              </p>
-              <p className="text-xs text-muted-foreground/60 mt-1 max-w-sm">
-                Use the table layout to create, edit, or delete items within the system.
-              </p>
-            </div>
+            <ItemsMasterList />
           </div>
         );
       case 'barcode':
