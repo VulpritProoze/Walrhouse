@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  Search,
-  LayoutGrid,
-  Layers,
-  History,
-  ArrowRightCircle,
-  FileText,
-  type LucideIcon,
-} from 'lucide-react';
+import { LayoutGrid, History, ArrowRightCircle, FileText, type LucideIcon } from 'lucide-react';
 import {
   InventorySidebar,
   type InventoryFeature,
@@ -15,7 +7,6 @@ import {
 import { BarcodeGenerator } from '@/features/inventory/components/BarcodeGenerator';
 import { ItemsMasterList } from '@/features/inventory/components/ItemsMasterList';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import CommonLayout from '@/layouts/CommonLayout';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
 import { useAuth } from '@/features/auth/hooks/use-auth';

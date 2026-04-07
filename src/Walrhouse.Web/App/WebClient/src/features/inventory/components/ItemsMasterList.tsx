@@ -23,7 +23,6 @@ import {
   LayoutGrid,
   ArrowRightCircle,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import {
   DropdownMenu,
@@ -129,7 +128,9 @@ export const ItemsMasterList = () => {
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   const filtered = items.filter((item) =>
-    `${item.sku} ${item.name} ${item.category} ${item.binLocation}`.toLowerCase().includes(search.toLowerCase())
+    `${item.sku} ${item.name} ${item.category} ${item.binLocation}`
+      .toLowerCase()
+      .includes(search.toLowerCase()),
   );
 
   const isAllSelected = filtered.length > 0 && selectedIds.size === filtered.length;
@@ -184,7 +185,10 @@ export const ItemsMasterList = () => {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={18}
+          />
           <Input
             placeholder="Search SKU, name, or location..."
             className="pl-10 h-10 ring-offset-background border-none shadow-sm bg-white"
@@ -211,7 +215,7 @@ export const ItemsMasterList = () => {
               size="sm"
               variant="outline"
               className="gap-2 h-9"
-              onClick={() => console.log("Bulk export...", Array.from(selectedIds))}
+              onClick={() => console.log('Bulk export...', Array.from(selectedIds))}
             >
               <FileDown className="h-4 w-4" />
               Export Selected
@@ -238,7 +242,11 @@ export const ItemsMasterList = () => {
                 <SelectItem value="json">Import JSON</SelectItem>
               </SelectContent>
             </Select>
-            <Button size="sm" className="gap-2 h-9 shadow-sm" onClick={() => console.log("Add Item")}>
+            <Button
+              size="sm"
+              className="gap-2 h-9 shadow-sm"
+              onClick={() => console.log('Add Item')}
+            >
               <Plus className="h-4 w-4" />
               Add Item
             </Button>
@@ -283,7 +291,7 @@ export const ItemsMasterList = () => {
                 key={item.id}
                 data-selected={selectedIds.has(item.id)}
                 className="data-[selected=true]:bg-primary/5 transition-colors cursor-pointer group"
-                onClick={(e) => {
+                onClick={() => {
                   // We handle toggle logic in TableRow to make it easier to click anywhere
                   // unless clicking on buttons/menus/checkbox itself which we handle via stopPropagation if needed
                   // But following UserManagement example, let's stick to checkbox only or explicit toggle
@@ -309,19 +317,22 @@ export const ItemsMasterList = () => {
                 <TableCell>
                   <div className="font-semibold text-foreground">{item.name}</div>
                   <div className="text-[10px] text-muted-foreground flex items-center gap-2">
-                     Updated: {new Date(item.lastUpdated).toLocaleDateString()}
+                    Updated: {new Date(item.lastUpdated).toLocaleDateString()}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="text-[10px] font-medium bg-muted/20 border-muted-foreground/10">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] font-medium bg-muted/20 border-muted-foreground/10"
+                  >
                     {item.category}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-center">
-                   <div className="font-mono font-bold text-sm">
-                     {item.stockLevel}
-                   </div>
-                   <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.unit}</div>
+                  <div className="font-mono font-bold text-sm">{item.stockLevel}</div>
+                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                    {item.unit}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-1.5 text-xs font-medium decoration-primary/30 underline-offset-4 hover:underline">
@@ -330,7 +341,10 @@ export const ItemsMasterList = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={STATUS_VARIANT[item.status]} className="capitalize text-[10px] font-bold">
+                  <Badge
+                    variant={STATUS_VARIANT[item.status]}
+                    className="capitalize text-[10px] font-bold"
+                  >
                     {item.status.replace('-', ' ')}
                   </Badge>
                 </TableCell>
@@ -338,21 +352,34 @@ export const ItemsMasterList = () => {
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={
-                        <Button variant="ghost" size="icon-sm" className="h-8 w-8 hover:bg-muted group-hover:opacity-100 opacity-60 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon-sm"
+                          className="h-8 w-8 hover:bg-muted group-hover:opacity-100 opacity-60 transition-opacity"
+                        >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       }
                     />
                     <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem className="gap-2" onClick={() => console.log('Edit', item.id)}>
+                      <DropdownMenuItem
+                        className="gap-2"
+                        onClick={() => console.log('Edit', item.id)}
+                      >
                         <Edit className="h-4 w-4 text-muted-foreground" />
                         Edit Item
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2" onClick={() => console.log('Movement', item.id)}>
+                      <DropdownMenuItem
+                        className="gap-2"
+                        onClick={() => console.log('Movement', item.id)}
+                      >
                         <ArrowRightCircle className="h-4 w-4 text-muted-foreground" />
                         Stock Movement
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2" onClick={() => console.log('History', item.id)}>
+                      <DropdownMenuItem
+                        className="gap-2"
+                        onClick={() => console.log('History', item.id)}
+                      >
                         <History className="h-4 w-4 text-muted-foreground" />
                         Operation History
                       </DropdownMenuItem>
@@ -372,7 +399,7 @@ export const ItemsMasterList = () => {
           </TableBody>
         </Table>
       </div>
-      
+
       <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
         <p>Showing {filtered.length} items</p>
         <p>Storage Capacity: 65% utilized</p>
