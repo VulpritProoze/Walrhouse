@@ -73,3 +73,4 @@ Notes
 -----
 - This skill only scaffolds files; it does not run package installers. When shadcn primitives are missing, it will prompt the user with exact `npx` commands to run.
 - If the repo uses a non-React frontend, prompt the user to confirm framework target before scaffolding.
+- Navigate to `src/Walrhouse.Web/App/WebClient` for client-side commands and file paths.

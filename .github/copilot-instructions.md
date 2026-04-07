@@ -11,6 +11,8 @@ dotnet watch run --project src/Walrhouse.AppHost
 
 Architecture: Follow Jason Taylor's Clean Architecture (AppHost orchestrates; Web = API + React; Infrastructure = EF Core). Inspect `Program.cs` and `ApplicationDbContext` for entry points.
 
+Commands: Run commands for most server, and infrastructure at root level. For client-side, run commands in `src/Walrhouse.Web/App/WebClient` (e.g., `npm run dev`).
+
 Guardrails: Never apply migrations, change infra, or update production secrets without explicit human approval. Open a PR for schema, dependency, or infra changes.
 
 Commit rules: The agent will not create commits unless explicitly instructed to do so via the commit skill.
