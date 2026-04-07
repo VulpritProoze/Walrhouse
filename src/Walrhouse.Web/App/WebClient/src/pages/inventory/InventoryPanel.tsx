@@ -15,6 +15,9 @@ import {
 import { BarcodeGenerator } from '@/features/inventory/components/BarcodeGenerator';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import CommonLayout from '@/layouts/CommonLayout';
+import type { Roles as RoleType } from '@/features/auth/types/roles';
+import { useAuth } from '@/features/auth/hooks/use-auth';
 
 /**
  * InventoryPanel.tsx
@@ -24,6 +27,8 @@ import { Input } from '@/components/ui/input';
  */
 
 const InventoryPanel = () => {
+  const { user } = useAuth();
+  const roles = (user?.roles as RoleType[]) ?? [];
   const [activeFeature, setActiveFeature] = useState<InventoryFeature>('items');
 
   // Placeholder views for other features
@@ -99,30 +104,32 @@ const InventoryPanel = () => {
   };
 
   return (
-    <div className="flex h-screen w-full bg-[#f8f9fa] overflow-hidden">
-      {/* Sidebar Navigation */}
-      <InventorySidebar activeFeature={activeFeature} onSelect={(f) => setActiveFeature(f)} />
+    <CommonLayout roles={roles}>
+      <div className="flex h-[calc(100vh-12rem)] w-full bg-background border rounded-lg overflow-hidden">
+        {/* Sidebar Navigation */}
+        <InventorySidebar activeFeature={activeFeature} onSelect={(f) => setActiveFeature(f)} />
 
-      {/* Main Feature Content */}
-      <div className="flex-1 overflow-y-auto px-8 py-6">
-        <div className="max-w-6xl mx-auto space-y-8 pb-12">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-            <span className="opacity-60">Admin</span>
-            <span className="opacity-40">/</span>
-            <span className="font-medium text-primary capitalize">
-              {activeFeature.replace('-', ' ')}
-            </span>
-          </div>
+        {/* Main Feature Content */}
+        <div className="flex-1 overflow-y-auto px-8 py-6 bg-muted/10">
+          <div className="max-w-5xl mx-auto space-y-8 pb-12">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+              <span className="opacity-60">Inventory</span>
+              <span className="opacity-40">/</span>
+              <span className="font-medium text-primary capitalize">
+                {activeFeature.replace('-', ' ')}
+              </span>
+            </div>
 
-          <div
-            key={activeFeature}
-            className="animate-in fade-in slide-in-from-right-2 duration-300"
-          >
-            {renderFeatureView()}
+            <div
+              key={activeFeature}
+              className="animate-in fade-in slide-in-from-right-2 duration-300"
+            >
+              {renderFeatureView()}
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </CommonLayout>
   );
 };
 
