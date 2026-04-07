@@ -42,6 +42,7 @@ Templates & Conventions
 - Use `src/components/ui` shadcn primitives. Example imports:
   - `import { Button } from 'src/components/ui/button'`
 - If the repo uses a different path (e.g., `src/components/ui` vs `components/ui`), detect and use the existing path.
+- Icons use `lucide-react`
 
 Shadcn guidance
 ---------------
