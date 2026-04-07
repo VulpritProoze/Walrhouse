@@ -1,7 +1,8 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs/tabs.tsx';
-import { Users, ShieldAlert } from 'lucide-react';
+import { Users, ShieldAlert, Warehouse } from 'lucide-react';
 import UserManagement from './UserManagement';
 import SecurityModule from './SecurityModule';
+import WarehouseManagement from './WarehouseManagement';
 
 export default function AdminPanel() {
   return (
@@ -14,10 +15,17 @@ export default function AdminPanel() {
       </div>
 
       <Tabs defaultValue="users">
-        <TabsList variant="line" className="w-full justify-start border-b rounded-none px-0 h-10 gap-4">
+        <TabsList
+          variant="line"
+          className="w-full justify-start border-b rounded-none px-0 h-10 gap-4"
+        >
           <TabsTrigger value="users" className="after:bottom-0 gap-1.5">
             <Users className="h-4 w-4" />
             User Management
+          </TabsTrigger>
+          <TabsTrigger value="warehouses" className="after:bottom-0 gap-1.5">
+            <Warehouse className="h-4 w-4" />
+            Warehouses
           </TabsTrigger>
           <TabsTrigger value="security" className="after:bottom-0 gap-1.5">
             <ShieldAlert className="h-4 w-4" />
@@ -27,6 +35,10 @@ export default function AdminPanel() {
 
         <TabsContent value="users" className="mt-6">
           <UserManagement />
+        </TabsContent>
+
+        <TabsContent value="warehouses" className="mt-6">
+          <WarehouseManagement />
         </TabsContent>
 
         <TabsContent value="security" className="mt-6">

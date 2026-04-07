@@ -34,6 +34,7 @@
     "git commit": true,
     "git rev-parse": true,
     "dotnet build": true,
-    "git rev-list": true
+    "git rev-list": true,
+    "npx eslint": true
   }
 }

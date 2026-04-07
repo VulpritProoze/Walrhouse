@@ -63,9 +63,3 @@ Quick checklist
 - Large, legible scan/readout area.
 - Predictable control placement and minimal steps.
 - Accessible and keyboard/scanner friendly.
-
-Technicality
-------------
-- Always make sure to check `components/ui` for existing shadcn components before adding a new component.
-- If the component does not exist, prompt the user/team to run `npx shadcn` to add it.
-- Reference: https://ui.shadcn.com/docs
