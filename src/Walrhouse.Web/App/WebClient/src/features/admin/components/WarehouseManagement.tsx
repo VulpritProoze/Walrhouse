@@ -5,34 +5,12 @@
 import { useState } from 'react';
 import {
   LayoutPanelLeft,
-  Trash2,
-  Edit,
-  Plus,
   Settings,
   ShieldCheck,
   Layers,
-  MoreVertical,
   Warehouse,
   ChevronRight,
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -44,6 +22,9 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { WarehouseView } from './warehouse-management/WarehouseView';
+import { BinView } from './warehouse-management/BinView';
+import { SettingsView } from './warehouse-management/SettingsView';
 
 type ViewMode = 'warehouse' | 'bin' | 'settings';
 
@@ -140,201 +121,5 @@ export default function WarehouseManagement() {
         </div>
       </div>
     </SidebarProvider>
-  );
-}
-
-// SidebarItem removed as it's replaced by SidebarMenuButton
-
-function WarehouseView() {
-  const warehouses = [
-    {
-      id: '1',
-      name: 'Main Distribution Center',
-      code: 'W-MAIN',
-      location: 'Section A',
-      status: 'Active',
-    },
-    { id: '2', name: 'South Branch', code: 'W-SOUTH', location: 'Section B', status: 'Active' },
-    {
-      id: '3',
-      name: 'Overflow Storage',
-      code: 'W-OVER',
-      location: 'Remote',
-      status: 'Maintenance',
-    },
-  ];
-
-  return (
-    <div className="space-y-4 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <div>
-          <h4 className="text-lg font-medium">Warehouses</h4>
-          <p className="text-sm text-muted-foreground">Manage physical storage facilities.</p>
-        </div>
-        <Button size="sm" className="gap-2">
-          <Plus className="h-4 w-4" />
-          Add Warehouse
-        </Button>
-      </div>
-
-      <Card className="border-none shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead>Code</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {warehouses.map((w) => (
-              <TableRow key={w.id} className="hover:bg-muted/10 group cursor-default">
-                <TableCell className="font-mono font-bold text-xs">{w.code}</TableCell>
-                <TableCell>{w.name}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">{w.location}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={w.status === 'Active' ? 'success' : 'outline'}
-                    className="text-[10px] font-bold uppercase"
-                  >
-                    {w.status}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem className="gap-2">
-                        <Edit className="h-4 w-4" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-destructive">
-                        <Trash2 className="h-4 w-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </div>
-  );
-}
-
-function BinView() {
-  const bins = [
-    { id: 'b1', name: 'A-01-01', type: 'Pallet Rack', warehouse: 'W-MAIN', capacity: '1000kg' },
-    { id: 'b2', name: 'A-01-02', type: 'Pallet Rack', warehouse: 'W-MAIN', capacity: '1000kg' },
-    { id: 'b3', name: 'B-01-01', type: 'Small Parts', warehouse: 'W-MAIN', capacity: '50kg' },
-    { id: 'b4', name: 'S-01-01', type: 'Cold Storage', warehouse: 'W-SOUTH', capacity: '500kg' },
-  ];
-
-  return (
-    <div className="space-y-4 animate-in fade-in duration-300">
-      <div className="flex justify-between items-center">
-        <div>
-          <h4 className="text-lg font-medium">Bin Locations</h4>
-          <p className="text-sm text-muted-foreground">Manage specific storage slots and racks.</p>
-        </div>
-        <Button size="sm" className="gap-2" variant="outline">
-          <Plus className="h-4 w-4" />
-          Add Bins (Bulk)
-        </Button>
-      </div>
-
-      <Card className="border-none shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead>Bin ID</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Warehouse</TableHead>
-              <TableHead>Max Capacity</TableHead>
-              <TableHead className="w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {bins.map((b) => (
-              <TableRow key={b.id} className="hover:bg-muted/10 group cursor-default">
-                <TableCell className="font-mono text-sm font-semibold">{b.name}</TableCell>
-                <TableCell className="text-sm">{b.type}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">{b.warehouse}</TableCell>
-                <TableCell className="text-sm">{b.capacity}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
-    </div>
-  );
-}
-
-function SettingsView() {
-  return (
-    <div className="space-y-6 animate-in fade-in duration-300">
-      <div>
-        <h4 className="text-lg font-medium">UI Settings</h4>
-        <p className="text-sm text-muted-foreground">Adjust infrastructure display preferences.</p>
-      </div>
-
-      <Card className="p-6 border-none shadow-sm space-y-6">
-        <div className="space-y-4">
-          <h5 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Display Preferences
-          </h5>
-          <div className="flex items-start space-x-3 pointer-events-none opacity-80">
-            <Checkbox id="show-empty" />
-            <div className="grid gap-1.5 leading-none">
-              <label htmlFor="show-empty" className="text-sm font-medium leading-none">
-                Show empty warehouses in main dashboard
-              </label>
-              <p className="text-xs text-muted-foreground">
-                Display facilities even if they currently have 0 stock recorded.
-              </p>
-            </div>
-          </div>
-          <div className="flex items-start space-x-3">
-            <Checkbox id="confirm-move" defaultChecked />
-            <div className="grid gap-1.5 leading-none">
-              <label htmlFor="confirm-move" className="text-sm font-medium leading-none">
-                Require confirmation for bin deactivation
-              </label>
-              <p className="text-xs text-muted-foreground">
-                Adds an extra verification step before marking bins as unavailable.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex justify-end pt-4">
-          <Button variant="outline" className="h-9">
-            Restore Defaults
-          </Button>
-          <Button className="ml-2 h-9 shadow-sm">Save Changes</Button>
-        </div>
-      </Card>
-    </div>
   );
 }

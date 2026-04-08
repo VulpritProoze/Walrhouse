@@ -29,8 +29,6 @@ public class CreateItemCommandValidator : AbstractValidator<CreateItemCommand>
             .WithMessage("UgpEntry must be at most 64 characters.");
 
         RuleFor(x => x.BarcodeValue)
-            .NotEmpty()
-            .WithMessage("BarcodeValue is required.")
             .MaximumLength(256)
             .WithMessage("BarcodeValue must be at most 256 characters.");
 

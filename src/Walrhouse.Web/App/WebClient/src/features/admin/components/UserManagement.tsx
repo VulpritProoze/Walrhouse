@@ -16,7 +16,7 @@ import {
   MoreHorizontal,
   ShieldCheck,
   Ban,
-  Trash2,
+  UserX,
   UserCog,
   Mail,
   Key,
@@ -24,6 +24,16 @@ import {
 import type { AdminUser, UserStatus } from '../types/admin';
 import { Roles, RoleVariant } from '@/features/auth/types/roles';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -146,14 +156,7 @@ export default function UserManagement() {
   const clearSelection = () => setSelectedIds(new Set());
 
   const handleBulkStatusChange = (status: UserStatus) => {
-    setUsers((prev) =>
-      prev.map((u) => (selectedIds.has(u.id) ? { ...u, status } : u))
-    );
-    clearSelection();
-  };
-
-  const handleBulkDelete = () => {
-    setUsers((prev) => prev.filter((u) => !selectedIds.has(u.id)));
+    setUsers((prev) => prev.map((u) => (selectedIds.has(u.id) ? { ...u, status } : u)));
     clearSelection();
   };
 
@@ -198,8 +201,21 @@ export default function UserManagement() {
     setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
   };
 
-  const handleDelete = (id: string) => {
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+  const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
+  const [deactivatingUser, setDeactivatingUser] = useState<AdminUser | null>(null);
+
+  const handleDeactivate = (user: AdminUser) => {
+    setDeactivatingUser(user);
+    setDeactivateDialogOpen(true);
+  };
+
+  const confirmDeactivate = () => {
+    if (!deactivatingUser) return;
+    setUsers((prev) =>
+      prev.map((u) => (u.id === deactivatingUser.id ? { ...u, status: 'suspended' } : u)),
+    );
+    setDeactivateDialogOpen(false);
+    setDeactivatingUser(null);
   };
 
   return (
@@ -241,15 +257,6 @@ export default function UserManagement() {
             </Button>
             <Button
               size="sm"
-              variant="destructive"
-              className="gap-2 h-8"
-              onClick={handleBulkDelete}
-            >
-              <Trash2 className="h-4 w-4" />
-              Delete
-            </Button>
-            <Button
-              size="sm"
               variant="ghost"
               className="px-2 h-8 text-muted-foreground"
               onClick={clearSelection}
@@ -288,6 +295,25 @@ export default function UserManagement() {
             />
           </>
         )}
+
+        <AlertDialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Deactivate user</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to deactivate this user?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel variant="outline" onClick={() => setDeactivateDialogOpen(false)}>
+                No
+              </AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={confirmDeactivate}>
+                Yes
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Table */}
@@ -407,6 +433,13 @@ export default function UserManagement() {
                         <Key className="h-4 w-4 text-muted-foreground" />
                         Reset Password
                       </DropdownMenuItem>
+                      <DropdownMenuItem
+                        className="gap-2 text-destructive"
+                        onClick={() => handleDeactivate(user)}
+                      >
+                        <UserX className="h-4 w-4" />
+                        Deactivate
+                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => handleStatusChange(user.id, 'whitelisted')}
@@ -421,14 +454,6 @@ export default function UserManagement() {
                       >
                         <Ban className="h-4 w-4 text-muted-foreground" />
                         Blacklist
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleDelete(user.id)}
-                        className="group gap-2 text-muted-foreground focus:text-destructive focus:bg-destructive/10"
-                      >
-                        <Trash2 className="size-4 text-muted-foreground group-hover:text-destructive group-data-[highlighted]:text-destructive group-focus:text-destructive" />
-                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>

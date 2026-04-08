@@ -4,6 +4,7 @@ import Login from '@/pages/auth/Login';
 import VerificationPage from '@/pages/verification/VerificationPage';
 import InventoryPanel from '@/pages/inventory/InventoryPanel';
 import HistoryPage from '@/pages/history/HistoryPage';
+import ReceiveDashboard from '@/pages/receive/ReceiveDashboard';
 import AdminPage from '@/pages/admin/AdminPage';
 import ProtectedRoute from '@/components/common/ProtectedRoute';
 import { Roles } from '@/features/auth/types/roles';
@@ -34,6 +35,18 @@ export const router = createBrowserRouter([
           />
         ),
         children: [{ path: '/inventory', element: <InventoryPanel /> }],
+      },
+      {
+        element: (
+          <ProtectedRoute
+            allowedRoles={[
+              Roles.Administrator,
+              Roles.WarehouseAdministrator,
+              Roles.InventoryController,
+            ]}
+          />
+        ),
+        children: [{ path: '/receive', element: <ReceiveDashboard /> }],
       },
       { path: '/history', element: <HistoryPage /> },
     ],

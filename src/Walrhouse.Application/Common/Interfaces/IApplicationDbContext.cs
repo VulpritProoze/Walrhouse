@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<Stock> Stocks { get; }
     DbSet<UoMGroup> UoMGroups { get; }
     DbSet<Warehouse> Warehouses { get; }
+    DbSet<BarcodeHistory> BarcodeHistories { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

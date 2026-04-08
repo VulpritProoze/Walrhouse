@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Stock> Stocks => Set<Stock>();
     public DbSet<UoMGroup> UoMGroups => Set<UoMGroup>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
+    public DbSet<BarcodeHistory> BarcodeHistories => Set<BarcodeHistory>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
