@@ -14,7 +14,9 @@ const adminNav: NavItem[] = [
   { key: 'admin-dashboard', label: 'Admin Panel', href: '/admin', icon: Package },
 ];
 
-const warehouseNav: NavItem[] = [{ key: 'receive', label: 'Receive', href: '#', icon: Download }];
+const warehouseNav: NavItem[] = [
+  { key: 'receive', label: 'Receive', href: '/receive', icon: Download },
+];
 
 const controllerNav: NavItem[] = [
   { key: 'inventory', label: 'Inventory', href: '/inventory', icon: Package },
