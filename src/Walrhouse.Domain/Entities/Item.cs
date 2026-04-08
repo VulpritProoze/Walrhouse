@@ -43,9 +43,10 @@ public class Item : BaseAuditableEntity
 
     /// <summary>
     /// Gets or sets the barcode value associated with this item.
-    /// This is used for scanning and identification purposes in the warehouse.
+    /// This is a static value and is not related to warehouse management
+    /// systems.
     /// </summary>
-    public required string BarcodeValue { get; set; }
+    public string? BarcodeValue { get; set; }
 
     /// <summary>
     /// Gets or sets the barcode format/type (e.g., UPC, EAN13, Code128, QR).

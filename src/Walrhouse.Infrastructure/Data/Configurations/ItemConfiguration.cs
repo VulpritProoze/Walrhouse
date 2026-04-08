@@ -21,7 +21,7 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .HasForeignKey(i => i.UgpEntry)
             .HasPrincipalKey(u => u.UgpEntry)
             .IsRequired();
-        builder.Property(i => i.BarcodeValue).HasMaxLength(256).IsRequired();
+        builder.Property(i => i.BarcodeValue).HasMaxLength(256);
         builder.Property(i => i.BarcodeFormat).HasMaxLength(64);
     }
 }

@@ -8,7 +8,7 @@ public record CreateItemCommand(
     string ItemCode,
     string ItemName,
     string UgpEntry,
-    string BarcodeValue,
+    string? BarcodeValue,
     BarcodeFormat? BarcodeFormat,
     ItemGroup? ItemGroup,
     string? Remarks
@@ -59,7 +59,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
             existing.ItemName = request.ItemName.Trim();
             existing.UgpEntry = ugpEntry;
             existing.UoMGroup = uomGroup!;
-            existing.BarcodeValue = request.BarcodeValue.Trim();
+            existing.BarcodeValue = request.BarcodeValue?.Trim();
             existing.BarcodeFormat = request.BarcodeFormat;
             existing.ItemGroup = request.ItemGroup;
             existing.Remarks = request.Remarks?.Trim();
@@ -76,7 +76,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
             ItemName = request.ItemName.Trim(),
             UgpEntry = ugpEntry,
             UoMGroup = uomGroup!,
-            BarcodeValue = request.BarcodeValue.Trim(),
+            BarcodeValue = request.BarcodeValue?.Trim(),
             BarcodeFormat = request.BarcodeFormat,
             ItemGroup = request.ItemGroup,
             Remarks = request.Remarks?.Trim(),
