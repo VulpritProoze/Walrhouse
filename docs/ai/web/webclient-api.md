@@ -13,10 +13,10 @@ Purpose
 - Standardize `WebClient` feature API files so agents and devs write consistent services.
 
 When to use
-- Add this when creating a new feature under `Web/App/WebClient/src/[feature]/api`.
+- Add this when creating a new feature under `Web/App/WebClient/src/features/[feature]/api`.
 
 Folder layout (convention)
-- Root: Web/App/WebClient/src/[feature]/api/
+- Root: Web/App/WebClient/src/features/[feature]/api/
 - Files per feature:
   - `[feature].service.ts` — service functions / HTTP calls
   - `index.ts` — re-exports (service)
