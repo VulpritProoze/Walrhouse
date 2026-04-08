@@ -19,7 +19,7 @@ export interface GetBarcodeHistoriesRequest {
  * @param request - The data required to create a barcode history entry.
  */
 export const createBarcodeHistory = (request: CreateBarcodeHistoryRequest) => {
-  return api.post<number>('BarcodeHistory', request);
+  return api.post('/BarcodeHistory', request);
 };
 
 /**
@@ -27,7 +27,7 @@ export const createBarcodeHistory = (request: CreateBarcodeHistoryRequest) => {
  * @param params - Optional query parameters for pagination.
  */
 export const getBarcodeHistories = (params: GetBarcodeHistoriesRequest) => {
-  return api.get('BarcodeHistory', { params });
+  return api.get('/BarcodeHistory', { params });
 };
 
 /**
@@ -35,5 +35,5 @@ export const getBarcodeHistories = (params: GetBarcodeHistoriesRequest) => {
  * @param id - The unique identifier of the barcode history entry.
  */
 export const getBarcodeHistory = (id: number) => {
-  return api.get(`BarcodeHistory/${id}`);
+  return api.get(`/BarcodeHistory/${id}`);
 };
