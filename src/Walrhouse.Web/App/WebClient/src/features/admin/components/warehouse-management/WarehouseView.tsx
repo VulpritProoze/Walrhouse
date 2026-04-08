@@ -129,7 +129,7 @@ export function WarehouseView() {
           <p className="text-sm text-muted-foreground">Manage physical storage facilities.</p>
         </div>
         <WarehouseFormDialog
-          initial={{ id: '', code: '', name: '', location: '' }}
+          initial={{ id: '', code: '', name: '' }}
           trigger={
             <Button size="sm" className="gap-2">
               <Plus className="h-4 w-4" />

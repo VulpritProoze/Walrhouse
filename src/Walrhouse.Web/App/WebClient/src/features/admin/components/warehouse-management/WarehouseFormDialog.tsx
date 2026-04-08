@@ -10,12 +10,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Edit } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 export interface WarehouseInfo {
   id: string;
   code: string;
   name: string;
-  location?: string;
 }
 
 interface PropsExtended {
@@ -35,19 +35,19 @@ export function WarehouseFormDialog({
   trigger,
   mode,
 }: PropsExtended & { open?: boolean; onOpenChange?: (open: boolean) => void }) {
+  const [code, setCode] = useState(initial.code ?? '');
   const [name, setName] = useState(initial.name ?? '');
-  const [location, setLocation] = useState(initial.location ?? '');
 
   React.useEffect(() => {
     // sync initial when changed
+    setCode(initial.code ?? '');
     setName(initial.name ?? '');
-    setLocation(initial.location ?? '');
   }, [initial]);
 
   const isAdd = mode === 'add' || (!mode && !initial?.id);
 
   function handleSave() {
-    const updated: WarehouseInfo = { ...initial, name, location };
+    const updated: WarehouseInfo = { ...initial, code, name };
     onSave?.(updated);
     onOpenChange?.(false);
   }
@@ -61,31 +61,33 @@ export function WarehouseFormDialog({
           : 'Update warehouse details — changes are saved on Save.'}
       </DialogDescription>
 
-      <div className="grid gap-2">
-        <label className="text-sm text-muted-foreground">Code</label>
-        <input
-          readOnly={!isAdd}
-          value={isAdd ? (initial.code ?? '') : initial.code}
-          onChange={isAdd ? (e) => (initial.code = e.target.value) : undefined}
-          className={`rounded-md border px-2 py-1 text-sm ${!isAdd ? 'bg-muted/10' : ''}`}
-          placeholder={isAdd ? 'Unique warehouse code (e.g. W-MAIN)' : ''}
-        />
+      <div className="grid gap-4 py-4">
+        <div className="grid gap-2">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Warehouse Code
+          </label>
+          <Input
+            disabled={!isAdd}
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            placeholder="e.g. W-MAIN"
+            className={!isAdd ? 'bg-muted/50 cursor-not-allowed' : ''}
+          />
+          <p className="text-[0.8rem] text-muted-foreground">
+            Unique identifier for the warehouse.
+          </p>
+        </div>
 
-        <label className="text-sm text-muted-foreground">Name</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          className="rounded-md border px-2 py-1 text-sm"
-          placeholder="Warehouse name"
-        />
-
-        <label className="text-sm text-muted-foreground">Location</label>
-        <input
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          className="rounded-md border px-2 py-1 text-sm"
-          placeholder="Location"
-        />
+        <div className="grid gap-2">
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Warehouse Name
+          </label>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Display name"
+          />
+        </div>
       </div>
 
       <DialogFooter>
