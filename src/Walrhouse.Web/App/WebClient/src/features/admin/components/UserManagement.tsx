@@ -25,13 +25,15 @@ import type { AdminUser, UserStatus } from '../types/admin';
 import { Roles, RoleVariant } from '@/features/auth/types/roles';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogFooter,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -294,22 +296,24 @@ export default function UserManagement() {
           </>
         )}
 
-        <Dialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Deactivate user</DialogTitle>
-              <DialogDescription>Are you sure you want to deactivate this user?</DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setDeactivateDialogOpen(false)}>
+        <AlertDialog open={deactivateDialogOpen} onOpenChange={setDeactivateDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Deactivate user</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to deactivate this user?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel variant="outline" onClick={() => setDeactivateDialogOpen(false)}>
                 No
-              </Button>
-              <Button variant="destructive" onClick={confirmDeactivate}>
+              </AlertDialogCancel>
+              <AlertDialogAction variant="destructive" onClick={confirmDeactivate}>
                 Yes
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       {/* Table */}
