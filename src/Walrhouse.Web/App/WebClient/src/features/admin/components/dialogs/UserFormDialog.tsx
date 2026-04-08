@@ -10,11 +10,7 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-  Field,
-  FieldLabel,
-  FieldError,
-} from '@/components/ui/field.tsx';
+import { Field, FieldLabel, FieldError } from '@/components/ui/field.tsx';
 import { Roles } from '@/features/auth/types/roles';
 import type { AdminUser, CreateUserPayload } from '../../types/admin';
 
@@ -36,13 +32,7 @@ interface UserFormDialogProps {
   trigger?: ReactElement;
 }
 
-export function UserFormDialog({
-  open,
-  onOpenChange,
-  user,
-  onSave,
-  trigger,
-}: UserFormDialogProps) {
+export function UserFormDialog({ open, onOpenChange, user, onSave, trigger }: UserFormDialogProps) {
   const isEdit = !!user;
 
   const [form, setForm] = useState<CreateUserPayload>(() =>
@@ -129,7 +119,7 @@ export function UserFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4 py-4 max-h-[60vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-4">
             <Field>
               <FieldLabel>First Name *</FieldLabel>

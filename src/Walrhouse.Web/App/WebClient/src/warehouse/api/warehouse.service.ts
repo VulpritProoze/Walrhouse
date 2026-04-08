@@ -28,7 +28,7 @@ export interface UpdateWarehouseRequest {
  * POST /api/Warehouses
  */
 export const createWarehouse = async (data: CreateWarehouseRequest) => {
-  return await api.post('/api/Warehouses', data);
+  return await api.post<string>('/api/Warehouses', data);
 };
 
 /**
