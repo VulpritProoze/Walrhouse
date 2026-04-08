@@ -1,9 +1,6 @@
 import { useState } from 'react';
-import { PackageDown, Layers, Settings2, FileText, type LucideIcon } from 'lucide-react';
-import {
-  ReceiveSidebar,
-  type ReceiveFeature,
-} from '@/features/receive/components/ReceiveSidebar';
+import { Settings2, FileText, type LucideIcon } from 'lucide-react';
+import { ReceiveSidebar, type ReceiveFeature } from '@/features/receive/components/ReceiveSidebar';
 import { ReceivingView } from '@/features/receive/components/ReceivingView';
 import { BatchMasterList } from '@/features/receive/components/BatchMasterList';
 import { Button } from '@/components/ui/button';
