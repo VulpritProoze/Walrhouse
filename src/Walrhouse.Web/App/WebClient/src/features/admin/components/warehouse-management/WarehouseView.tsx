@@ -1,4 +1,4 @@
-import { Plus, Edit, MoreVertical, Trash2 } from 'lucide-react';
+import { Plus, Edit, MoreVertical, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -17,6 +17,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { WarehouseFormDialog } from './WarehouseFormDialog';
 import React from 'react';
 import {
@@ -29,8 +37,27 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
+import { useWarehouses } from '@/features/warehouse/hooks/queries';
+import {
+  useCreateWarehouse,
+  useUpdateWarehouse,
+  useDeleteWarehouse,
+} from '@/features/warehouse/hooks/mutations';
+import { type WarehouseDto } from '@/features/warehouse/types';
 
 export function WarehouseView() {
+  const [page, setPage] = React.useState(1);
+  const pageSize = 10;
+
+  const { data, isLoading } = useWarehouses({
+    pageNumber: page,
+    pageSize: pageSize,
+  });
+
+  const createMutation = useCreateWarehouse();
+  const updateMutation = useUpdateWarehouse();
+  const deleteMutation = useDeleteWarehouse();
+
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [selected, setSelected] = React.useState<{
     id: string;
@@ -38,43 +65,36 @@ export function WarehouseView() {
     name: string;
     location?: string;
   } | null>(null);
-  const [warehouses, setWarehouses] = React.useState([
-    {
-      id: '1',
-      name: 'Main Distribution Center',
-      code: 'W-MAIN',
-      location: 'Section A',
-      status: 'Active',
-    },
-    { id: '2', name: 'South Branch', code: 'W-SOUTH', location: 'Section B', status: 'Active' },
-    {
-      id: '3',
-      name: 'Overflow Storage',
-      code: 'W-OVER',
-      location: 'Remote',
-      status: 'Maintenance',
-    },
-  ]);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
-  const [deleting, setDeleting] = React.useState<null | { id: string; name: string }>(null);
+  const [deleting, setDeleting] = React.useState<null | { id: string; code: string; name: string }>(
+    null,
+  );
   const [confirmInput, setConfirmInput] = React.useState('');
 
-  const openDelete = (w: { id: string; name: string }) => {
+  const openDelete = (w: { id: string; code: string; name: string }) => {
     setDeleting(w);
     setConfirmInput('');
     setDeleteDialogOpen(true);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleting) return;
     const expectedExact = `delete ${deleting.name}`;
     if (confirmInput.trim() !== expectedExact) return;
-    setWarehouses((prev) => prev.filter((p) => p.id !== deleting.id));
-    setDeleteDialogOpen(false);
-    setDeleting(null);
-    setConfirmInput('');
+
+    try {
+      await deleteMutation.mutateAsync(deleting.code);
+      setDeleteDialogOpen(false);
+      setDeleting(null);
+      setConfirmInput('');
+    } catch (err) {
+      console.error('Failed to delete warehouse', err);
+    }
   };
+
+  const warehouses = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
@@ -83,12 +103,23 @@ export function WarehouseView() {
         <WarehouseFormDialog
           initial={selected}
           open={dialogOpen}
-          onOpenChange={(v) => setDialogOpen(v)}
-          onSave={(updated) => {
-            // TODO: call API or update local state
-            console.log('saved', updated);
-            setDialogOpen(false);
-            setSelected(null);
+          onOpenChange={(v) => {
+            setDialogOpen(v);
+            if (!v) setSelected(null);
+          }}
+          onSave={async (updated) => {
+            try {
+              await updateMutation.mutateAsync({
+                warehouseCode: selected.code,
+                data: {
+                  warehouseName: updated.name,
+                },
+              });
+              setDialogOpen(false);
+              setSelected(null);
+            } catch (err) {
+              console.error('Update failed', err);
+            }
           }}
         />
       )}
@@ -105,79 +136,142 @@ export function WarehouseView() {
               Add Warehouse
             </Button>
           }
-          onSave={(created) => {
-            // TODO: call create API and refresh list
-            console.log('created', created);
+          onSave={async (created) => {
+            try {
+              await createMutation.mutateAsync({
+                warehouseCode: created.code,
+                warehouseName: created.name,
+              });
+            } catch (err) {
+              console.error('Create failed', err);
+            }
           }}
         />
       </div>
 
-      <Card className="border-none shadow-sm overflow-hidden">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/30">
-              <TableHead>Code</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-10"></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {warehouses.map((w) => (
-              <TableRow key={w.id} className="hover:bg-muted/10 group cursor-default">
-                <TableCell className="font-mono font-bold text-xs">{w.code}</TableCell>
-                <TableCell>{w.name}</TableCell>
-                <TableCell className="text-muted-foreground text-sm">{w.location}</TableCell>
-                <TableCell>
-                  <Badge
-                    variant={w.status === 'Active' ? 'success' : 'outline'}
-                    className="text-[10px] font-bold uppercase"
-                  >
-                    {w.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem
-                        className="gap-2"
-                        onClick={() => {
-                          setSelected({
-                            id: w.id,
-                            code: w.code,
-                            name: w.name,
-                            location: w.location,
-                          });
-                          setDialogOpen(true);
-                        }}
-                      >
-                        <Edit className="h-4 w-4" /> Edit
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="gap-2 text-destructive"
-                        onClick={() => openDelete({ id: w.id, name: w.name })}
-                      >
-                        <Trash2 className="h-4 w-4" /> Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
+      <Card className="border-none shadow-sm overflow-hidden min-h-[400px] flex flex-col justify-between">
+        <div className="relative">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/30">
+                <TableHead>Code</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-10"></TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading warehouses...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : warehouses.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                    No warehouses found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                (warehouses as WarehouseDto[]).map((w) => (
+                  <TableRow key={w.id} className="hover:bg-muted/10 group cursor-default">
+                    <TableCell className="font-mono font-bold text-xs">{w.warehouseCode}</TableCell>
+                    <TableCell>{w.warehouseName}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">N/A</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-[10px] font-bold uppercase">
+                        Active
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="flex items-center gap-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger
+                          render={
+                            <Button
+                              variant="ghost"
+                              size="icon-sm"
+                              className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          }
+                        />
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            className="gap-2"
+                            onClick={() => {
+                              setSelected({
+                                id: w.id,
+                                code: w.warehouseCode,
+                                name: w.warehouseName ?? '',
+                              });
+                              setDialogOpen(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" /> Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="gap-2 text-destructive"
+                            onClick={() =>
+                              openDelete({
+                                id: w.id,
+                                code: w.warehouseCode,
+                                name: w.warehouseName ?? '',
+                              })
+                            }
+                          >
+                            <Trash2 className="h-4 w-4" /> Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {totalPages > 1 && (
+          <div className="p-4 border-t bg-muted/5">
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                  />
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <PaginationItem key={p}>
+                    <PaginationLink
+                      isActive={page === p}
+                      onClick={() => setPage(p)}
+                      className="cursor-pointer"
+                    >
+                      {p}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    className={
+                      page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                    }
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </div>
+        )}
       </Card>
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
