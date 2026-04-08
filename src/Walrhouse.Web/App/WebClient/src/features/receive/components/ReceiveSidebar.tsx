@@ -1,11 +1,5 @@
 import { useState } from 'react';
-import {
-  ChevronLeft,
-  ChevronRight,
-  PackageDown,
-  Layers,
-  Settings2,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, PackageOpen, Layers, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -21,7 +15,7 @@ export const ReceiveSidebar = ({ activeFeature, onSelect }: ReceiveSidebarProps)
   const [collapsed, setCollapsed] = useState(false);
 
   const menuItems = [
-    { id: 'receiving', label: 'Receiving', icon: PackageDown },
+    { id: 'receiving', label: 'Receiving', icon: PackageOpen },
     { id: 'batches', label: 'Batch Master List', icon: Layers },
     { id: 'settings', label: 'Settings', icon: Settings2 },
   ] as const;
