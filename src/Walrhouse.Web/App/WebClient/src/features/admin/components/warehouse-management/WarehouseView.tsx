@@ -1,5 +1,6 @@
 import { Plus, Edit, MoreVertical, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -18,6 +19,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { WarehouseFormDialog } from './WarehouseFormDialog';
 import React from 'react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 export function WarehouseView() {
   const [dialogOpen, setDialogOpen] = React.useState(false);
@@ -27,7 +38,7 @@ export function WarehouseView() {
     name: string;
     location?: string;
   } | null>(null);
-  const warehouses = [
+  const [warehouses, setWarehouses] = React.useState([
     {
       id: '1',
       name: 'Main Distribution Center',
@@ -43,7 +54,27 @@ export function WarehouseView() {
       location: 'Remote',
       status: 'Maintenance',
     },
-  ];
+  ]);
+
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [deleting, setDeleting] = React.useState<null | { id: string; name: string }>(null);
+  const [confirmInput, setConfirmInput] = React.useState('');
+
+  const openDelete = (w: { id: string; name: string }) => {
+    setDeleting(w);
+    setConfirmInput('');
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (!deleting) return;
+    const expectedExact = `delete ${deleting.name}`;
+    if (confirmInput.trim() !== expectedExact) return;
+    setWarehouses((prev) => prev.filter((p) => p.id !== deleting.id));
+    setDeleteDialogOpen(false);
+    setDeleting(null);
+    setConfirmInput('');
+  };
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
@@ -134,7 +165,10 @@ export function WarehouseView() {
                       >
                         <Edit className="h-4 w-4" /> Edit
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="gap-2 text-destructive">
+                      <DropdownMenuItem
+                        className="gap-2 text-destructive"
+                        onClick={() => openDelete({ id: w.id, name: w.name })}
+                      >
                         <Trash2 className="h-4 w-4" /> Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -145,6 +179,45 @@ export function WarehouseView() {
           </TableBody>
         </Table>
       </Card>
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete warehouse</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete{deleting ? ` ${deleting.name}` : ''}? This action
+              cannot be undone.
+            </AlertDialogDescription>
+            <div className="mt-3">
+              <Input
+                value={confirmInput}
+                onChange={(e) => setConfirmInput(e.target.value)}
+                placeholder={
+                  deleting
+                    ? `Type "delete ${deleting.name}" to confirm`
+                    : 'Type confirmation to enable delete'
+                }
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                Type{' '}
+                <span className="font-mono">
+                  delete {deleting ? deleting.name : 'warehouse-name'}
+                </span>{' '}
+                to enable the Delete button.
+              </p>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              onClick={confirmDelete}
+              disabled={!(deleting && confirmInput.trim() === `delete ${deleting.name}`)}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
