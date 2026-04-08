@@ -25,40 +25,40 @@ export interface UpdateWarehouseRequest {
 
 /**
  * Create a new warehouse; returns the warehouse code.
- * POST /api/Warehouses
+ * POST /api/Warehouse
  */
 export const createWarehouse = async (data: CreateWarehouseRequest) => {
-  return await api.post<string>('/Warehouses', data);
+  return await api.post<string>('/Warehouse', data);
 };
 
 /**
  * Get paginated list of warehouses.
- * GET /api/Warehouses
+ * GET /api/Warehouse
  */
 export const getWarehouses = async (params?: GetWarehousesRequest) => {
-  return await api.get('/Warehouses', { params });
+  return await api.get('/Warehouse', { params });
 };
 
 /**
  * Get a single warehouse by code.
- * GET /api/Warehouses/{warehouseCode}
+ * GET /api/Warehouse/{warehouseCode}
  */
 export const getWarehouse = async (warehouseCode: string) => {
-  return await api.get(`/Warehouses/${warehouseCode}`);
+  return await api.get(`/Warehouse/${warehouseCode}`);
 };
 
 /**
  * Update an existing warehouse.
- * PUT /api/Warehouses/{warehouseCode}
+ * PUT /api/Warehouse/{warehouseCode}
  */
 export const updateWarehouse = async (warehouseCode: string, data: UpdateWarehouseRequest) => {
-  return await api.put(`/Warehouses/${warehouseCode}`, data);
+  return await api.put(`/Warehouse/${warehouseCode}`, data);
 };
 
 /**
  * Soft-delete a warehouse by code.
- * DELETE /api/Warehouses/{warehouseCode}
+ * DELETE /api/Warehouse/{warehouseCode}
  */
 export const deleteWarehouse = async (warehouseCode: string) => {
-  return await api.delete(`/Warehouses/${warehouseCode}`);
+  return await api.delete(`/Warehouse/${warehouseCode}`);
 };
