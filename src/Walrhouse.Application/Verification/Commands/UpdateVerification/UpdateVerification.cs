@@ -13,7 +13,7 @@ public class UpdateVerificationCommandHandler : IRequestHandler<UpdateVerificati
         _context = context;
     }
 
-    public Task<Unit> Handle(UpdateVerificationCommand request, CancellationToken cancellationToken)
+    public Task Handle(UpdateVerificationCommand request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

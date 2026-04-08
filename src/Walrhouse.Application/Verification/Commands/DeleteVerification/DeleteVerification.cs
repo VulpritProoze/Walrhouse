@@ -13,7 +13,7 @@ public class DeleteVerificationCommandHandler : IRequestHandler<DeleteVerificati
         _context = context;
     }
 
-    public Task<Unit> Handle(DeleteVerificationCommand request, CancellationToken cancellationToken)
+    public Task Handle(DeleteVerificationCommand request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }
