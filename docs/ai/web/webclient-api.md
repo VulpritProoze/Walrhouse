@@ -44,7 +44,7 @@ export interface EndpointRequest {
  * const { data } = await endpointName();
  * console.log(data.field, data.field_2);
  */
-export const endpointName(data: EndpointRequest) => await api.get<void>('/api/feature', { params });
+export const endpointName(data: EndpointRequest) => await api.get('/api/feature', { params });
 // and other methods...
 ```
 
