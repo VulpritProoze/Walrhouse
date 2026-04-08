@@ -1,9 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {
-  getWarehouse,
-  getWarehouses,
-  type GetWarehousesRequest,
-} from '@/warehouse/api/warehouse.service';
+import { getWarehouse, getWarehouses, type GetWarehousesRequest } from '@/features/warehouse/api';
 
 export function useWarehouses(params?: GetWarehousesRequest) {
   return useQuery({

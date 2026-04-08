@@ -5,7 +5,7 @@ import {
   deleteWarehouse,
   type CreateWarehouseRequest,
   type UpdateWarehouseRequest,
-} from '@/warehouse/api/warehouse.service';
+} from '@/features/warehouse/api';
 
 export function useCreateWarehouse() {
   const qc = useQueryClient();
