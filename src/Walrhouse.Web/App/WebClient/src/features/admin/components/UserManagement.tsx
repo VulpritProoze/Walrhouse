@@ -433,8 +433,11 @@ export default function UserManagement() {
                         <Key className="h-4 w-4 text-muted-foreground" />
                         Reset Password
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDeactivate(user)} className="gap-2">
-                        <UserX className="h-4 w-4 text-muted-foreground" />
+                      <DropdownMenuItem
+                        className="gap-2 text-destructive"
+                        onClick={() => handleDeactivate(user)}
+                      >
+                        <UserX className="h-4 w-4" />
                         Deactivate
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
