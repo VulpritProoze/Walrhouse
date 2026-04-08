@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { logger } from '@/lib/utils/logger';
 
 export interface WarehouseInfo {
   id: string;
@@ -69,7 +70,7 @@ export function WarehouseForm({ initial, mode, isLoading, onSave, onSuccess }: W
       toast.error(isAdd ? 'Failed to create warehouse' : 'Failed to update warehouse', {
         id: toastId,
       });
-      console.error(err);
+      logger.error('Failed to save warehouse', err);
     } finally {
       setIsSubmitting(false);
     }

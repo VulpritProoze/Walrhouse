@@ -1,4 +1,4 @@
-import { Plus, Edit, MoreVertical, Trash2, Loader2 } from 'lucide-react';
+import { Edit, MoreVertical, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -25,7 +25,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { WarehouseFormDialog } from './WarehouseFormDialog';
+import { AddWarehouseDialog, EditWarehouseDialog } from './WarehouseDialogs';
 import React from 'react';
 import {
   AlertDialog,
@@ -44,6 +44,7 @@ import {
   useDeleteWarehouse,
 } from '@/features/warehouse/hooks/mutations';
 import { type WarehouseDto } from '@/features/warehouse/types';
+import { logger } from '@/lib/utils/logger';
 
 export function WarehouseView() {
   const [page, setPage] = React.useState(1);
@@ -63,7 +64,6 @@ export function WarehouseView() {
     id: string;
     code: string;
     name: string;
-    location?: string;
   } | null>(null);
 
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
@@ -89,7 +89,7 @@ export function WarehouseView() {
       setDeleting(null);
       setConfirmInput('');
     } catch (err) {
-      console.error('Failed to delete warehouse', err);
+      logger.error('Failed to delete warehouse', err);
     }
   };
 
@@ -98,53 +98,37 @@ export function WarehouseView() {
 
   return (
     <div className="space-y-4 animate-in fade-in duration-300">
-      {/* Controlled edit dialog rendered at top-level so menu can open it */}
-      {selected && (
-        <WarehouseFormDialog
-          initial={selected}
-          open={dialogOpen}
-          onOpenChange={(v) => {
-            setDialogOpen(v);
-            if (!v) setSelected(null);
-          }}
-          onSave={async (updated) => {
-            try {
-              await updateMutation.mutateAsync({
-                warehouseCode: selected.code,
-                data: {
-                  warehouseName: updated.name,
-                },
-              });
-              setDialogOpen(false);
-              setSelected(null);
-            } catch (err) {
-              console.error('Update failed', err);
-            }
-          }}
-        />
-      )}
+      {/* Edit dialog triggered via state */}
+      <EditWarehouseDialog
+        warehouse={selected}
+        open={dialogOpen}
+        onOpenChange={(v) => {
+          setDialogOpen(v);
+          if (!v) setSelected(null);
+        }}
+        isLoading={updateMutation.isPending}
+        onSave={async (updated) => {
+          await updateMutation.mutateAsync({
+            warehouseCode: updated.code,
+            data: {
+              warehouseName: updated.name,
+            },
+          });
+        }}
+      />
+
       <div className="flex justify-between items-center">
         <div>
           <h4 className="text-lg font-medium">Warehouses</h4>
           <p className="text-sm text-muted-foreground">Manage physical storage facilities.</p>
         </div>
-        <WarehouseFormDialog
-          initial={{ id: '', code: '', name: '' }}
-          trigger={
-            <Button size="sm" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Add Warehouse
-            </Button>
-          }
+        <AddWarehouseDialog
+          isLoading={createMutation.isPending}
           onSave={async (created) => {
-            try {
-              await createMutation.mutateAsync({
-                warehouseCode: created.code,
-                warehouseName: created.name,
-              });
-            } catch (err) {
-              console.error('Create failed', err);
-            }
+            await createMutation.mutateAsync({
+              warehouseCode: created.code,
+              warehouseName: created.name,
+            });
           }}
         />
       </div>
