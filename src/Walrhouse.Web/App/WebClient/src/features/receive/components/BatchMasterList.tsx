@@ -18,12 +18,21 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogTrigger,
 } from '@/components/ui/dialog';
-import { useState } from 'react';
+import React, { useState } from 'react';
+
+type Batch = {
+  id: string;
+  itemCode: string;
+  quantity: number;
+  receivedDate: string;
+  status: string;
+};
+
+type BatchForm = Batch;
 
 export const BatchMasterList = () => {
-  const [batches, setBatches] = useState(() => [
+  const [batches, setBatches] = useState<Batch[]>(() => [
     {
       id: 'BAT-001',
       itemCode: 'ITEM-A',
@@ -43,8 +52,14 @@ export const BatchMasterList = () => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [active, setActive] = useState<any>(null);
-  const [form, setForm] = useState({ id: '', itemCode: '', quantity: 0, receivedDate: '', status: '' });
+  const [active, setActive] = useState<Batch | null>(null);
+  const [form, setForm] = useState<BatchForm>({
+    id: '',
+    itemCode: '',
+    quantity: 0,
+    receivedDate: '',
+    status: '',
+  });
 
   const openAdd = () => {
     setForm({ id: '', itemCode: '', quantity: 0, receivedDate: '', status: '' });
@@ -52,13 +67,19 @@ export const BatchMasterList = () => {
     setIsAddOpen(true);
   };
 
-  const openEdit = (b: any) => {
-    setForm({ id: b.id, itemCode: b.itemCode, quantity: b.quantity, receivedDate: b.receivedDate, status: b.status });
+  const openEdit = (b: Batch) => {
+    setForm({
+      id: b.id,
+      itemCode: b.itemCode,
+      quantity: b.quantity,
+      receivedDate: b.receivedDate,
+      status: b.status,
+    });
     setActive(b);
     setIsEditOpen(true);
   };
 
-  const openDelete = (b: any) => {
+  const openDelete = (b: Batch) => {
     setActive(b);
     setIsDeleteOpen(true);
   };
@@ -69,11 +90,13 @@ export const BatchMasterList = () => {
   };
 
   const handleUpdate = () => {
+    if (!active) return;
     setBatches((s) => s.map((x) => (x.id === active.id ? form : x)));
     setIsEditOpen(false);
   };
 
   const handleDelete = () => {
+    if (!active) return;
     setBatches((s) => s.filter((x) => x.id !== active.id));
     setIsDeleteOpen(false);
   };
@@ -99,7 +122,7 @@ export const BatchMasterList = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {batches.map((batch: any) => (
+          {batches.map((batch: Batch) => (
             <TableRow key={batch.id}>
               <TableCell className="font-mono font-bold">{batch.id}</TableCell>
               <TableCell>{batch.itemCode}</TableCell>
@@ -130,34 +153,55 @@ export const BatchMasterList = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Add Batch</DialogTitle>
-            <DialogDescription>Add a new batch. Keep fields minimal for fast entry.</DialogDescription>
+            <DialogDescription>
+              Add a new batch. Keep fields minimal for fast entry.
+            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-2">
             <div>
               <Label>Batch Number</Label>
-              <Input value={form.id} onChange={(e: any) => setForm({ ...form, id: e.target.value })} />
+              <Input
+                value={form.id}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, id: e.target.value })}
+              />
             </div>
             <div>
               <Label>Item Code</Label>
-              <Input value={form.itemCode} onChange={(e: any) => setForm({ ...form, itemCode: e.target.value })} />
+              <Input
+                value={form.itemCode}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, itemCode: e.target.value })}
+              />
             </div>
             <div>
               <Label>Quantity</Label>
-              <Input type="number" value={form.quantity} onChange={(e: any) => setForm({ ...form, quantity: Number(e.target.value) })} />
+              <Input
+                type="number"
+                value={form.quantity}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, quantity: Number(e.target.value) })}
+              />
             </div>
             <div>
               <Label>Received Date</Label>
-              <Input type="date" value={form.receivedDate} onChange={(e: any) => setForm({ ...form, receivedDate: e.target.value })} />
+              <Input
+                type="date"
+                value={form.receivedDate}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, receivedDate: e.target.value })}
+              />
             </div>
             <div>
               <Label>Status</Label>
-              <Input value={form.status} onChange={(e: any) => setForm({ ...form, status: e.target.value })} />
+              <Input
+                value={form.status}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, status: e.target.value })}
+              />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsAddOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleAdd}>Add</Button>
           </DialogFooter>
         </DialogContent>
@@ -174,28 +218,48 @@ export const BatchMasterList = () => {
           <div className="space-y-2">
             <div>
               <Label>Batch Number</Label>
-              <Input value={form.id} onChange={(e: any) => setForm({ ...form, id: e.target.value })} disabled />
+              <Input
+                value={form.id}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, id: e.target.value })}
+                disabled
+              />
             </div>
             <div>
               <Label>Item Code</Label>
-              <Input value={form.itemCode} onChange={(e: any) => setForm({ ...form, itemCode: e.target.value })} />
+              <Input
+                value={form.itemCode}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, itemCode: e.target.value })}
+              />
             </div>
             <div>
               <Label>Quantity</Label>
-              <Input type="number" value={form.quantity} onChange={(e: any) => setForm({ ...form, quantity: Number(e.target.value) })} />
+              <Input
+                type="number"
+                value={form.quantity}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, quantity: Number(e.target.value) })}
+              />
             </div>
             <div>
               <Label>Received Date</Label>
-              <Input type="date" value={form.receivedDate} onChange={(e: any) => setForm({ ...form, receivedDate: e.target.value })} />
+              <Input
+                type="date"
+                value={form.receivedDate}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, receivedDate: e.target.value })}
+              />
             </div>
             <div>
               <Label>Status</Label>
-              <Input value={form.status} onChange={(e: any) => setForm({ ...form, status: e.target.value })} />
+              <Input
+                value={form.status}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, status: e.target.value })}
+              />
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setIsEditOpen(false)}>
+              Cancel
+            </Button>
             <Button onClick={handleUpdate}>Save</Button>
           </DialogFooter>
         </DialogContent>
@@ -209,10 +273,16 @@ export const BatchMasterList = () => {
             <DialogDescription>Delete batch {active?.id}</DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">Are you sure you want to delete batch <strong>{active?.id}</strong>?</div>
+          <div className="py-4">
+            Are you sure you want to delete batch <strong>{active?.id}</strong>?
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={handleDelete}>Delete</Button>
+            <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleDelete}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
