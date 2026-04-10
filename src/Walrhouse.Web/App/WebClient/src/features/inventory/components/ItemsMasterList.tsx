@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { ItemGroup, BarcodeFormat } from '@/features/item/types/enums';
+import { useState, useMemo } from 'react';
 import {
   Table,
   TableHeader,
@@ -19,8 +20,6 @@ import {
   FileUp,
   History,
   Edit,
-  Box,
-  LayoutGrid,
   ArrowRightCircle,
 } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
@@ -38,19 +37,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  ItemDialog,
+  DeleteItemAlertDialog,
+  type ItemFormData,
+} from './item-management/ItemDialogs';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 export type ItemStatus = 'in-stock' | 'low-stock' | 'out-of-stock' | 'discontinued';
 
 export interface InventoryItem {
   id: string;
-  sku: string;
-  name: string;
-  category: string;
-  stockLevel: number;
-  unit: string;
-  binLocation: string;
-  status: ItemStatus;
+  itemCode: string;
+  itemName: string;
+  itemGroup: number;
+  uoMGroupId: number;
+  barcodeValue?: string;
+  barcodeFormat?: number;
+  remarks?: string;
   lastUpdated: string;
 }
 
@@ -58,67 +62,38 @@ export interface InventoryItem {
 const MOCK_ITEMS: InventoryItem[] = [
   {
     id: 'itm-001',
-    sku: 'SKU-WAL-001',
-    name: 'Industrial Pallet Rack',
-    category: 'Storage',
-    stockLevel: 45,
-    unit: 'Units',
-    binLocation: 'A1-B2-01',
-    status: 'in-stock',
+    itemCode: 'SKU-WAL-001',
+    itemName: 'Industrial Pallet Rack',
+    itemGroup: ItemGroup.General,
+    uoMGroupId: 1,
+    barcodeValue: 'WAL-PR-001',
+    barcodeFormat: 1,
+    remarks: 'Heavy duty rack for storage',
     lastUpdated: '2026-03-29T09:12:00Z',
   },
   {
     id: 'itm-002',
-    sku: 'SKU-WAL-002',
-    name: 'Heavy Duty Crate',
-    category: 'Handling',
-    stockLevel: 12,
-    unit: 'Units',
-    binLocation: 'B4-C1-05',
-    status: 'low-stock',
+    itemCode: 'SKU-WAL-002',
+    itemName: 'Heavy Duty Crate',
+    itemGroup: ItemGroup.General,
+    uoMGroupId: 1,
+    barcodeValue: 'WAL-CR-002',
+    barcodeFormat: 1,
+    remarks: 'Plastic crate for small parts',
     lastUpdated: '2026-03-28T14:30:00Z',
   },
   {
     id: 'itm-003',
-    sku: 'SKU-WAL-003',
-    name: 'Standard Box (Small)',
-    category: 'Packaging',
-    stockLevel: 120,
-    unit: 'Packs',
-    binLocation: 'A2-D5-12',
-    status: 'low-stock',
+    itemCode: 'SKU-WAL-003',
+    itemName: 'Amoxicillin 500mg',
+    itemGroup: ItemGroup.Medicines,
+    uoMGroupId: 2,
+    barcodeValue: 'MED-AMX-500',
+    barcodeFormat: 3,
+    remarks: 'Box of 10 blister packs',
     lastUpdated: '2026-03-27T11:00:00Z',
   },
-  {
-    id: 'itm-004',
-    sku: 'SKU-WAL-004',
-    name: 'Stretch Wrap Roll',
-    category: 'Consumables',
-    stockLevel: 0,
-    unit: 'Rolls',
-    binLocation: 'C1-A2-03',
-    status: 'out-of-stock',
-    lastUpdated: '2026-03-10T09:00:00Z',
-  },
-  {
-    id: 'itm-005',
-    sku: 'SKU-WAL-005',
-    name: 'Safety Vest (L)',
-    category: 'Safety',
-    stockLevel: 25,
-    unit: 'Units',
-    binLocation: 'Z9-O2-01',
-    status: 'discontinued',
-    lastUpdated: '2026-02-15T08:00:00Z',
-  },
 ];
-
-const STATUS_VARIANT: Record<ItemStatus, 'success' | 'warning' | 'destructive' | 'secondary'> = {
-  'in-stock': 'success',
-  'low-stock': 'warning',
-  'out-of-stock': 'destructive',
-  discontinued: 'secondary',
-};
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export const ItemsMasterList = () => {
@@ -127,10 +102,27 @@ export const ItemsMasterList = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
+  // Dialog states
+  const [dialogState, setDialogState] = useState<{
+    open: boolean;
+    mode: 'add' | 'edit';
+    item: InventoryItem | null;
+  }>({
+    open: false,
+    mode: 'add',
+    item: null,
+  });
+
+  const [deleteAlertState, setDeleteAlertState] = useState<{
+    open: boolean;
+    item: InventoryItem | null;
+  }>({
+    open: false,
+    item: null,
+  });
+
   const filtered = items.filter((item) =>
-    `${item.sku} ${item.name} ${item.category} ${item.binLocation}`
-      .toLowerCase()
-      .includes(search.toLowerCase()),
+    `${item.itemCode} ${item.itemName}`.toLowerCase().includes(search.toLowerCase()),
   );
 
   const isAllSelected = filtered.length > 0 && selectedIds.size === filtered.length;
@@ -179,6 +171,70 @@ export const ItemsMasterList = () => {
   const handleDelete = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));
   };
+
+  const handleOpenAddDialog = () => {
+    setDialogState({ open: true, mode: 'add', item: null });
+  };
+
+  const handleOpenEditDialog = (item: InventoryItem) => {
+    setDialogState({ open: true, mode: 'edit', item });
+  };
+
+  const handleOpenDeleteAlert = (item: InventoryItem) => {
+    setDeleteAlertState({ open: true, item });
+  };
+
+  const handleDialogSubmit = (data: ItemFormData) => {
+    if (dialogState.mode === 'add') {
+      const newItem: InventoryItem = {
+        id: `itm-${Math.random().toString(36).substr(2, 9)}`,
+        itemCode: data.itemCode,
+        itemName: data.itemName,
+        itemGroup: data.itemGroup || ItemGroup.General,
+        uoMGroupId: parseInt(data.uoMGroupId),
+        barcodeValue: data.barcodeValue,
+        remarks: data.remarks,
+        lastUpdated: new Date().toISOString(),
+      };
+      setItems((prev) => [newItem, ...prev]);
+    } else if (dialogState.mode === 'edit' && dialogState.item) {
+      setItems((prev) =>
+        prev.map((i) =>
+          i.id === dialogState.item!.id
+            ? {
+                ...i,
+                itemName: data.itemName,
+                itemGroup: data.itemGroup || i.itemGroup,
+                uoMGroupId: parseInt(data.uoMGroupId),
+                barcodeValue: data.barcodeValue,
+                remarks: data.remarks,
+              }
+            : i,
+        ),
+      );
+    }
+    setDialogState({ ...dialogState, open: false });
+  };
+
+  const confirmDelete = () => {
+    if (deleteAlertState.item) {
+      handleDelete(deleteAlertState.item.id);
+      setDeleteAlertState({ open: false, item: null });
+    }
+  };
+
+  const initialFormData = useMemo(() => {
+    if (!dialogState.item) return null;
+    return {
+      itemCode: dialogState.item.itemCode,
+      itemName: dialogState.item.itemName,
+      uoMGroupId: dialogState.item.uoMGroupId.toString(),
+      itemGroup: dialogState.item.itemGroup,
+      barcodeValue: dialogState.item.barcodeValue,
+      barcodeFormat: dialogState.item.barcodeFormat,
+      remarks: dialogState.item.remarks,
+    };
+  }, [dialogState.item]);
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-2 duration-400">
@@ -242,11 +298,7 @@ export const ItemsMasterList = () => {
                 <SelectItem value="json">Import JSON</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              size="sm"
-              className="gap-2 h-9 shadow-sm"
-              onClick={() => console.log('Add Item')}
-            >
+            <Button size="sm" className="gap-2 h-9 shadow-sm" onClick={handleOpenAddDialog}>
               <Plus className="h-4 w-4" />
               Add Item
             </Button>
@@ -266,56 +318,41 @@ export const ItemsMasterList = () => {
                   aria-label="Select all"
                 />
               </TableHead>
-              <TableHead className="w-[120px]">SKU</TableHead>
+              <TableHead className="w-[120px]">Item Code</TableHead>
               <TableHead>Item Details</TableHead>
-              <TableHead className="w-[120px]">Category</TableHead>
-              <TableHead className="w-[100px] text-center">Stock</TableHead>
-              <TableHead className="w-[120px]">Bin Location</TableHead>
-              <TableHead className="w-[120px]">Status</TableHead>
+              <TableHead className="w-[120px]">Group</TableHead>
+              <TableHead className="w-[150px]">Barcode</TableHead>
+              <TableHead className="w-[200px]">Remarks</TableHead>
               <TableHead className="text-right pr-6 w-[80px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center text-muted-foreground py-20">
-                  <div className="flex flex-col items-center gap-2">
-                    <Box size={40} className="text-muted-foreground/20" strokeWidth={1} />
-                    <p>No storage items found.</p>
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
             {filtered.map((item) => (
               <TableRow
                 key={item.id}
                 data-selected={selectedIds.has(item.id)}
                 className="data-[selected=true]:bg-primary/5 transition-colors cursor-pointer group"
-                onClick={() => {
-                  // We handle toggle logic in TableRow to make it easier to click anywhere
-                  // unless clicking on buttons/menus/checkbox itself which we handle via stopPropagation if needed
-                  // But following UserManagement example, let's stick to checkbox only or explicit toggle
-                }}
               >
-                <TableCell className="w-[50px]" onClick={(e) => e.stopPropagation()}>
+                <TableCell className="w-[50px]">
                   <div
                     onClick={(e) => {
+                      e.stopPropagation();
                       toggleSelection(item.id, e.shiftKey);
                     }}
                   >
                     <Checkbox
                       checked={selectedIds.has(item.id)}
                       onCheckedChange={() => {}} // Controlled by wrapper
-                      aria-label={`Select ${item.name}`}
+                      aria-label={`Select ${item.itemName}`}
                       className="cursor-pointer"
                     />
                   </div>
                 </TableCell>
                 <TableCell className="font-mono text-[11px] font-semibold text-muted-foreground">
-                  {item.sku}
+                  {item.itemCode}
                 </TableCell>
                 <TableCell>
-                  <div className="font-semibold text-foreground">{item.name}</div>
+                  <div className="font-semibold text-foreground">{item.itemName}</div>
                   <div className="text-[10px] text-muted-foreground flex items-center gap-2">
                     Updated: {new Date(item.lastUpdated).toLocaleDateString()}
                   </div>
@@ -325,28 +362,26 @@ export const ItemsMasterList = () => {
                     variant="outline"
                     className="text-[10px] font-medium bg-muted/20 border-muted-foreground/10"
                   >
-                    {item.category}
+                    {Object.keys(ItemGroup).find(
+                      (key) => ItemGroup[key as keyof typeof ItemGroup] === item.itemGroup,
+                    )}
                   </Badge>
                 </TableCell>
-                <TableCell className="text-center">
-                  <div className="font-mono font-bold text-sm">{item.stockLevel}</div>
-                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
-                    {item.unit}
-                  </div>
+                <TableCell>
+                  <div className="text-xs font-mono">{item.barcodeValue || '-'}</div>
+                  {item.barcodeFormat && (
+                    <div className="text-[10px] text-muted-foreground">
+                      {Object.keys(BarcodeFormat).find(
+                        (k) =>
+                          BarcodeFormat[k as keyof typeof BarcodeFormat] === item.barcodeFormat,
+                      )}
+                    </div>
+                  )}
                 </TableCell>
                 <TableCell>
-                  <div className="flex items-center gap-1.5 text-xs font-medium decoration-primary/30 underline-offset-4 hover:underline">
-                    <LayoutGrid size={12} className="text-muted-foreground" />
-                    {item.binLocation}
+                  <div className="text-xs text-muted-foreground line-clamp-2 max-w-[200px]">
+                    {item.remarks || '-'}
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={STATUS_VARIANT[item.status]}
-                    className="capitalize text-[10px] font-bold"
-                  >
-                    {item.status.replace('-', ' ')}
-                  </Badge>
                 </TableCell>
                 <TableCell className="text-right pr-6" onClick={(e) => e.stopPropagation()}>
                   <DropdownMenu>
@@ -364,7 +399,7 @@ export const ItemsMasterList = () => {
                     <DropdownMenuContent align="end" className="w-48">
                       <DropdownMenuItem
                         className="gap-2"
-                        onClick={() => console.log('Edit', item.id)}
+                        onClick={() => handleOpenEditDialog(item)}
                       >
                         <Edit className="h-4 w-4 text-muted-foreground" />
                         Edit Item
@@ -385,11 +420,11 @@ export const ItemsMasterList = () => {
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => handleOpenDeleteAlert(item)}
                         className="gap-2 text-destructive focus:bg-destructive/10"
                       >
                         <Trash2 className="h-4 w-4" />
-                        Delete Permanently
+                        Delete
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -404,6 +439,21 @@ export const ItemsMasterList = () => {
         <p>Showing {filtered.length} items</p>
         <p>Storage Capacity: 65% utilized</p>
       </div>
+
+      <ItemDialog
+        open={dialogState.open}
+        onOpenChange={(open) => setDialogState({ ...dialogState, open })}
+        mode={dialogState.mode}
+        initialData={initialFormData}
+        onSubmit={handleDialogSubmit}
+      />
+
+      <DeleteItemAlertDialog
+        open={deleteAlertState.open}
+        onOpenChange={(open) => setDeleteAlertState({ ...deleteAlertState, open })}
+        itemName={deleteAlertState.item?.itemName || ''}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
