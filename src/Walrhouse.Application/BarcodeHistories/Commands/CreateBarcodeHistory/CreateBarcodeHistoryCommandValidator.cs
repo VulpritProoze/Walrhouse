@@ -10,6 +10,12 @@ public class CreateBarcodeHistoryCommandValidator : AbstractValidator<CreateBarc
             .MaximumLength(256)
             .WithMessage("BarcodeValue must be at most 256 characters.");
 
+        RuleFor(v => v.BatchNumber)
+            .NotEmpty()
+            .WithMessage("BatchNumber is required.")
+            .MaximumLength(64)
+            .WithMessage("BatchNumber must be at most 64 characters.");
+
         RuleFor(v => v.BarcodeFormat).IsInEnum().WithMessage("Invalid barcode format.");
 
         RuleFor(v => v.Remarks)

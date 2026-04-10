@@ -7,6 +7,7 @@ public class BarcodeHistoryDto
 {
     public int Id { get; set; }
     public string BarcodeValue { get; set; } = string.Empty;
+    public string BatchNumber { get; set; } = string.Empty;
     public BarcodeFormat? BarcodeFormat { get; set; }
     public string? Remarks { get; set; }
     public DateTime CreatedAt { get; set; }
