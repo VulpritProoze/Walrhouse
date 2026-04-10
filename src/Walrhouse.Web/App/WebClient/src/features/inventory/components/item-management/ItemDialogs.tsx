@@ -1,100 +1,87 @@
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import {
   AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
   AlertDialogAction,
   AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { ItemForm, type ItemFormData } from './ItemForm';
+import { ItemForm } from './ItemForm';
+import { type ItemDto } from '../../types/dto';
+import { Loader2 } from 'lucide-react';
 
-export { type ItemFormData };
-
-// ─── Types ──────────────────────────────────────────────────────────────────
 interface ItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit: (data: ItemFormData) => void;
-  initialData?: ItemFormData | null;
   mode: 'add' | 'edit';
+  initialData: ItemDto | null;
+  onSave: (data: ItemDto) => Promise<void>;
+  isLoading?: boolean;
 }
-
-interface DeleteAlertDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-  itemName: string;
-}
-
-// ─── Components ──────────────────────────────────────────────────────────────
 
 export const ItemDialog = ({
   open,
   onOpenChange,
-  onSubmit,
-  initialData,
   mode,
+  initialData,
+  onSave,
+  isLoading,
 }: ItemDialogProps) => {
-  const handleFormSubmit = (data: ItemFormData) => {
-    onSubmit(data);
-    onOpenChange(false);
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px]">
-        <DialogHeader>
-          <DialogTitle>{mode === 'add' ? 'Add New Item' : 'Edit Item'}</DialogTitle>
-          <DialogDescription>
-            {mode === 'add'
-              ? 'Enter the details for the new inventory item.'
-              : 'Update the information for this inventory item.'}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-106.25">
         <ItemForm
-          initialData={initialData}
           mode={mode}
-          onSubmit={handleFormSubmit}
-          onCancel={() => onOpenChange(false)}
+          initial={initialData}
+          onSave={onSave}
+          onSuccess={() => onOpenChange(false)}
+          isLoading={isLoading}
         />
       </DialogContent>
     </Dialog>
   );
 };
 
+interface DeleteItemAlertDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  itemName: string;
+  onConfirm: () => Promise<void>;
+  isLoading?: boolean;
+}
+
 export const DeleteItemAlertDialog = ({
   open,
   onOpenChange,
-  onConfirm,
   itemName,
-}: DeleteAlertDialogProps) => {
+  onConfirm,
+  isLoading,
+}: DeleteItemAlertDialogProps) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This will permanently delete{' '}
-            <span className="font-semibold text-foreground">"{itemName}"</span> and remove its
-            record from the system.
+            This action cannot be undone. This will permanently delete the item{' '}
+            <span className="font-bold text-foreground">"{itemName}"</span> and all associated data.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={isLoading}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={onConfirm}
+            onClick={(e) => {
+              e.preventDefault();
+              onConfirm();
+            }}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            disabled={isLoading}
           >
-            Delete
+            {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Delete Item
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

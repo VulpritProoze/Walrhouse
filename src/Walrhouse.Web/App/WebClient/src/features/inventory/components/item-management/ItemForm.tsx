@@ -1,8 +1,9 @@
-import * as React from 'react';
+import { useState } from 'react';
 import { ItemGroup, BarcodeFormat } from '@/features/item/types/enums';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
@@ -10,101 +11,143 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-export interface ItemFormData {
-  itemCode: string;
-  itemName: string;
-  uoMGroupId: string;
-  barcodeValue?: string;
-  barcodeFormat?: number;
-  itemGroup?: number;
-  remarks?: string;
-}
+import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { toast } from 'sonner';
+import { logger } from '@/lib/utils/logger';
+import { type ItemDto } from '../../types/dto';
+import { z } from 'zod';
+import { itemSchema } from '@/lib/schemas/item.schema';
 
 interface ItemFormProps {
-  initialData?: ItemFormData | null;
+  initial: ItemDto | null;
   mode: 'add' | 'edit';
-  onSubmit: (data: ItemFormData) => void;
-  onCancel: () => void;
+  isLoading?: boolean;
+  onSave: (data: ItemDto) => Promise<void>;
+  onSuccess: () => void;
 }
 
-// ─── Component ──────────────────────────────────────────────────────────────
-
-export const ItemForm = ({ initialData, mode, onSubmit, onCancel }: ItemFormProps) => {
-  const [formData, setFormData] = React.useState<ItemFormData>(
-    initialData || {
+export function ItemForm({ initial, mode, isLoading, onSave, onSuccess }: ItemFormProps) {
+  const [formData, setFormData] = useState<ItemDto>(
+    initial ?? {
       itemCode: '',
       itemName: '',
-      uoMGroupId: '',
-      barcodeValue: '',
-      barcodeFormat: BarcodeFormat.GS1DataMatrix,
+      uoMGroupId: 1,
       itemGroup: ItemGroup.General,
+      barcodeValue: '',
+      barcodeFormat: BarcodeFormat.GS1_128,
       remarks: '',
     },
   );
 
-  React.useEffect(() => {
-    if (initialData) {
-      setFormData(initialData);
-    } else {
-      setFormData({
-        itemCode: '',
-        itemName: '',
-        uoMGroupId: '',
-        barcodeValue: '',
-        barcodeFormat: BarcodeFormat.GS1DataMatrix,
-        itemGroup: ItemGroup.General,
-        remarks: '',
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const loading = isLoading || isSubmitting;
+  const isAdd = mode === 'add';
+
+  const updateField = <K extends keyof ItemDto>(field: K, value: ItemDto[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
       });
     }
-  }, [initialData]);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSubmit(formData);
   };
 
+  function validate() {
+    try {
+      // Use the existing zod schema for validation
+      const validationData = {
+        ...formData,
+        uoMGroupId: formData.uoMGroupId.toString(),
+        barcodeValue: formData.barcodeValue || undefined,
+        remarks: formData.remarks || undefined,
+      };
+
+      itemSchema.parse(validationData);
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const formatted: Record<string, string> = {};
+        err.issues.forEach((e) => {
+          if (e.path[0]) formatted[e.path[0] as string] = e.message;
+        });
+        setErrors(formatted);
+      }
+      return false;
+    }
+  }
+
+  async function handleSave() {
+    if (!validate()) return;
+
+    setIsSubmitting(true);
+    const toastId = toast.loading(isAdd ? 'Creating item...' : 'Updating item...');
+
+    try {
+      await onSave(formData);
+      toast.success(isAdd ? 'Item created successfully' : 'Item updated successfully', {
+        id: toastId,
+      });
+      onSuccess();
+    } catch (err) {
+      toast.error(isAdd ? 'Failed to create item' : 'Failed to update item', {
+        id: toastId,
+      });
+      logger.error('Failed to save item', err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit}>
+    <>
+      <DialogTitle>{isAdd ? 'Add Item' : 'Edit Item'}</DialogTitle>
+      <DialogDescription>
+        {isAdd ? 'Create a new inventory item.' : 'Update the details for this item.'}
+      </DialogDescription>
+
       <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="itemCode" className="text-right">
-            Code
-          </Label>
+        {/* Item Code */}
+        <div className="grid gap-2">
+          <Label className={errors.itemCode ? 'text-destructive' : ''}>Item Code</Label>
           <Input
-            id="itemCode"
+            disabled={!isAdd || loading}
             value={formData.itemCode}
-            onChange={(e) => setFormData({ ...formData, itemCode: e.target.value })}
-            className="col-span-3"
-            disabled={mode === 'edit'}
+            onChange={(e) => updateField('itemCode', e.target.value)}
             placeholder="e.g. ITEM-001"
-            required
+            className={!isAdd ? 'bg-muted/50' : errors.itemCode ? 'border-destructive' : ''}
           />
+          {errors.itemCode && <p className="text-xs text-destructive">{errors.itemCode}</p>}
         </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="itemName" className="text-right">
-            Name
-          </Label>
+
+        {/* Item Name */}
+        <div className="grid gap-2">
+          <Label className={errors.itemName ? 'text-destructive' : ''}>Item Name</Label>
           <Input
-            id="itemName"
+            disabled={loading}
             value={formData.itemName}
-            onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-            className="col-span-3"
+            onChange={(e) => updateField('itemName', e.target.value)}
             placeholder="Product name"
-            required
+            className={errors.itemName ? 'border-destructive' : ''}
           />
+          {errors.itemName && <p className="text-xs text-destructive">{errors.itemName}</p>}
         </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="uoMGroupId" className="text-right">
-            UoM Group
-          </Label>
+
+        {/* UoM Group */}
+        <div className="grid gap-2">
+          <Label className={errors.uoMGroupId ? 'text-destructive' : ''}>UoM Group</Label>
           <Select
-            value={formData.uoMGroupId || ''}
-            onValueChange={(v) => v && setFormData({ ...formData, uoMGroupId: v })}
+            value={formData.uoMGroupId.toString()}
+            onValueChange={(v) => {
+              if (v) updateField('uoMGroupId', parseInt(v));
+            }}
+            disabled={loading}
           >
-            <SelectTrigger className="col-span-3">
+            <SelectTrigger className={errors.uoMGroupId ? 'border-destructive' : ''}>
               <SelectValue placeholder="Select UoM Group" />
             </SelectTrigger>
             <SelectContent>
@@ -113,16 +156,20 @@ export const ItemForm = ({ initialData, mode, onSubmit, onCancel }: ItemFormProp
               <SelectItem value="3">Boxes/Pallets</SelectItem>
             </SelectContent>
           </Select>
+          {errors.uoMGroupId && <p className="text-xs text-destructive">{errors.uoMGroupId}</p>}
         </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="itemGroup" className="text-right">
-            Item Group
-          </Label>
+
+        {/* Item Group */}
+        <div className="grid gap-2">
+          <Label>Item Group</Label>
           <Select
             value={formData.itemGroup?.toString() || ''}
-            onValueChange={(v) => v && setFormData({ ...formData, itemGroup: parseInt(v) })}
+            onValueChange={(v) => {
+              if (v) updateField('itemGroup', parseInt(v) as ItemGroup);
+            }}
+            disabled={loading}
           >
-            <SelectTrigger className="col-span-3">
+            <SelectTrigger>
               <SelectValue placeholder="Select Group" />
             </SelectTrigger>
             <SelectContent>
@@ -134,23 +181,26 @@ export const ItemForm = ({ initialData, mode, onSubmit, onCancel }: ItemFormProp
             </SelectContent>
           </Select>
         </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="barcode" className="text-right">
-            Barcode
-          </Label>
-          <div className="col-span-3 flex gap-2">
+
+        {/* Barcode Section */}
+        <div className="grid gap-2">
+          <Label>Barcode</Label>
+          <div className="flex gap-2">
             <Input
-              id="barcode"
               value={formData.barcodeValue || ''}
-              onChange={(e) => setFormData({ ...formData, barcodeValue: e.target.value })}
-              className="flex-1"
+              onChange={(e) => updateField('barcodeValue', e.target.value)}
               placeholder="Value"
+              className="flex-1"
+              disabled={loading}
             />
             <Select
               value={formData.barcodeFormat?.toString() || ''}
-              onValueChange={(v) => v && setFormData({ ...formData, barcodeFormat: parseInt(v) })}
+              onValueChange={(v) => {
+                if (v) updateField('barcodeFormat', parseInt(v) as BarcodeFormat);
+              }}
+              disabled={loading}
             >
-              <SelectTrigger className="w-[120px]">
+              <SelectTrigger className="w-32">
                 <SelectValue placeholder="Format" />
               </SelectTrigger>
               <SelectContent>
@@ -163,25 +213,31 @@ export const ItemForm = ({ initialData, mode, onSubmit, onCancel }: ItemFormProp
             </Select>
           </div>
         </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="remarks" className="text-right">
-            Remarks
-          </Label>
+
+        {/* Remarks */}
+        <div className="grid gap-2">
+          <Label>Remarks</Label>
           <Textarea
-            id="remarks"
             value={formData.remarks || ''}
-            onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-            className="col-span-3"
+            onChange={(e) => updateField('remarks', e.target.value)}
             placeholder="Internal notes..."
+            disabled={loading}
           />
         </div>
       </div>
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+
+      <DialogFooter>
+        <DialogClose
+          render={
+            <Button variant="outline" disabled={loading}>
+              Cancel
+            </Button>
+          }
+        />
+        <Button onClick={handleSave} disabled={loading}>
+          {loading ? 'Saving...' : isAdd ? 'Create' : 'Save'}
         </Button>
-        <Button type="submit">{mode === 'add' ? 'Create Item' : 'Save Changes'}</Button>
-      </div>
-    </form>
+      </DialogFooter>
+    </>
   );
-};
+}
