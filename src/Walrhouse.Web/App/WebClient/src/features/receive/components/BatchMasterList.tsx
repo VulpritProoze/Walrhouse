@@ -17,57 +17,52 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { type BatchDto } from '../types/batch-dto';
 import { BatchStatus } from '@/features/batch/types';
 import { useState } from 'react';
-import { AddBatchDialog, UpdateBatchDialog } from './batch-management/BatchDialogs';
-
-type BatchForm = BatchDto;
+import { useBatches } from '@/features/batch/hooks/queries/use-batch';
+import { useDeleteBatch } from '@/features/batch/hooks/mutations/use-batch-mutation';
+import { CreateBatchForm, UpdateBatchForm } from './batch-management/BatchForms';
+import { Loader2, MoreVertical, Edit, Trash2 } from 'lucide-react';
 
 export const BatchMasterList = () => {
-  const [batches, setBatches] = useState<BatchDto[]>(() => [
-    {
-      batchNumber: 'BAT-001',
-      itemCode: 'ITEM-A',
-      expiryDate: '2025-04-01',
-      status: 1,
-      binNo: 'BIN-01',
-    },
-    {
-      batchNumber: 'BAT-002',
-      itemCode: 'ITEM-B',
-      expiryDate: '2025-04-02',
-      status: 1,
-      binNo: 'BIN-02',
-    },
-  ]);
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const { data, isLoading } = useBatches({
+    pageNumber: page,
+    pageSize: pageSize,
+  });
+  const { mutate: deleteBatch, isPending: isDeleting } = useDeleteBatch();
+
+  const batches = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [active, setActive] = useState<BatchDto | null>(null);
-  const [form, setForm] = useState<BatchForm>({
-    batchNumber: '',
-    itemCode: '',
-    expiryDate: '',
-    status: 0,
-    binNo: '',
-  });
 
   const openAdd = () => {
-    setForm({ batchNumber: '', itemCode: '', expiryDate: '', status: 0, binNo: '' });
     setActive(null);
     setIsAddOpen(true);
   };
 
   const openEdit = (b: BatchDto) => {
-    setForm({
-      batchNumber: b.batchNumber,
-      itemCode: b.itemCode,
-      expiryDate: b.expiryDate,
-      status: b.status,
-      binNo: b.binNo,
-    });
     setActive(b);
     setIsEditOpen(true);
   };
@@ -77,21 +72,14 @@ export const BatchMasterList = () => {
     setIsDeleteOpen(true);
   };
 
-  const handleAdd = () => {
-    setBatches((s) => [form, ...s]);
-    setIsAddOpen(false);
-  };
-
-  const handleUpdate = () => {
-    if (!active) return;
-    setBatches((s) => s.map((x) => (x.batchNumber === active.batchNumber ? form : x)));
-    setIsEditOpen(false);
-  };
-
   const handleDelete = () => {
     if (!active) return;
-    setBatches((s) => s.filter((x) => x.batchNumber !== active.batchNumber));
-    setIsDeleteOpen(false);
+    deleteBatch(active.batchNumber, {
+      onSuccess: () => {
+        setIsDeleteOpen(false);
+        setActive(null);
+      },
+    });
   };
 
   const getStatusLabel = (status: number) => {
@@ -108,69 +96,160 @@ export const BatchMasterList = () => {
   };
 
   return (
-    <Card className="border-none shadow-sm overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-2 border-b">
-        <h3 className="text-sm font-semibold">Batch Master</h3>
-        <div className="flex items-center gap-2">
-          <Button onClick={openAdd}>Add Batch</Button>
+    <Card className="border-none shadow-sm overflow-hidden min-h-[400px] flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between px-4 py-2 border-b">
+          <h3 className="text-sm font-semibold">Batch Master</h3>
+          <div className="flex items-center gap-2">
+            <Button onClick={openAdd}>Add Batch</Button>
+          </div>
         </div>
+
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-muted/30">
+              <TableHead>Batch ID</TableHead>
+              <TableHead>Item Code</TableHead>
+              <TableHead>Bin No</TableHead>
+              <TableHead>Expiry Date</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="w-10"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-32 text-center">
+                  <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Loading batches...</span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ) : batches.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                  No batches found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              batches.map((batch: BatchDto) => (
+                <TableRow
+                  key={batch.batchNumber}
+                  className="hover:bg-muted/10 group cursor-default"
+                >
+                  <TableCell className="font-mono font-bold text-xs">{batch.batchNumber}</TableCell>
+                  <TableCell>{batch.itemCode}</TableCell>
+                  <TableCell>{batch.binNo}</TableCell>
+                  <TableCell>{batch.expiryDate}</TableCell>
+                  <TableCell>
+                    <Badge variant={batch.status === BatchStatus.Released ? 'success' : 'outline'}>
+                      {getStatusLabel(batch.status)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        }
+                      />
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem className="gap-2" onClick={() => openEdit(batch)}>
+                          <Edit className="h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="gap-2 text-destructive"
+                          onClick={() => openDelete(batch)}
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow className="bg-muted/30">
-            <TableHead>Batch ID</TableHead>
-            <TableHead>Item Code</TableHead>
-            <TableHead>Bin No</TableHead>
-            <TableHead>Expiry Date</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead className="w-24">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {batches.map((batch: BatchDto) => (
-            <TableRow key={batch.batchNumber}>
-              <TableCell className="font-mono font-bold">{batch.batchNumber}</TableCell>
-              <TableCell>{batch.itemCode}</TableCell>
-              <TableCell>{batch.binNo}</TableCell>
-              <TableCell>{batch.expiryDate}</TableCell>
-              <TableCell>
-                <Badge variant={batch.status === BatchStatus.Released ? 'success' : 'outline'}>
-                  {getStatusLabel(batch.status)}
-                </Badge>
-              </TableCell>
-              <TableCell>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="outline" onClick={() => openEdit(batch)}>
-                    Edit
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={() => openDelete(batch)}>
-                    Delete
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      {totalPages > 1 && (
+        <div className="p-4 border-t bg-muted/5">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                />
+              </PaginationItem>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <PaginationItem key={p}>
+                  <PaginationLink
+                    isActive={page === p}
+                    onClick={() => setPage(p)}
+                    className="cursor-pointer"
+                  >
+                    {p}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem>
+                <PaginationNext
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  className={
+                    page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
+      )}
 
       {/* Add Dialog */}
-      <AddBatchDialog
-        open={isAddOpen}
-        onOpenChange={setIsAddOpen}
-        form={form}
-        onFormChange={setForm}
-        onSubmit={handleAdd}
-      />
+      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Batch</DialogTitle>
+            <DialogDescription>
+              Add a new batch. Keep fields minimal for fast entry.
+            </DialogDescription>
+          </DialogHeader>
+          <CreateBatchForm
+            onSuccess={() => setIsAddOpen(false)}
+            onCancel={() => setIsAddOpen(false)}
+          />
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Dialog */}
-      <UpdateBatchDialog
-        open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-        form={form}
-        onFormChange={setForm}
-        onSubmit={handleUpdate}
-      />
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Batch</DialogTitle>
+            <DialogDescription>
+              Update batch details. Changes are synced to the server.
+            </DialogDescription>
+          </DialogHeader>
+          {active && (
+            <UpdateBatchForm
+              batch={active}
+              onSuccess={() => setIsEditOpen(false)}
+              onCancel={() => setIsEditOpen(false)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Delete Confirm Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
@@ -180,14 +259,15 @@ export const BatchMasterList = () => {
             <DialogDescription>Delete batch {active?.batchNumber}</DialogDescription>
           </DialogHeader>
 
-          <div className="py-4">
+          <div className="py-2 text-sm">
             Are you sure you want to delete batch <strong>{active?.batchNumber}</strong>?
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting}>
+              {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Delete
             </Button>
           </DialogFooter>
