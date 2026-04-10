@@ -35,8 +35,12 @@ import { type BatchDto } from '../types/batch-dto';
 import { BatchStatus } from '@/features/batch/types';
 import { useState } from 'react';
 import { useBatches } from '@/features/batch/hooks/queries/use-batch';
-import { useDeleteBatch } from '@/features/batch/hooks/mutations/use-batch-mutation';
-import { CreateBatchForm, UpdateBatchForm } from './batch-management/BatchForms';
+import {
+  useDeleteBatch,
+  useCreateBatch,
+  useUpdateBatch,
+} from '@/features/batch/hooks/mutations/use-batch-mutation';
+import { AddBatchDialog, EditBatchDialog } from './batch-management/BatchDialogs';
 import { Loader2, MoreVertical, Edit, Trash2 } from 'lucide-react';
 
 export const BatchMasterList = () => {
@@ -48,6 +52,8 @@ export const BatchMasterList = () => {
     pageSize: pageSize,
   });
   const { mutate: deleteBatch, isPending: isDeleting } = useDeleteBatch();
+  const { mutateAsync: createBatch, isPending: isCreating } = useCreateBatch();
+  const { mutateAsync: updateBatch, isPending: isUpdating } = useUpdateBatch();
 
   const batches = data?.items ?? [];
   const totalPages = data?.totalPages ?? 0;
@@ -216,42 +222,26 @@ export const BatchMasterList = () => {
         </div>
       )}
 
-      {/* Add Dialog */}
-      <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Batch</DialogTitle>
-            <DialogDescription>
-              Add a new batch. Keep fields minimal for fast entry.
-            </DialogDescription>
-          </DialogHeader>
-          <CreateBatchForm
-            onSuccess={() => setIsAddOpen(false)}
-            onCancel={() => setIsAddOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      {/* Dialogs */}
+      <AddBatchDialog
+        open={isAddOpen}
+        onOpenChange={setIsAddOpen}
+        isLoading={isCreating}
+        onSave={async (data) => {
+          await createBatch(data);
+        }}
+      />
 
-      {/* Edit Dialog */}
-      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Batch</DialogTitle>
-            <DialogDescription>
-              Update batch details. Changes are synced to the server.
-            </DialogDescription>
-          </DialogHeader>
-          {active && (
-            <UpdateBatchForm
-              batch={active}
-              onSuccess={() => setIsEditOpen(false)}
-              onCancel={() => setIsEditOpen(false)}
-            />
-          )}
-        </DialogContent>
-      </Dialog>
+      <EditBatchDialog
+        batch={active}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
+        isLoading={isUpdating}
+        onSave={async (data) => {
+          await updateBatch({ batchNumber: data.batchNumber, data });
+        }}
+      />
 
-      {/* Delete Confirm Dialog */}
       <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <DialogContent>
           <DialogHeader>
