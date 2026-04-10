@@ -24,12 +24,6 @@ public class UoMGroup : BaseAuditableEntity
     }
 
     /// <summary>
-    /// Gets or sets the unique UoM group entry.
-    /// This is the unique identifier used in between relationships.
-    /// </summary>
-    public required string UgpEntry { get; set; }
-
-    /// <summary>
     /// Gets or sets the BaseUoM.
     /// This is where the UoMGroupLines refer to with its BaseQty.
     /// </summary>

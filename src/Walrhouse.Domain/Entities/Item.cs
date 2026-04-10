@@ -33,7 +33,7 @@ public class Item : BaseAuditableEntity
     /// This is a foreign key to the UoMGroup entity, which defines the various
     /// units of measurement and their conversion factors for this item.
     /// </summary>
-    public required string UgpEntry { get; set; }
+    public required int UoMGroupId { get; set; }
 
     /// <summary>
     /// Gets or sets the navigation property to the UoMGroup entity.
