@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios';
-import { type ItemGroup } from '../types';
+import { type ItemGroup, type BarcodeFormat } from '../types';
 
 /**
  * Request payload for creating a new item.
@@ -20,6 +20,7 @@ export interface CreateItemRequest {
 export interface GetItemsRequest {
   pageNumber?: number;
   pageSize?: number;
+  searchTerm?: string;
 }
 
 /**
