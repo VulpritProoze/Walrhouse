@@ -19,67 +19,72 @@ import {
   DialogDescription,
   DialogFooter,
 } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { type BatchDto } from '../types/batch-dto';
+import { BatchStatus } from '@/features/batch/types';
+import { format, parseISO } from 'date-fns';
+import { CalendarIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
-type Batch = {
-  id: string;
-  itemCode: string;
-  quantity: number;
-  receivedDate: string;
-  status: string;
-};
-
-type BatchForm = Batch;
+type BatchForm = BatchDto;
 
 export const BatchMasterList = () => {
-  const [batches, setBatches] = useState<Batch[]>(() => [
+  const [batches, setBatches] = useState<BatchDto[]>(() => [
     {
-      id: 'BAT-001',
+      batchNumber: 'BAT-001',
       itemCode: 'ITEM-A',
-      quantity: 100,
-      receivedDate: '2024-04-01',
-      status: 'Pending',
+      expiryDate: '2025-04-01',
+      status: 1,
+      binNo: 'BIN-01',
     },
     {
-      id: 'BAT-002',
+      batchNumber: 'BAT-002',
       itemCode: 'ITEM-B',
-      quantity: 50,
-      receivedDate: '2024-04-02',
-      status: 'Completed',
+      expiryDate: '2025-04-02',
+      status: 1,
+      binNo: 'BIN-02',
     },
   ]);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [active, setActive] = useState<Batch | null>(null);
+  const [active, setActive] = useState<BatchDto | null>(null);
   const [form, setForm] = useState<BatchForm>({
-    id: '',
+    batchNumber: '',
     itemCode: '',
-    quantity: 0,
-    receivedDate: '',
-    status: '',
+    expiryDate: '',
+    status: 0,
+    binNo: '',
   });
 
   const openAdd = () => {
-    setForm({ id: '', itemCode: '', quantity: 0, receivedDate: '', status: '' });
+    setForm({ batchNumber: '', itemCode: '', expiryDate: '', status: 0, binNo: '' });
     setActive(null);
     setIsAddOpen(true);
   };
 
-  const openEdit = (b: Batch) => {
+  const openEdit = (b: BatchDto) => {
     setForm({
-      id: b.id,
+      batchNumber: b.batchNumber,
       itemCode: b.itemCode,
-      quantity: b.quantity,
-      receivedDate: b.receivedDate,
+      expiryDate: b.expiryDate,
       status: b.status,
+      binNo: b.binNo,
     });
     setActive(b);
     setIsEditOpen(true);
   };
 
-  const openDelete = (b: Batch) => {
+  const openDelete = (b: BatchDto) => {
     setActive(b);
     setIsDeleteOpen(true);
   };
@@ -91,14 +96,27 @@ export const BatchMasterList = () => {
 
   const handleUpdate = () => {
     if (!active) return;
-    setBatches((s) => s.map((x) => (x.id === active.id ? form : x)));
+    setBatches((s) => s.map((x) => (x.batchNumber === active.batchNumber ? form : x)));
     setIsEditOpen(false);
   };
 
   const handleDelete = () => {
     if (!active) return;
-    setBatches((s) => s.filter((x) => x.id !== active.id));
+    setBatches((s) => s.filter((x) => x.batchNumber !== active.batchNumber));
     setIsDeleteOpen(false);
+  };
+
+  const getStatusLabel = (status: number) => {
+    switch (status) {
+      case BatchStatus.Released:
+        return 'Released';
+      case BatchStatus.Locked:
+        return 'Locked';
+      case BatchStatus.Restricted:
+        return 'Restricted';
+      default:
+        return 'Pending';
+    }
   };
 
   return (
@@ -115,22 +133,22 @@ export const BatchMasterList = () => {
           <TableRow className="bg-muted/30">
             <TableHead>Batch ID</TableHead>
             <TableHead>Item Code</TableHead>
-            <TableHead>Quantity</TableHead>
-            <TableHead>Received Date</TableHead>
+            <TableHead>Bin No</TableHead>
+            <TableHead>Expiry Date</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="w-24">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {batches.map((batch: Batch) => (
-            <TableRow key={batch.id}>
-              <TableCell className="font-mono font-bold">{batch.id}</TableCell>
+          {batches.map((batch: BatchDto) => (
+            <TableRow key={batch.batchNumber}>
+              <TableCell className="font-mono font-bold">{batch.batchNumber}</TableCell>
               <TableCell>{batch.itemCode}</TableCell>
-              <TableCell>{batch.quantity}</TableCell>
-              <TableCell>{batch.receivedDate}</TableCell>
+              <TableCell>{batch.binNo}</TableCell>
+              <TableCell>{batch.expiryDate}</TableCell>
               <TableCell>
-                <Badge variant={batch.status === 'Completed' ? 'success' : 'outline'}>
-                  {batch.status}
+                <Badge variant={batch.status === BatchStatus.Released ? 'success' : 'outline'}>
+                  {getStatusLabel(batch.status)}
                 </Badge>
               </TableCell>
               <TableCell>
@@ -138,7 +156,7 @@ export const BatchMasterList = () => {
                   <Button size="sm" variant="outline" onClick={() => openEdit(batch)}>
                     Edit
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => openDelete(batch)}>
+                  <Button size="sm" variant="destructive" onClick={() => openDelete(batch)}>
                     Delete
                   </Button>
                 </div>
@@ -162,39 +180,78 @@ export const BatchMasterList = () => {
             <div>
               <Label>Batch Number</Label>
               <Input
-                value={form.id}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, id: e.target.value })}
+                value={form.batchNumber}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, batchNumber: e.target.value })
+                }
               />
             </div>
             <div>
               <Label>Item Code</Label>
               <Input
                 value={form.itemCode}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, itemCode: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, itemCode: e.target.value })
+                }
               />
             </div>
             <div>
-              <Label>Quantity</Label>
+              <Label>Bin No</Label>
               <Input
-                type="number"
-                value={form.quantity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, quantity: Number(e.target.value) })}
+                value={form.binNo}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, binNo: e.target.value })
+                }
               />
             </div>
             <div>
-              <Label>Received Date</Label>
-              <Input
-                type="date"
-                value={form.receivedDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, receivedDate: e.target.value })}
-              />
+              <Label>Expiry Date</Label>
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {form.expiryDate ? (
+                        format(parseISO(form.expiryDate), 'PPP')
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  }
+                />
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={form.expiryDate ? parseISO(form.expiryDate) : undefined}
+                    onSelect={(date) =>
+                      setForm({
+                        ...form,
+                        expiryDate: date ? date.toISOString().split('T')[0] : '',
+                      })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label>Status</Label>
-              <Input
-                value={form.status}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, status: e.target.value })}
-              />
+              <Select
+                value={form.status.toString()}
+                onValueChange={(val) => setForm({ ...form, status: Number(val) })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side="bottom" align="start">
+                  <SelectItem value={BatchStatus.Released.toString()}>Released</SelectItem>
+                  <SelectItem value={BatchStatus.Locked.toString()}>Locked</SelectItem>
+                  <SelectItem value={BatchStatus.Restricted.toString()}>Restricted</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -219,8 +276,10 @@ export const BatchMasterList = () => {
             <div>
               <Label>Batch Number</Label>
               <Input
-                value={form.id}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, id: e.target.value })}
+                value={form.batchNumber}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, batchNumber: e.target.value })
+                }
                 disabled
               />
             </div>
@@ -228,31 +287,68 @@ export const BatchMasterList = () => {
               <Label>Item Code</Label>
               <Input
                 value={form.itemCode}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, itemCode: e.target.value })}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, itemCode: e.target.value })
+                }
               />
             </div>
             <div>
-              <Label>Quantity</Label>
+              <Label>Bin No</Label>
               <Input
-                type="number"
-                value={form.quantity}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, quantity: Number(e.target.value) })}
+                value={form.binNo}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setForm({ ...form, binNo: e.target.value })
+                }
               />
             </div>
             <div>
-              <Label>Received Date</Label>
-              <Input
-                type="date"
-                value={form.receivedDate}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, receivedDate: e.target.value })}
-              />
+              <Label>Expiry Date</Label>
+              <Popover>
+                <PopoverTrigger
+                  render={
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {form.expiryDate ? (
+                        format(parseISO(form.expiryDate), 'PPP')
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  }
+                />
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={form.expiryDate ? parseISO(form.expiryDate) : undefined}
+                    onSelect={(date) =>
+                      setForm({
+                        ...form,
+                        expiryDate: date ? date.toISOString().split('T')[0] : '',
+                      })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             </div>
             <div>
               <Label>Status</Label>
-              <Input
-                value={form.status}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setForm({ ...form, status: e.target.value })}
-              />
+              <Select
+                value={form.status.toString()}
+                onValueChange={(val) => setForm({ ...form, status: Number(val) })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent side="bottom" align="start">
+                  <SelectItem value={BatchStatus.Released.toString()}>Released</SelectItem>
+                  <SelectItem value={BatchStatus.Locked.toString()}>Locked</SelectItem>
+                  <SelectItem value={BatchStatus.Restricted.toString()}>Restricted</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -270,11 +366,11 @@ export const BatchMasterList = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Batch</DialogTitle>
-            <DialogDescription>Delete batch {active?.id}</DialogDescription>
+            <DialogDescription>Delete batch {active?.batchNumber}</DialogDescription>
           </DialogHeader>
 
           <div className="py-4">
-            Are you sure you want to delete batch <strong>{active?.id}</strong>?
+            Are you sure you want to delete batch <strong>{active?.batchNumber}</strong>?
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>
