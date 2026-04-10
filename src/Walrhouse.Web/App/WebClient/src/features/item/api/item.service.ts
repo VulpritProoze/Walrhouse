@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios';
-import { type ItemGroup } from '../types/item-groups';
+import { type ItemGroup } from '../types';
 
 /**
  * Request payload for creating a new item.
@@ -9,7 +9,7 @@ export interface CreateItemRequest {
   itemName: string;
   uoMGroupId: number;
   barcodeValue?: string | null;
-  barcodeFormat?: number | null;
+  barcodeFormat?: BarcodeFormat | null;
   itemGroup?: ItemGroup | null;
   remarks?: string | null;
 }
@@ -29,7 +29,7 @@ export interface UpdateItemRequest {
   itemName?: string | null;
   uoMGroupId?: number | null;
   barcodeValue?: string | null;
-  barcodeFormat?: number | null;
+  barcodeFormat?: BarcodeFormat | null;
   itemGroup?: ItemGroup | null;
   remarks?: string | null;
 }
