@@ -7,7 +7,7 @@ namespace Walrhouse.Application.Items.Commands.CreateItem;
 public record CreateItemCommand(
     string ItemCode,
     string ItemName,
-    string UgpEntry,
+    int UoMGroupId,
     string? BarcodeValue,
     BarcodeFormat? BarcodeFormat,
     ItemGroup? ItemGroup,
@@ -27,8 +27,8 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
     {
         var code = (request.ItemCode ?? string.Empty).Trim();
 
-        // Normalize inputs
-        var ugpEntry = (request.UgpEntry ?? string.Empty).Trim();
+        // UoM group id provided
+        var uoMGroupId = request.UoMGroupId;
 
         var existing = await _context
             .Items.AsQueryable()
@@ -46,7 +46,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
         if (needUoMGroup)
         {
             uomGroup = await _context.UoMGroups.FirstOrDefaultAsync(
-                u => u.UgpEntry == ugpEntry,
+                u => u.Id == uoMGroupId,
                 cancellationToken
             );
 
@@ -57,7 +57,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
         {
             // Restore previously soft-deleted item
             existing.ItemName = request.ItemName.Trim();
-            existing.UgpEntry = ugpEntry;
+            existing.UoMGroupId = uomGroup!.Id;
             existing.UoMGroup = uomGroup!;
             existing.BarcodeValue = request.BarcodeValue?.Trim();
             existing.BarcodeFormat = request.BarcodeFormat;
@@ -74,7 +74,7 @@ public class CreateItemCommandHandler : IRequestHandler<CreateItemCommand, strin
         {
             ItemCode = code,
             ItemName = request.ItemName.Trim(),
-            UgpEntry = ugpEntry,
+            UoMGroupId = uomGroup!.Id,
             UoMGroup = uomGroup!,
             BarcodeValue = request.BarcodeValue?.Trim(),
             BarcodeFormat = request.BarcodeFormat,

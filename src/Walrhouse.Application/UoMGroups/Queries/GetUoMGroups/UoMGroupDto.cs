@@ -5,7 +5,7 @@ namespace Walrhouse.Application.UoMGroups.Queries.GetUoMGroups;
 
 public class UoMGroupDto
 {
-    public string UgpEntry { get; set; } = string.Empty;
+    public int Id { get; set; }
     public UnitOfMeasurement BaseUoM { get; set; }
     public List<UoMGroupLineDto> UoMGroupLines { get; set; } = new();
 

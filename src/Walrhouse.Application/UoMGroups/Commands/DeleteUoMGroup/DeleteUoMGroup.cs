@@ -2,7 +2,7 @@ using Walrhouse.Application.Common.Interfaces;
 
 namespace Walrhouse.Application.UoMGroups.Commands.DeleteUoMGroup;
 
-public record DeleteUoMGroupCommand(string UgpEntry) : IRequest;
+public record DeleteUoMGroupCommand(int Id) : IRequest;
 
 public class DeleteUoMGroupCommandHandler : IRequestHandler<DeleteUoMGroupCommand>
 {
@@ -16,7 +16,7 @@ public class DeleteUoMGroupCommandHandler : IRequestHandler<DeleteUoMGroupComman
     public async Task Handle(DeleteUoMGroupCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.UoMGroups.FirstOrDefaultAsync(
-            g => g.UgpEntry == request.UgpEntry && !g.IsDeleted,
+            g => g.Id == request.Id && !g.IsDeleted,
             cancellationToken
         );
 

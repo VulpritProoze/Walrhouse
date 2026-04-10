@@ -22,11 +22,11 @@ public class CreateItemCommandValidator : AbstractValidator<CreateItemCommand>
         RuleFor(x => x.ItemGroup).IsInEnum().WithMessage("Invalid ItemGroup value.");
         RuleFor(x => x.BarcodeFormat).IsInEnum().WithMessage("Invalid BarcodeFormat value.");
 
-        RuleFor(x => x.UgpEntry)
+        RuleFor(x => x.UoMGroupId)
             .NotEmpty()
-            .WithMessage("UgpEntry is required.")
-            .MaximumLength(64)
-            .WithMessage("UgpEntry must be at most 64 characters.");
+            .WithMessage("UoMGroupId is required.")
+            .GreaterThan(-1)
+            .WithMessage("UoMGroupId must be a positive integer.");
 
         RuleFor(x => x.BarcodeValue)
             .MaximumLength(256)

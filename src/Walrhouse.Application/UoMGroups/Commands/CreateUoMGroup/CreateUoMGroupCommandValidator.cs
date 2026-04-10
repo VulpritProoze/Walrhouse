@@ -4,11 +4,11 @@ public class CreateUoMGroupCommandValidator : AbstractValidator<CreateUoMGroupCo
 {
     public CreateUoMGroupCommandValidator()
     {
-        RuleFor(x => x.UgpEntry)
+        RuleFor(x => x.Id)
             .NotEmpty()
-            .WithMessage("UgpEntry is required.")
-            .MaximumLength(64)
-            .WithMessage("UgpEntry must be at most 64 characters.");
+            .WithMessage("Id is required.")
+            .GreaterThan(-1)
+            .WithMessage("Id must be a positive integer.");
 
         RuleFor(x => x.BaseUoM)
             .IsInEnum()

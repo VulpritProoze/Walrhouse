@@ -6,7 +6,7 @@ namespace Walrhouse.Application.Items.Commands.UpdateItem;
 public record UpdateItemCommand(
     string ItemCode,
     string? ItemName,
-    string? UgpEntry,
+    int? UoMGroupId,
     string? BarcodeValue,
     BarcodeFormat? BarcodeFormat,
     ItemGroup? ItemGroup,
@@ -36,18 +36,16 @@ public class UpdateItemCommandHandler : IRequestHandler<UpdateItemCommand>
         if (request.ItemName is not null)
             entity.ItemName = request.ItemName.Trim();
 
-        if (request.UgpEntry is not null)
+        if (request.UoMGroupId is not null)
         {
-            var ugpEntry = request.UgpEntry.Trim();
-
             var uomGroup = await _context.UoMGroups.FirstOrDefaultAsync(
-                u => u.UgpEntry == ugpEntry,
+                u => u.Id == request.UoMGroupId.Value,
                 cancellationToken
             );
 
             Guard.Against.Null(uomGroup, nameof(uomGroup));
 
-            entity.UgpEntry = ugpEntry;
+            entity.UoMGroupId = uomGroup!.Id;
             entity.UoMGroup = uomGroup;
         }
 

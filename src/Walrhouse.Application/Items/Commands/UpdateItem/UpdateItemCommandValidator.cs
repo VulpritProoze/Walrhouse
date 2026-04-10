@@ -20,9 +20,9 @@ public class UpdateItemCommandValidator : AbstractValidator<UpdateItemCommand>
         RuleFor(x => x.ItemGroup).IsInEnum().WithMessage("Invalid ItemGroup value.");
         RuleFor(x => x.BarcodeFormat).IsInEnum().WithMessage("Invalid BarcodeFormat value.");
 
-        RuleFor(x => x.UgpEntry)
-            .MaximumLength(64)
-            .WithMessage("UgpEntry must be at most 64 characters.");
+        RuleFor(x => x.UoMGroupId)
+            .GreaterThan(-1)
+            .WithMessage("UoMGroupId must be a positive integer.");
 
         RuleFor(x => x.BarcodeValue)
             .MaximumLength(256)

@@ -7,12 +7,12 @@ namespace Walrhouse.Application.UoMGroups.Commands.CreateUoMGroup;
 public record UoMGroupLineDto(UnitOfMeasurement UoM, int BaseQty);
 
 public record CreateUoMGroupCommand(
-    string UgpEntry,
+    int Id,
     UnitOfMeasurement BaseUoM,
     IEnumerable<UoMGroupLineDto> UoMGroupLines
-) : IRequest<string>;
+) : IRequest<int>;
 
-public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupCommand, string>
+public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupCommand, int>
 {
     private readonly IApplicationDbContext _context;
 
@@ -21,22 +21,20 @@ public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupComman
         _context = context;
     }
 
-    public async Task<string> Handle(
+    public async Task<int> Handle(
         CreateUoMGroupCommand request,
         CancellationToken cancellationToken
     )
     {
-        var code = (request.UgpEntry ?? string.Empty).Trim();
-
         var existing = await _context
             .UoMGroups.AsQueryable()
-            .Where(g => g.UgpEntry == code)
+            .Where(g => g.Id == request.Id)
             .SingleOrDefaultAsync(cancellationToken);
 
         if (existing is not null)
         {
             if (!existing.IsDeleted)
-                return existing.UgpEntry; // idempotent
+                return existing.Id; // idempotent
 
             existing.BaseUoM = request.BaseUoM;
             existing.UoMGroupLines = request
@@ -46,12 +44,12 @@ public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupComman
 
             await _context.SaveChangesAsync(cancellationToken);
 
-            return existing.UgpEntry;
+            return existing.Id;
         }
 
         var entity = new UoMGroup
         {
-            UgpEntry = code,
+            Id = request.Id,
             BaseUoM = request.BaseUoM,
             UoMGroupLines = request
                 .UoMGroupLines.Select(l => new UoMGroupLine { UoM = l.UoM, BaseQty = l.BaseQty })
@@ -62,6 +60,6 @@ public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupComman
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.UgpEntry;
+        return entity.Id;
     }
 }

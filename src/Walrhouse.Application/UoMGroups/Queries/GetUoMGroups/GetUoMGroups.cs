@@ -33,7 +33,7 @@ public class GetUoMGroupsQueryHandler
             .UoMGroups.AsNoTracking()
             .Where(g => !g.IsDeleted)
             .ProjectTo<UoMGroupDto>(_mapper.ConfigurationProvider)
-            .OrderBy(g => g.UgpEntry)
+            .OrderBy(g => g.Id)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

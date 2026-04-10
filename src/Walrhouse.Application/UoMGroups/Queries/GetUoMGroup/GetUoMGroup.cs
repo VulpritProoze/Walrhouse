@@ -3,7 +3,7 @@ using Walrhouse.Application.UoMGroups.Queries.GetUoMGroups;
 
 namespace Walrhouse.Application.UoMGroups.Queries.GetUoMGroup;
 
-public record GetUoMGroupQuery(string UgpEntry) : IRequest<UoMGroupDto?>;
+public record GetUoMGroupQuery(int Id) : IRequest<UoMGroupDto?>;
 
 public class GetUoMGroupQueryHandler : IRequestHandler<GetUoMGroupQuery, UoMGroupDto?>
 {
@@ -21,14 +21,9 @@ public class GetUoMGroupQueryHandler : IRequestHandler<GetUoMGroupQuery, UoMGrou
         CancellationToken cancellationToken
     )
     {
-        if (string.IsNullOrWhiteSpace(request.UgpEntry))
-            return null;
-
-        var code = request.UgpEntry.Trim();
-
         return await _context
             .UoMGroups.AsNoTracking()
-            .Where(g => !g.IsDeleted && g.UgpEntry == code)
+            .Where(g => !g.IsDeleted && g.Id == request.Id)
             .ProjectTo<UoMGroupDto>(_mapper.ConfigurationProvider)
             .SingleOrDefaultAsync(cancellationToken);
     }
