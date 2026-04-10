@@ -24,13 +24,10 @@ export const BarcodeGenerator = () => {
   const [batchSearch, setBatchSearch] = useState('');
 
   // Mocked batches — replace with API hook when available
-  const batches = [
-    'BATCH-2024-001',
-    'BATCH-2024-002',
-    'BATCH-2025-001',
-    'RX-2026-0001',
-  ];
-  const filteredBatches = batches.filter((b) => b.toLowerCase().includes(batchSearch.toLowerCase()));
+  const batches = ['BATCH-2024-001', 'BATCH-2024-002', 'BATCH-2025-001', 'RX-2026-0001'];
+  const filteredBatches = batches.filter((b) =>
+    b.toLowerCase().includes(batchSearch.toLowerCase()),
+  );
 
   const handleGenerate = () => {
     // Scaffold: Generate a placeholder barcode based on input
@@ -52,26 +49,26 @@ export const BarcodeGenerator = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-                <Label>Batch Number</Label>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1 justify-between"
-                    onClick={() => setSheetOpen(true)}
-                  >
-                    <span className="truncate">{formData.batchNumber || 'Select batch...'}</span>
-                    <Search className="ml-2 h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setFormData({ batchNumber: '' })}
-                    title="Clear"
-                  >
-                    ✕
-                  </Button>
-                </div>
+              <Label>Batch Number</Label>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  className="flex-1 justify-between"
+                  onClick={() => setSheetOpen(true)}
+                >
+                  <span className="truncate">{formData.batchNumber || 'Select batch...'}</span>
+                  <Search className="ml-2 h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setFormData({ batchNumber: '' })}
+                  title="Clear"
+                >
+                  ✕
+                </Button>
               </div>
+            </div>
             <div className="pt-2">
               <Button
                 className="w-full flex gap-2"
@@ -155,7 +152,7 @@ export const BarcodeGenerator = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Batch Search Sheet */}
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetContent side="right" className="w-[420px]">
