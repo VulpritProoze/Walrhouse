@@ -20,19 +20,19 @@ public class UoMGroup : IEndpointGroup
             .MapGet(GetUoMGroups, "")
             .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
         groupBuilder
-            .MapGet(GetUoMGroup, "{ugpEntry}")
+            .MapGet(GetUoMGroup, "{id}")
             .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
         groupBuilder
-            .MapPut(UpdateUoMGroup, "{ugpEntry}")
+            .MapPut(UpdateUoMGroup, "{id}")
             .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
         groupBuilder
-            .MapDelete(DeleteUoMGroup, "{ugpEntry}")
+            .MapDelete(DeleteUoMGroup, "{id}")
             .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(CreateUoMGroup))]
     [EndpointSummary("Create a new UoM group; returns the group code.")]
-    public static async Task<Created<string>> CreateUoMGroup(
+    public static async Task<Created<int>> CreateUoMGroup(
         ISender sender,
         [FromBody] CreateUoMGroupCommand command
     )
@@ -56,12 +56,9 @@ public class UoMGroup : IEndpointGroup
 
     [EndpointName(nameof(GetUoMGroup))]
     [EndpointSummary("Get a single UoM group by code")]
-    public static async Task<Results<Ok<UoMGroupDto>, NotFound>> GetUoMGroup(
-        ISender sender,
-        string ugpEntry
-    )
+    public static async Task<Results<Ok<UoMGroupDto>, NotFound>> GetUoMGroup(ISender sender, int id)
     {
-        var dto = await sender.Send(new GetUoMGroupQuery(ugpEntry));
+        var dto = await sender.Send(new GetUoMGroupQuery(id));
         return dto is null ? TypedResults.NotFound() : TypedResults.Ok(dto);
     }
 
@@ -69,12 +66,12 @@ public class UoMGroup : IEndpointGroup
     [EndpointSummary("Update an existing UoM group")]
     public static async Task<Results<NoContent, NotFound>> UpdateUoMGroup(
         ISender sender,
-        string ugpEntry,
+        int id,
         [FromBody] UpdateUoMGroupCommand? command
     )
     {
-        var payload = command ?? new UpdateUoMGroupCommand(ugpEntry, null, null);
-        var cmd = new UpdateUoMGroupCommand(ugpEntry, payload.BaseUoM, payload.UoMGroupLines);
+        var payload = command ?? new UpdateUoMGroupCommand(id, null, null);
+        var cmd = new UpdateUoMGroupCommand(id, payload.BaseUoM, payload.UoMGroupLines);
 
         await sender.Send(cmd);
         return TypedResults.NoContent();
@@ -82,12 +79,9 @@ public class UoMGroup : IEndpointGroup
 
     [EndpointName(nameof(DeleteUoMGroup))]
     [EndpointSummary("Soft-delete a UoM group by code")]
-    public static async Task<Results<NoContent, NotFound>> DeleteUoMGroup(
-        ISender sender,
-        string ugpEntry
-    )
+    public static async Task<Results<NoContent, NotFound>> DeleteUoMGroup(ISender sender, int id)
     {
-        await sender.Send(new DeleteUoMGroupCommand(ugpEntry));
+        await sender.Send(new DeleteUoMGroupCommand(id));
         return TypedResults.NoContent();
     }
 }
