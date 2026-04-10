@@ -1,18 +1,19 @@
 import { api } from '@/lib/axios';
+import { type BatchStatus } from '../types';
 
 // Request/Response DTOs (minimal inferred shapes)
 export interface CreateBatchRequest {
   batchNumber: string;
   itemCode: string;
   expiryDate: string; // ISO datetime
-  status?: number; // BatchStatus enum as number
+  status?: BatchStatus;
   binNo?: string;
 }
 
 export interface UpdateBatchRequest {
   itemCode?: string | null;
   expiryDate?: string | null; // ISO datetime
-  status?: number | null;
+  status?: BatchStatus | null;
   binNo?: string | null;
 }
 
