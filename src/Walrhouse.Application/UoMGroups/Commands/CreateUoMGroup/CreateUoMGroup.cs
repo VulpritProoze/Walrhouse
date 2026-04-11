@@ -4,11 +4,11 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.UoMGroups.Commands.CreateUoMGroup;
 
-public record UoMGroupLineDto(UnitOfMeasurement UoM, int BaseQty);
+public record UoMGroupLineDto(string UoM, int BaseQty);
 
 public record CreateUoMGroupCommand(
     int Id,
-    UnitOfMeasurement BaseUoM,
+    string BaseUoM,
     IEnumerable<UoMGroupLineDto> UoMGroupLines
 ) : IRequest<int>;
 

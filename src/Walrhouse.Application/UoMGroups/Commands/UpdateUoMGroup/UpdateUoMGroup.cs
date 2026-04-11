@@ -7,7 +7,7 @@ namespace Walrhouse.Application.UoMGroups.Commands.UpdateUoMGroup;
 
 public record UpdateUoMGroupCommand(
     int Id,
-    UnitOfMeasurement? BaseUoM,
+    string? BaseUoM,
     IEnumerable<UoMGroupLineDto>? UoMGroupLines
 ) : IRequest;
 
@@ -29,8 +29,8 @@ public class UpdateUoMGroupCommandHandler : IRequestHandler<UpdateUoMGroupComman
 
         Guard.Against.Null(entity, nameof(entity));
 
-        if (request.BaseUoM.HasValue)
-            entity.BaseUoM = request.BaseUoM.Value;
+        if (!String.IsNullOrEmpty(request.BaseUoM))
+            entity.BaseUoM = request.BaseUoM;
 
         if (request.UoMGroupLines is not null)
         {
