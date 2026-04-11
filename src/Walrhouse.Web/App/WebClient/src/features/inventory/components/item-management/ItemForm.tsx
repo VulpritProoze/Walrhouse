@@ -17,10 +17,6 @@ import { z } from 'zod';
 import { itemSchema } from '@/lib/schemas/item.schema';
 import { ItemFormUoMGroupSearchSheet } from './ItemFormUoMGroupSearchSheet';
 
-/* -------------------------------------------------------------------------- */
-/*                                Add Item Form                               */
-/* -------------------------------------------------------------------------- */
-
 interface AddItemFormProps {
   isLoading?: boolean;
   onSave: (data: ItemDto) => Promise<void>;
@@ -52,6 +48,11 @@ export function AddItemForm({ isLoading, onSave, onSuccess, renderFooter }: AddI
         return next;
       });
     }
+  };
+
+  const getGroupKey = (val: number | null | undefined) => {
+    if (val === null || val === undefined) return '';
+    return Object.keys(ItemGroup).find((key) => ItemGroup[key as keyof typeof ItemGroup] === val);
   };
 
   function validate() {
@@ -158,7 +159,9 @@ export function AddItemForm({ isLoading, onSave, onSuccess, renderFooter }: AddI
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select Group" />
+                <SelectValue placeholder="Select Group">
+                  {getGroupKey(formData.itemGroup)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(ItemGroup).map(([key, value]) => (
@@ -185,11 +188,6 @@ export function AddItemForm({ isLoading, onSave, onSuccess, renderFooter }: AddI
     </>
   );
 }
-
-/* -------------------------------------------------------------------------- */
-/*                                Edit Item Form                               */
-/* -------------------------------------------------------------------------- */
-
 interface EditItemFormProps {
   initial: ItemDto;
   isLoading?: boolean;
@@ -221,6 +219,11 @@ export function EditItemForm({
         return next;
       });
     }
+  };
+
+  const getGroupKey = (val: number | null | undefined) => {
+    if (val === null || val === undefined) return '';
+    return Object.keys(ItemGroup).find((key) => ItemGroup[key as keyof typeof ItemGroup] === val);
   };
 
   function validate() {
@@ -320,7 +323,9 @@ export function EditItemForm({
               disabled={loading}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select Group" />
+                <SelectValue placeholder="Select Group">
+                  {getGroupKey(formData.itemGroup)}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {Object.entries(ItemGroup).map(([key, value]) => (
