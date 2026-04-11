@@ -27,7 +27,7 @@ public class BarcodeHistory : IEndpointGroup
         IBarcodeService barcodeService
     )
     {
-        var pngBytes = barcodeService.Encode(batchNumber, DomainBarcodeFormat.QRCode);
+        var pngBytes = barcodeService.Encode(batchNumber, DomainBarcodeFormat.GS1_128);
 
         return TypedResults.File(pngBytes, "image/png");
     }
