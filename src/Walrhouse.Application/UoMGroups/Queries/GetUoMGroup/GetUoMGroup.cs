@@ -21,10 +21,10 @@ public class GetUoMGroupQueryHandler : IRequestHandler<GetUoMGroupQuery, UoMGrou
         CancellationToken cancellationToken
     )
     {
-        return await _context
+        var query = _context
             .UoMGroups.AsNoTracking()
             .Where(g => !g.IsDeleted && g.Id == request.Id)
-            .ProjectTo<UoMGroupDto>(_mapper.ConfigurationProvider)
             .SingleOrDefaultAsync(cancellationToken);
+        return _mapper.Map<UoMGroupDto>(query);
     }
 }

@@ -29,11 +29,17 @@ public class GetUoMGroupsQueryHandler
         var pageNumber = request.PageNumber < 1 ? 1 : request.PageNumber;
         var pageSize = request.PageSize < 1 ? 100 : Math.Min(request.PageSize, 100);
 
-        return await _context
-            .UoMGroups.AsNoTracking()
-            .Where(g => !g.IsDeleted)
-            .ProjectTo<UoMGroupDto>(_mapper.ConfigurationProvider)
-            .OrderBy(g => g.Id)
-            .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
+        var query = _context.UoMGroups.AsNoTracking().Where(g => !g.IsDeleted).OrderBy(g => g.Id);
+
+        var count = await query.CountAsync(cancellationToken);
+
+        var items = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync(cancellationToken);
+
+        var dtos = _mapper.Map<List<UoMGroupDto>>(items);
+
+        return new PaginatedList<UoMGroupDto>(dtos, count, pageNumber, pageSize);
     }
 }

@@ -4,12 +4,6 @@ public class CreateUoMGroupCommandValidator : AbstractValidator<CreateUoMGroupCo
 {
     public CreateUoMGroupCommandValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty()
-            .WithMessage("Id is required.")
-            .GreaterThan(-1)
-            .WithMessage("Id must be a positive integer.");
-
         RuleFor(x => x.BaseUoM)
             .MaximumLength(50)
             .WithMessage("BaseUoM must not exceed 50 characters.")
