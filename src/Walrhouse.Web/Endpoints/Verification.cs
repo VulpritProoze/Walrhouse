@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Models;
 using Walrhouse.Application.Verification.Commands.CreateVerification;
 using Walrhouse.Application.Verification.Queries;
@@ -20,14 +21,23 @@ public class Verification : IEndpointGroup
             .RequireAuthorization();
     }
 
+    public record CreateVerificationRequest(string BatchNumber, string? Remarks);
+
     [EndpointName(nameof(CreateVerification))]
     [EndpointSummary("Create a new verification history entry.")]
-    public static async Task<Created<int>> CreateVerification(
+    public static async Task<Results<Created<int>, UnauthorizedHttpResult>> CreateVerification(
         ISender sender,
-        CreateVerificationCommand command,
+        IUser user,
+        CreateVerificationRequest request,
         CancellationToken cancellationToken
     )
     {
+        if (user.Id == null)
+        {
+            return TypedResults.Unauthorized();
+        }
+
+        var command = new CreateVerificationCommand(request.BatchNumber, user.Id, request.Remarks);
         var id = await sender.Send(command, cancellationToken);
         return TypedResults.Created($"/api/verification/{id}", id);
     }
