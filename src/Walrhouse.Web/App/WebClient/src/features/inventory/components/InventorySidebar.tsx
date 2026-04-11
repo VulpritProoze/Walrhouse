@@ -10,6 +10,7 @@ import {
   Scale,
   List,
   type LucideIcon,
+  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -91,7 +92,7 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
                         render={
                           <AccordionTrigger
                             className={cn(
-                              'flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground rounded-md [&_svg[data-slot=accordion-trigger-icon]]:hidden',
+                              'flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground rounded-md',
                               isGroupActive && 'bg-secondary text-secondary-foreground',
                               collapsed && 'justify-center px-0',
                             )}
@@ -100,6 +101,12 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
                               <Icon size={20} className={cn(isGroupActive && 'text-primary')} />
                               {!collapsed && <span>{item.label}</span>}
                             </div>
+                            {!collapsed && (
+                              <ChevronDown
+                                size={14}
+                                className="text-muted-foreground transition-transform duration-200 group-data-open/accordion-trigger:rotate-180"
+                              />
+                            )}
                           </AccordionTrigger>
                         }
                       />
