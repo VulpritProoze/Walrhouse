@@ -1,16 +1,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { QrCode, Scan, Smartphone, ChevronRight, ChevronLeft, Search } from 'lucide-react';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from '@/components/ui/sheet';
+import { QrCode, Scan, Smartphone, ChevronRight, ChevronLeft, Search, Download } from 'lucide-react';
+import { BatchSelectionSheet } from './barcode-generation/BatchSelectionSheet';
+import { getBarcodeImageUrl } from '@/features/barcode/api/barcode.service';
 import { cn } from '@/lib/utils';
 
 export const BarcodeGenerator = () => {
@@ -18,20 +12,34 @@ export const BarcodeGenerator = () => {
     batchNumber: '',
   });
 
-  const [generatedBarcode, setGeneratedBarcode] = useState<string | null>(null);
+  const [barcodeUrl, setBarcodeUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [batchSearch, setBatchSearch] = useState('');
 
   // Mocked batches — replace with API hook when available
   const batches = ['BATCH-2024-001', 'BATCH-2024-002', 'BATCH-2025-001', 'RX-2026-0001'];
-  const filteredBatches = batches.filter((b) =>
-    b.toLowerCase().includes(batchSearch.toLowerCase()),
-  );
 
   const handleGenerate = () => {
-    // Scaffold: Generate a placeholder barcode based on input
-    setGeneratedBarcode(formData.batchNumber);
+    if (formData.batchNumber) {
+      setBarcodeUrl(getBarcodeImageUrl(formData.batchNumber));
+    }
+  };
+
+  const handleDownload = async () => {
+    if (!barcodeUrl) return;
+    try {
+      const response = await fetch(barcodeUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `barcode-${formData.batchNumber}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error('Failed to download barcode', err);
+    }
   };
 
   return (
@@ -62,7 +70,10 @@ export const BarcodeGenerator = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setFormData({ batchNumber: '' })}
+                  onClick={() => {
+                    setFormData({ batchNumber: '' });
+                    setBarcodeUrl(null);
+                  }}
                   title="Clear"
                 >
                   ✕
@@ -82,6 +93,16 @@ export const BarcodeGenerator = () => {
           </CardContent>
         </Card>
       </div>
+
+      <BatchSelectionSheet
+        open={sheetOpen}
+        onOpenChange={setSheetOpen}
+        batches={batches}
+        onSelect={(b) => {
+          setFormData({ batchNumber: b });
+          setBarcodeUrl(null);
+        }}
+      />
 
       {/* Collapsible Sidebar */}
       <div
@@ -120,10 +141,14 @@ export const BarcodeGenerator = () => {
               <Scan className="h-48 w-48 text-primary" />
             </div>
 
-            {generatedBarcode ? (
+            {barcodeUrl ? (
               <div className="flex flex-col items-center gap-4 text-center p-6 bg-white rounded-lg shadow-md border animate-in zoom-in-95 duration-200 w-full max-w-xs z-10">
-                <div className="p-4 bg-muted/20 rounded flex items-center justify-center">
-                  <QrCode size={128} className="text-primary" strokeWidth={1.5} />
+                <div className="p-4 bg-muted/20 rounded-md flex items-center justify-center overflow-hidden border">
+                  <img
+                    src={barcodeUrl}
+                    alt={`Barcode for ${formData.batchNumber}`}
+                    className="w-48 h-48 object-contain"
+                  />
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block">
@@ -136,9 +161,10 @@ export const BarcodeGenerator = () => {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="mt-2 text-primary border-primary/20 hover:bg-primary/5 w-full"
+                  className="mt-2 text-primary border-primary/20 hover:bg-primary/5 w-full gap-2"
+                  onClick={handleDownload}
                 >
-                  Download SVG
+                  <Download size={14} /> Download PNG
                 </Button>
               </div>
             ) : (
@@ -152,50 +178,7 @@ export const BarcodeGenerator = () => {
           </div>
         </div>
       </div>
-
-      {/* Batch Search Sheet */}
-      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-        <SheetContent side="right" className="w-[420px]">
-          <SheetHeader>
-            <SheetTitle>Select Batch</SheetTitle>
-            <SheetDescription>Search and select a created batch.</SheetDescription>
-          </SheetHeader>
-
-          <div className="p-4 space-y-3">
-            <div className="relative">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input
-                className="pl-9"
-                placeholder="Search batches..."
-                value={batchSearch}
-                onChange={(e) => setBatchSearch(e.target.value)}
-              />
-            </div>
-
-            <div className="overflow-auto max-h-[400px] border rounded">
-              <ul>
-                {filteredBatches.length === 0 ? (
-                  <li className="p-4 text-center text-muted-foreground">No batches found.</li>
-                ) : (
-                  filteredBatches.map((b) => (
-                    <li
-                      key={b}
-                      className="p-3 hover:bg-muted/30 cursor-pointer flex justify-between items-center"
-                      onClick={() => {
-                        setFormData({ batchNumber: b });
-                        setSheetOpen(false);
-                      }}
-                    >
-                      <span className="font-mono truncate">{b}</span>
-                      <span className="text-xs text-muted-foreground">Select</span>
-                    </li>
-                  ))
-                )}
-              </ul>
-            </div>
-          </div>
-        </SheetContent>
-      </Sheet>
     </div>
   );
 };
+
