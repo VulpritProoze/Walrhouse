@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, HelpCircle } from 'lucide-react';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { type UoMGroupDto } from '../../types/uomgroup-dto';
 import { uomGroupSchema } from '../../types/uomgroup.schema';
 import { DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface UoMGroupFormProps {
   initial: UoMGroupDto;
@@ -125,7 +126,23 @@ export function UoMGroupForm({
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>Conversion Lines</Label>
+            <div className="flex items-center gap-2">
+              <Label>Conversion Lines</Label>
+              <TooltipProvider delay={300}>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <HelpCircle className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="max-w-xs">
+                    <p className="text-xs">
+                      A conversion line is meant to be compared against the base unit of measure.
+                      For example, you can have a conversion line for a box which contains 20 base
+                      unit of measure pieces
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <Button
               type="button"
               variant="outline"
@@ -163,9 +180,13 @@ export function UoMGroupForm({
                   <Label className="text-xs font-semibold">Base Qty</Label>
                   <Input
                     type="number"
+                    min={1}
                     disabled={loading}
                     value={line.baseQty}
-                    onChange={(e) => updateLine(index, 'baseQty', Number(e.target.value))}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      updateLine(index, 'baseQty', val < 1 ? 1 : val);
+                    }}
                     className={errors[`uoMGroupLines.${index}.baseQty`] ? 'border-destructive' : ''}
                   />
                   {errors[`uoMGroupLines.${index}.baseQty`] && (
