@@ -1,4 +1,11 @@
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -9,15 +16,16 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import { ItemForm } from './ItemForm';
-import { type ItemDto } from '../../types/dto';
+import { AddItemForm, EditItemForm } from './ItemForm';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import type { ItemDto } from '../../types';
 
 interface ItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   mode: 'add' | 'edit';
-  initialData: ItemDto | null;
+  initialData?: ItemDto | null;
   onSave: (data: ItemDto) => Promise<void>;
   isLoading?: boolean;
 }
@@ -30,16 +38,62 @@ export const ItemDialog = ({
   onSave,
   isLoading,
 }: ItemDialogProps) => {
+  const isAdd = mode === 'add';
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-106.25">
-        <ItemForm
-          mode={mode}
-          initial={initialData}
-          onSave={onSave}
-          onSuccess={() => onOpenChange(false)}
-          isLoading={isLoading}
-        />
+      <DialogContent className="sm:max-w-106.25 h-[90vh] flex flex-col p-0">
+        <div className="p-6 pb-2">
+          <DialogTitle>{isAdd ? 'Add Item' : 'Edit Item'}</DialogTitle>
+          <DialogDescription>
+            {isAdd ? 'Create a new inventory item.' : 'Update the details for this item.'}
+          </DialogDescription>
+        </div>
+
+        {isAdd ? (
+          <AddItemForm
+            onSave={onSave}
+            onSuccess={() => onOpenChange(false)}
+            isLoading={isLoading}
+            renderFooter={(loading, handleSave) => (
+              <DialogFooter className="p-6 pt-2">
+                <DialogClose
+                  render={
+                    <Button variant="outline" disabled={loading}>
+                      Cancel
+                    </Button>
+                  }
+                />
+                <Button onClick={handleSave} disabled={loading}>
+                  {loading ? 'Saving...' : 'Create'}
+                </Button>
+              </DialogFooter>
+            )}
+          />
+        ) : (
+          initialData && (
+            <EditItemForm
+              initial={initialData}
+              onSave={onSave}
+              onSuccess={() => onOpenChange(false)}
+              isLoading={isLoading}
+              renderFooter={(loading, handleSave) => (
+                <DialogFooter className="p-6 pt-2">
+                  <DialogClose
+                    render={
+                      <Button variant="outline" disabled={loading}>
+                        Cancel
+                      </Button>
+                    }
+                  />
+                  <Button onClick={handleSave} disabled={loading}>
+                    {loading ? 'Saving...' : 'Save'}
+                  </Button>
+                </DialogFooter>
+              )}
+            />
+          )
+        )}
       </DialogContent>
     </Dialog>
   );
