@@ -34,7 +34,7 @@ export interface UoMGroupLineRequest {
  * POST /api/UoMGroups
  */
 export const createUoMGroup = async (data: CreateUoMGroupRequest) => {
-  return await api.post<number>('/UoMGroups', data);
+  return await api.post<number>('/UoMGroup', data);
 };
 
 /**
@@ -42,7 +42,7 @@ export const createUoMGroup = async (data: CreateUoMGroupRequest) => {
  * GET /api/UoMGroups
  */
 export const getUoMGroups = async (params?: GetUoMGroupsRequest) => {
-  return await api.get('/UoMGroups', { params });
+  return await api.get('/UoMGroup', { params });
 };
 
 /**
@@ -50,7 +50,7 @@ export const getUoMGroups = async (params?: GetUoMGroupsRequest) => {
  * GET /api/UoMGroups/{id}
  */
 export const getUoMGroup = async (id: number) => {
-  return await api.get(`/UoMGroups/${id}`);
+  return await api.get(`/UoMGroup/${id}`);
 };
 
 /**
@@ -58,7 +58,7 @@ export const getUoMGroup = async (id: number) => {
  * PUT /api/UoMGroups/{id}
  */
 export const updateUoMGroup = async (id: number, data: UpdateUoMGroupRequest) => {
-  return await api.put(`/UoMGroups/${id}`, data);
+  return await api.put(`/UoMGroup/${id}`, data);
 };
 
 /**
@@ -66,5 +66,5 @@ export const updateUoMGroup = async (id: number, data: UpdateUoMGroupRequest) =>
  * DELETE /api/UoMGroups/{id}
  */
 export const deleteUoMGroup = async (id: number) => {
-  return await api.delete(`/UoMGroups/${id}`);
+  return await api.delete(`/UoMGroup/${id}`);
 };
