@@ -1,6 +1,6 @@
 using Walrhouse.Application.Common.Interfaces;
 
-namespace Walrhouse.Application.BarcodeHistories.Queries.GetBarcodeHistory;
+namespace Walrhouse.Application.Barcode.Queries.GetBarcodeHistory;
 
 public record GetBarcodeHistoryQuery(int Id) : IRequest<BarcodeHistoryDto>;
 

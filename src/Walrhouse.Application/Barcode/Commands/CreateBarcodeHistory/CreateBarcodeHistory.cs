@@ -2,7 +2,7 @@ using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Domain.Entities;
 using Walrhouse.Domain.Enums;
 
-namespace Walrhouse.Application.BarcodeHistories.Commands.CreateBarcodeHistory;
+namespace Walrhouse.Application.Barcode.Commands.CreateBarcodeHistory;
 
 public record CreateBarcodeHistoryCommand : IRequest<int>
 {

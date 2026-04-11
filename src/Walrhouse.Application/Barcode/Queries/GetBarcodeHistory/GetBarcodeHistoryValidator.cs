@@ -1,4 +1,4 @@
-namespace Walrhouse.Application.BarcodeHistories.Queries.GetBarcodeHistory;
+namespace Walrhouse.Application.Barcode.Queries.GetBarcodeHistory;
 
 public class GetBarcodeHistoryValidator : AbstractValidator<GetBarcodeHistoryQuery>
 {

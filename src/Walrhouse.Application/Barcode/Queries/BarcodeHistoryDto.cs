@@ -1,7 +1,7 @@
 using Walrhouse.Domain.Entities;
 using Walrhouse.Domain.Enums;
 
-namespace Walrhouse.Application.BarcodeHistories.Queries;
+namespace Walrhouse.Application.Barcode.Queries;
 
 public class BarcodeHistoryDto
 {

@@ -1,4 +1,4 @@
-namespace Walrhouse.Application.BarcodeHistories.Commands.CreateBarcodeHistory;
+namespace Walrhouse.Application.Barcode.Commands.CreateBarcodeHistory;
 
 public class CreateBarcodeHistoryCommandValidator : AbstractValidator<CreateBarcodeHistoryCommand>
 {

@@ -2,7 +2,7 @@ using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Mappings;
 using Walrhouse.Application.Common.Models;
 
-namespace Walrhouse.Application.BarcodeHistories.Queries.GetBarcodeHistories;
+namespace Walrhouse.Application.Barcode.Queries.GetBarcodeHistories;
 
 public record GetBarcodeHistoriesQuery(int PageNumber = 1, int PageSize = 100)
     : IRequest<PaginatedList<BarcodeHistoryDto>>;
