@@ -1,31 +1,19 @@
-import { useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import CommonLayout from '@/layouts/CommonLayout';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Scanner, ItemDetails, ScanSettings } from '@/features/verification';
 import { Button } from '@/components/ui/button';
 import { Settings2 } from 'lucide-react';
 
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-type View = 'scanner' | 'details' | 'settings';
-
 export default function VerificationPage() {
   const { user } = useAuth();
   const roles = (user?.roles as RoleType[]) ?? [];
-  const [view, setView] = useState<View>('scanner');
-  const [scannedCode, setScannedCode] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const handleScan = (code: string) => {
-    setScannedCode(code);
-    setView('details');
-  };
-
-  const handleConfirm = () => {
-    // After confirmation, redirect back to scanning
-    setScannedCode('');
-    setView('scanner');
-  };
+  const isSettings = location.pathname.endsWith('/settings');
 
   return (
     <CommonLayout roles={roles}>
@@ -37,10 +25,15 @@ export default function VerificationPage() {
               Scan barcodes to verify inventory items.
             </p>
           </div>
-          {view !== 'settings' && (
+          {!isSettings && (
             <Tooltip>
-              <TooltipTrigger className="bg-transparent border-none p-0 outline-none">
-                <Button variant="ghost" size="icon" onClick={() => setView('settings')}>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => navigate('/verification/settings')}
+                  className="bg-transparent border-none p-0 outline-none"
+                >
                   <Settings2 className="h-4 w-4" />
                   <span className="sr-only">Scanning settings</span>
                 </Button>
@@ -53,23 +46,7 @@ export default function VerificationPage() {
         </div>
 
         <div className="max-w-2xl mx-auto w-full">
-          {view === 'scanner' && <Scanner onScan={handleScan} />}
-          {view === 'details' && (
-            <ItemDetails
-              itemCode={scannedCode}
-              onConfirm={handleConfirm}
-              onBack={() => setView('scanner')}
-            />
-          )}
-          {view === 'settings' && <ScanSettings />}
-
-          {view === 'settings' && (
-            <div className="mt-4 flex justify-end">
-              <Button variant="outline" onClick={() => setView('scanner')}>
-                Back to Scanner
-              </Button>
-            </div>
-          )}
+          <Outlet />
         </div>
       </div>
     </CommonLayout>

@@ -31,21 +31,14 @@ export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsPro
       {
         onSuccess: () => {
           toast.success('Batch verified successfully');
-          // Notify parent
           onConfirm?.();
-          // Redirect to scanner view after success. If your route differs,
-          // update the path accordingly.
-          try {
-            navigate('/verification/scan');
-          } catch {
-            // ignore navigation errors
-          }
+          navigate('/verification');
         },
         onError: (error) => {
           const axiosError = error as AxiosError<{ title?: string }>;
           toast.error(axiosError.response?.data?.title ?? 'Failed to verify batch');
         },
-      }
+      },
     );
   };
 

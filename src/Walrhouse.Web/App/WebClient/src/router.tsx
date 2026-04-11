@@ -2,6 +2,9 @@ import { createBrowserRouter } from 'react-router-dom';
 import Dashboard from '@/pages/dashboard/Dashboard';
 import Login from '@/pages/auth/Login';
 import VerificationPage from '@/pages/verification/VerificationPage';
+import ScannerSection from '@/pages/verification/sections/ScannerSection';
+import DetailsSection from '@/pages/verification/sections/DetailsSection';
+import SettingsSection from '@/pages/verification/sections/SettingsSection';
 import InventoryPanel from '@/pages/inventory/InventoryPanel';
 import HistoryPage from '@/pages/history/HistoryPage';
 import ReceiveDashboard from '@/pages/receive/ReceiveDashboard';
@@ -16,7 +19,17 @@ export const router = createBrowserRouter([
       { path: '/', element: <Dashboard /> },
       {
         element: <ProtectedRoute allowedRoles={[Roles.InventoryClerk, Roles.Administrator]} />,
-        children: [{ path: '/verification', element: <VerificationPage /> }],
+        children: [
+          {
+            path: '/verification',
+            element: <VerificationPage />,
+            children: [
+              { index: true, element: <ScannerSection /> },
+              { path: 'details', element: <DetailsSection /> },
+              { path: 'settings', element: <SettingsSection /> },
+            ],
+          },
+        ],
       },
       {
         element: (
