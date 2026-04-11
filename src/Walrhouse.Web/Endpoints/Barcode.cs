@@ -20,6 +20,13 @@ public class BarcodeHistory : IEndpointGroup
         groupBuilder.MapGet(GetBarcodeHistory, "{id}").RequireAuthorization();
     }
 
+    public record CreateBarcodeHistoryRequest(
+        string BarcodeValue,
+        DomainBarcodeFormat? BarcodeFormat,
+        string BatchNumber,
+        string? Remarks
+    );
+
     [EndpointName(nameof(GenerateBarcodeImage))]
     [EndpointSummary("Generate a barcode PNG image for a batch number")]
     public static IResult GenerateBarcodeImage(
@@ -34,23 +41,24 @@ public class BarcodeHistory : IEndpointGroup
 
     [EndpointName(nameof(CreateBarcodeHistory))]
     [EndpointSummary("Create a new barcode history entry")]
-    public static async Task<Results<Created<int>, BadRequest>> CreateBarcodeHistory(
+    public static async Task<Results<Created<int>, UnauthorizedHttpResult>> CreateBarcodeHistory(
         ISender sender,
-        IIdentityService identityService,
-        [FromBody] CreateBarcodeHistoryCommand command
+        IUser user,
+        [FromBody] CreateBarcodeHistoryRequest request
     )
     {
-        if (string.IsNullOrEmpty(command.CreatedBy))
+        if (string.IsNullOrEmpty(user.Id))
         {
-            return TypedResults.BadRequest();
+            return TypedResults.Unauthorized();
         }
 
-        var (result, identityUser) = await identityService.GetUserByIdAsync(command.CreatedBy);
-
-        if (!result.Succeeded || identityUser == null)
-        {
-            return TypedResults.BadRequest();
-        }
+        var command = new CreateBarcodeHistoryCommand(
+            request.BarcodeValue,
+            request.BatchNumber,
+            request.BarcodeFormat,
+            request.Remarks,
+            user.Id
+        );
 
         var id = await sender.Send(command);
         return TypedResults.Created($"/api/BarcodeHistory/{id}", id);
