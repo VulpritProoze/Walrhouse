@@ -1,5 +1,6 @@
 import { CheckCircle2, MapPin, Hash, ArrowLeft, Calendar, Info, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -17,6 +18,7 @@ type ItemDetailsProps = {
 
 export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsProps) {
   const { mutate: createVerification, isPending } = useCreateVerification();
+  const navigate = useNavigate();
 
   if (!batch) return null;
 
@@ -29,7 +31,15 @@ export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsPro
       {
         onSuccess: () => {
           toast.success('Batch verified successfully');
+          // Notify parent
           onConfirm?.();
+          // Redirect to scanner view after success. If your route differs,
+          // update the path accordingly.
+          try {
+            navigate('/verification/scan');
+          } catch {
+            // ignore navigation errors
+          }
         },
         onError: (error) => {
           const axiosError = error as AxiosError<{ title?: string }>;
