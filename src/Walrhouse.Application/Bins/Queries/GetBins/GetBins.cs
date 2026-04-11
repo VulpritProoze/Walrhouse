@@ -29,9 +29,9 @@ public class GetBinsQueryHandler : IRequestHandler<GetBinsQuery, PaginatedList<B
         return await _context
             .Bins.AsNoTracking()
             .Where(b => !b.IsDeleted)
-            .ProjectTo<BinDto>(_mapper.ConfigurationProvider)
-            .OrderBy(b => b.BinName)
+            .OrderByDescending(b => b.CreatedAt)
             .ThenBy(b => b.BinNo)
+            .ProjectTo<BinDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

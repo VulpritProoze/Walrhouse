@@ -29,8 +29,9 @@ public class GetStocksQueryHandler : IRequestHandler<GetStocksQuery, PaginatedLi
         return await _context
             .Stocks.AsNoTracking()
             .Where(s => !s.IsDeleted)
+            .OrderByDescending(s => s.CreatedAt)
+            .ThenBy(s => s.ItemCode)
             .ProjectTo<StockDto>(_mapper.ConfigurationProvider)
-            .OrderBy(s => s.ItemCode)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

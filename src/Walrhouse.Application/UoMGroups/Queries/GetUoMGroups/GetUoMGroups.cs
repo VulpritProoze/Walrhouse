@@ -36,6 +36,8 @@ public class GetUoMGroupsQueryHandler
         var items = await query
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
+            .OrderByDescending(g => g.CreatedAt)
+            .ThenBy(g => g.BaseUoM)
             .ToListAsync(cancellationToken);
 
         var dtos = _mapper.Map<List<UoMGroupDto>>(items);

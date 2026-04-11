@@ -12,4 +12,12 @@ public class ItemDto
     public BarcodeFormat? BarcodeFormat { get; set; }
     public ItemGroup? ItemGroup { get; set; }
     public string? Remarks { get; set; }
+
+    public class MappingProfile : Profile
+    {
+        public MappingProfile()
+        {
+            CreateMap<Item, ItemDto>();
+        }
+    }
 }

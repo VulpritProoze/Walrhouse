@@ -29,9 +29,9 @@ public class GetItemsQueryHandler : IRequestHandler<GetItemsQuery, PaginatedList
         return await _context
             .Items.AsNoTracking()
             .Where(i => !i.IsDeleted)
-            .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
-            .OrderBy(i => i.ItemName)
+            .OrderByDescending(i => i.CreatedAt)
             .ThenBy(i => i.ItemCode)
+            .ProjectTo<ItemDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }
