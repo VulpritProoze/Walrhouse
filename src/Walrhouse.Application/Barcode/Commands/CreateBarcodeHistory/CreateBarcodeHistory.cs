@@ -4,14 +4,13 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.Barcode.Commands.CreateBarcodeHistory;
 
-public record CreateBarcodeHistoryCommand : IRequest<int>
-{
-    public required string BarcodeValue { get; init; }
-    public required string BatchNumber { get; init; }
-    public BarcodeFormat? BarcodeFormat { get; init; }
-    public string? Remarks { get; init; }
-    public string? CreatedBy { get; init; }
-}
+public record CreateBarcodeHistoryCommand(
+    string BarcodeValue,
+    string BatchNumber,
+    BarcodeFormat? BarcodeFormat,
+    string? Remarks,
+    string? CreatedBy
+) : IRequest<int>;
 
 public class CreateBarcodeHistoryCommandHandler : IRequestHandler<CreateBarcodeHistoryCommand, int>
 {
@@ -42,6 +41,7 @@ public class CreateBarcodeHistoryCommandHandler : IRequestHandler<CreateBarcodeH
             BarcodeFormat = request.BarcodeFormat,
             Remarks = request.Remarks,
             CreatedBy = request.CreatedBy,
+            CreatedAt = DateTimeOffset.UtcNow,
         };
 
         _context.BarcodeHistories.Add(entity);
