@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Models;
 using Walrhouse.Application.Verification.Commands.CreateVerification;
@@ -28,7 +29,7 @@ public class Verification : IEndpointGroup
     public static async Task<Results<Created<int>, UnauthorizedHttpResult>> CreateVerification(
         ISender sender,
         IUser user,
-        CreateVerificationRequest request,
+        [FromBody] CreateVerificationRequest request,
         CancellationToken cancellationToken
     )
     {
