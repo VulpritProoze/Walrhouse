@@ -11,13 +11,15 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format, parseISO } from 'date-fns';
-import { CalendarIcon, Loader2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Search } from 'lucide-react';
 import { BatchStatus } from '@/features/batch/types';
 import { createBatchSchema, updateBatchSchema } from '../../types/batch.schema';
 import { z } from 'zod';
 import { toast } from 'sonner';
 import { type BatchDto } from '../../types/batch-dto';
 import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { BatchFormItemSearchSheet } from './BatchFormItemSearchSheet';
+import { BatchFormBinSearchSheet } from './BatchFormBinSearchSheet';
 
 interface BatchFormProps {
   initial: BatchDto;
@@ -31,6 +33,9 @@ export function BatchForm({ initial, mode, isLoading, onSave, onSuccess }: Batch
   const [form, setForm] = useState<BatchDto>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [isItemSearchOpen, setIsItemSearchOpen] = useState(false);
+  const [isBinSearchOpen, setIsBinSearchOpen] = useState(false);
 
   const loading = isLoading || isSubmitting;
   const isAdd = mode === 'add';
@@ -119,31 +124,75 @@ export function BatchForm({ initial, mode, isLoading, onSave, onSuccess }: Batch
 
         <div className="grid gap-2">
           <label className="text-sm font-medium">Item Code</label>
-          <Input
-            disabled={loading}
-            value={form.itemCode}
-            onChange={(e) => {
-              setForm({ ...form, itemCode: e.target.value });
-              if (errors.itemCode) setErrors((prev) => ({ ...prev, itemCode: '' }));
-            }}
-            placeholder="ITEM-123"
-            className={errors.itemCode ? 'border-destructive' : ''}
-          />
+          <div className="relative group/field min-w-0 flex-1">
+            <Input
+              readOnly
+              disabled={loading}
+              value={form.itemCode}
+              placeholder="Select an item..."
+              className={
+                errors.itemCode ? 'border-destructive pr-10 cursor-pointer' : 'pr-10 cursor-pointer'
+              }
+              onClick={() => !loading && setIsItemSearchOpen(true)}
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground"
+                disabled={loading}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+            <BatchFormItemSearchSheet
+              open={isItemSearchOpen}
+              onOpenChange={setIsItemSearchOpen}
+              selectedCode={form.itemCode}
+              disabled={loading}
+              onSelect={(code) => {
+                setForm({ ...form, itemCode: code });
+                if (errors.itemCode) setErrors((prev) => ({ ...prev, itemCode: '' }));
+              }}
+            />
+          </div>
           {errors.itemCode && <p className="text-xs text-destructive">{errors.itemCode}</p>}
         </div>
 
         <div className="grid gap-2">
           <label className="text-sm font-medium">Bin No</label>
-          <Input
-            disabled={loading}
-            value={form.binNo}
-            onChange={(e) => {
-              setForm({ ...form, binNo: e.target.value });
-              if (errors.binNo) setErrors((prev) => ({ ...prev, binNo: '' }));
-            }}
-            placeholder="BIN-01"
-            className={errors.binNo ? 'border-destructive' : ''}
-          />
+          <div className="relative group/field min-w-0 flex-1">
+            <Input
+              readOnly
+              disabled={loading}
+              value={form.binNo}
+              placeholder="Select a bin..."
+              className={
+                errors.binNo ? 'border-destructive pr-10 cursor-pointer' : 'pr-10 cursor-pointer'
+              }
+              onClick={() => !loading && setIsBinSearchOpen(true)}
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground"
+                disabled={loading}
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </div>
+            <BatchFormBinSearchSheet
+              open={isBinSearchOpen}
+              onOpenChange={setIsBinSearchOpen}
+              selectedNo={form.binNo}
+              disabled={loading}
+              onSelect={(binNo) => {
+                setForm({ ...form, binNo: binNo });
+                if (errors.binNo) setErrors((prev) => ({ ...prev, binNo: '' }));
+              }}
+            />
+          </div>
           {errors.binNo && <p className="text-xs text-destructive">{errors.binNo}</p>}
         </div>
 
