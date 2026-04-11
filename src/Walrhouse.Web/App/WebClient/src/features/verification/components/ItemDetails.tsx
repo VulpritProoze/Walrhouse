@@ -1,10 +1,13 @@
-import { CheckCircle2, MapPin, Hash, ArrowLeft, Calendar, Info } from 'lucide-react';
+import { CheckCircle2, MapPin, Hash, ArrowLeft, Calendar, Info, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import type { BatchDto } from '../types';
 import { BatchStatus } from '@/features/batch/types';
+import { useCreateVerification } from '../hooks/mutations/use-verification-mutation';
+import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
 
 type ItemDetailsProps = {
   batch?: BatchDto;
@@ -13,7 +16,28 @@ type ItemDetailsProps = {
 };
 
 export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsProps) {
+  const { mutate: createVerification, isPending } = useCreateVerification();
+
   if (!batch) return null;
+
+  const handleConfirm = () => {
+    createVerification(
+      {
+        batchNumber: batch.batchNumber,
+        remarks: `Verified at ${new Date().toLocaleString()}`,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Batch verified successfully');
+          onConfirm?.();
+        },
+        onError: (error) => {
+          const axiosError = error as AxiosError<{ title?: string }>;
+          toast.error(axiosError.response?.data?.title ?? 'Failed to verify batch');
+        },
+      }
+    );
+  };
 
   return (
     <Card className="w-full">
@@ -88,11 +112,15 @@ export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsPro
         <Separator />
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onBack} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+          <Button onClick={handleConfirm} disabled={isPending}>
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+            )}
             Confirm Verification
           </Button>
         </div>

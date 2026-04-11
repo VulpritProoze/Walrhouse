@@ -19,7 +19,6 @@ export interface PaginatedList<T> {
 
 export interface CreateVerificationCommand {
   batchNumber: string;
-  createdBy: string;
   remarks?: string;
 }
 
