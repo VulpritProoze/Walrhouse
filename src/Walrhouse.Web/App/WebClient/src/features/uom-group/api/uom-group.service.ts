@@ -4,8 +4,8 @@ import { api } from '@/lib/axios';
  * Request payload for creating a new UoM group.
  */
 export interface CreateUoMGroupRequest {
-  baseUoM: string;
-  uoMGroupLines: UoMGroupLine[]; // shape stored as JSON in backend; adjust if DTO is available
+  baseUoMName: string;
+  uoMGroupLines: UoMGroupLineRequest[];
 }
 
 /**
@@ -20,12 +20,12 @@ export interface GetUoMGroupsRequest {
  * Request payload for updating an existing UoM group.
  */
 export interface UpdateUoMGroupRequest {
-  baseUoM?: string | null;
-  uoMGroupLines?: UoMGroupLine[] | null;
+  baseUoMName?: string | null;
+  uoMGroupLines?: UoMGroupLineRequest[] | null;
 }
 
-export interface UoMGroupLine {
-  uoM: string;
+export interface UoMGroupLineRequest {
+  uoMName: string;
   baseQty: number;
 }
 
