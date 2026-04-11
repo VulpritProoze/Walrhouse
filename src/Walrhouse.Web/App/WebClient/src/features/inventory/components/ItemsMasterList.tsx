@@ -45,6 +45,8 @@ import {
 } from '@/features/item/hooks/mutations/use-item-mutation';
 import { type ItemDto } from '../types';
 import { logger } from '@/lib/utils/logger';
+import { toast } from 'sonner';
+import type { CreateItemRequest } from '@/features/item/api';
 
 export function ItemsMasterList() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,7 +95,14 @@ export function ItemsMasterList() {
 
   const onSave = async (itemData: ItemDto) => {
     if (dialogMode === 'add') {
-      await createMutation.mutateAsync(itemData);
+      if (!itemData.uoMGroupId) {
+        toast.error('Failed to create item: UoM Group is required');
+        return;
+      }
+      await createMutation.mutateAsync({
+        ...itemData,
+        uoMGroupId: itemData.uoMGroupId,
+      } as CreateItemRequest);
     } else {
       await updateMutation.mutateAsync({
         itemCode: itemData.itemCode,
