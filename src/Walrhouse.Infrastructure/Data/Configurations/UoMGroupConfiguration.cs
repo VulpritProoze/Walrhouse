@@ -8,6 +8,8 @@ public class UoMGroupConfiguration : IEntityTypeConfiguration<UoMGroup>
 {
     public void Configure(EntityTypeBuilder<UoMGroup> builder)
     {
+        builder.Property(g => g.BaseUoM).HasColumnType("varchar(50)").IsRequired();
+
         builder
             .Property(g => g.UoMGroupLinesJson)
             .HasColumnName("UoMGroupLines")
