@@ -9,15 +9,15 @@ using Walrhouse.Application.Verification.Queries.GetVerificationHistory;
 
 namespace Walrhouse.Web.Endpoints;
 
-public class VerificationEndpoints : IEndpointGroup
+public class Verification : IEndpointGroup
 {
     public static void Map(RouteGroupBuilder groupBuilder)
     {
-        groupBuilder.MapPost("", CreateVerification).RequireAuthorization();
-        groupBuilder.MapGet("", GetVerificationHistories).RequireAuthorization();
-        groupBuilder.MapGet("{id:int}", GetVerificationHistory).RequireAuthorization();
+        groupBuilder.MapPost(CreateVerification, "").RequireAuthorization();
+        groupBuilder.MapGet(GetVerificationHistories, "").RequireAuthorization();
+        groupBuilder.MapGet(GetVerificationHistory, "{id:int}").RequireAuthorization();
         groupBuilder
-            .MapGet("by-creator/{createdBy}", GetVerificationHistoriesByCreator)
+            .MapGet(GetVerificationHistoriesByCreator, "by-creator/{createdBy}")
             .RequireAuthorization();
     }
 
