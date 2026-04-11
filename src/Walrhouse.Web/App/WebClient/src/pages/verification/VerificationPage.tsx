@@ -27,16 +27,18 @@ export default function VerificationPage() {
           </div>
           {!isSettings && (
             <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => navigate('/verification/settings')}
-                  className="bg-transparent border-none p-0 outline-none"
-                >
-                  <Settings2 className="h-4 w-4" />
-                  <span className="sr-only">Scanning settings</span>
-                </Button>
+              <TooltipTrigger
+                render={
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => navigate('/verification/settings')}
+                    className="bg-transparent border-none p-0 outline-none"
+                  />
+                }
+              >
+                <Settings2 className="h-4 w-4" />
+                <span className="sr-only">Scanning settings</span>
               </TooltipTrigger>
               <TooltipContent side="bottom" sideOffset={10} align="end">
                 <p>Scanning settings</p>
