@@ -127,13 +127,13 @@ export const UoMGroupManagement = () => {
                 <TableRow key={group.id} className="hover:bg-muted/10 group cursor-default">
                   <TableCell className="font-mono font-bold text-xs">{group.id}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">{group.baseUoMName}</Badge>
+                    <Badge variant="outline">{group.baseUoM}</Badge>
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
                       {group.uoMGroupLines.map((line, idx) => (
                         <span key={idx} className="text-xs text-muted-foreground">
-                          {idx > 0 && ' | '}1 {line.uoMName} = {line.baseQty} {group.baseUoMName}
+                          {idx > 0 && ' | '}1 {line.uoM} = {line.baseQty} {group.baseUoM}
                         </span>
                       ))}
                     </div>
@@ -214,9 +214,9 @@ export const UoMGroupManagement = () => {
         isLoading={isCreating}
         onSave={async (data) => {
           await createUoMGroup({
-            baseUoMName: data.baseUoMName,
+            baseUoM: data.baseUoM,
             uoMGroupLines: data.uoMGroupLines.map((l) => ({
-              uoMName: l.uoMName,
+              uoM: l.uoM,
               baseQty: l.baseQty,
             })),
           });
@@ -232,9 +232,9 @@ export const UoMGroupManagement = () => {
           await updateUoMGroup({
             id: data.id,
             data: {
-              baseUoMName: data.baseUoMName,
+              baseUoM: data.baseUoM,
               uoMGroupLines: data.uoMGroupLines.map((l) => ({
-                uoMName: l.uoMName,
+                uoM: l.uoM,
                 baseQty: l.baseQty,
               })),
             },
@@ -251,7 +251,7 @@ export const UoMGroupManagement = () => {
 
           <div className="py-2 text-sm">
             Are you sure you want to delete UoM group <strong>#{active?.id}</strong> (
-            {active?.baseUoMName})?
+            {active?.baseUoM})?
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDeleteOpen(false)}>

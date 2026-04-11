@@ -18,7 +18,7 @@ export const AddUoMGroupDialog = ({
 }: Omit<UoMGroupDialogProps, 'initialData'>) => {
   const initial: UoMGroupDto = {
     id: 0,
-    baseUoMName: '',
+    baseUoM: '',
     uoMGroupLines: [],
   };
 

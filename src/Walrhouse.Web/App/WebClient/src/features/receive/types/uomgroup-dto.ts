@@ -1,21 +1,21 @@
 export interface UoMGroupLine {
-  uoMName: string;
+  uoM: string;
   baseQty: number;
 }
 
 export interface UoMGroupDto {
   id: number;
-  baseUoMName: string;
+  baseUoM: string;
   uoMGroupLines: UoMGroupLine[];
 }
 
 export interface CreateUoMGroupDto {
-  baseUoMName: string;
+  baseUoM: string;
   uoMGroupLines: UoMGroupLine[];
 }
 
 export interface UpdateUoMGroupDto {
   id: number;
-  baseUoMName: string;
+  baseUoM: string;
   uoMGroupLines: UoMGroupLine[];
 }

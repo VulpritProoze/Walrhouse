@@ -76,7 +76,7 @@ export function UoMGroupForm({
   const addLine = () => {
     setForm({
       ...form,
-      uoMGroupLines: [...form.uoMGroupLines, { uoMName: '', baseQty: 1 }],
+      uoMGroupLines: [...form.uoMGroupLines, { uoM: '', baseQty: 1 }],
     });
   };
 
@@ -87,7 +87,7 @@ export function UoMGroupForm({
     });
   };
 
-  const updateLine = (index: number, field: 'uoMName' | 'baseQty', value: string | number) => {
+  const updateLine = (index: number, field: 'uoM' | 'baseQty', value: string | number) => {
     const newLines = [...form.uoMGroupLines];
     newLines[index] = { ...newLines[index], [field]: value };
     setForm({ ...form, uoMGroupLines: newLines });
@@ -113,15 +113,15 @@ export function UoMGroupForm({
           <Label>Base Unit of Measurement</Label>
           <Input
             disabled={loading}
-            value={form.baseUoMName}
+            value={form.baseUoM}
             onChange={(e) => {
-              setForm({ ...form, baseUoMName: e.target.value });
-              if (errors.baseUoMName) setErrors((prev) => ({ ...prev, baseUoMName: '' }));
+              setForm({ ...form, baseUoM: e.target.value });
+              if (errors.baseUoM) setErrors((prev) => ({ ...prev, baseUoM: '' }));
             }}
             placeholder="e.g. piece"
-            className={errors.baseUoMName ? 'border-destructive' : ''}
+            className={errors.baseUoM ? 'border-destructive' : ''}
           />
-          {errors.baseUoMName && <p className="text-xs text-destructive">{errors.baseUoMName}</p>}
+          {errors.baseUoM && <p className="text-xs text-destructive">{errors.baseUoM}</p>}
         </div>
 
         <div className="space-y-4">
@@ -165,14 +165,14 @@ export function UoMGroupForm({
                   <Label className="text-xs font-semibold">UoM Name</Label>
                   <Input
                     disabled={loading}
-                    value={line.uoMName}
-                    onChange={(e) => updateLine(index, 'uoMName', e.target.value)}
+                    value={line.uoM}
+                    onChange={(e) => updateLine(index, 'uoM', e.target.value)}
                     placeholder="e.g. Box"
-                    className={errors[`uoMGroupLines.${index}.uoMName`] ? 'border-destructive' : ''}
+                    className={errors[`uoMGroupLines.${index}.uoM`] ? 'border-destructive' : ''}
                   />
-                  {errors[`uoMGroupLines.${index}.uoMName`] && (
+                  {errors[`uoMGroupLines.${index}.uoM`] && (
                     <p className="text-xs text-destructive">
-                      {errors[`uoMGroupLines.${index}.uoMName`]}
+                      {errors[`uoMGroupLines.${index}.uoM`]}
                     </p>
                   )}
                 </div>
