@@ -3,18 +3,30 @@ import ScannerDropdownMenu from './scanner/ScannerDropdownMenu';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '@/components/ui/empty';
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useRef, useEffect } from 'react';
 import { logger } from '@/lib/utils/logger';
 import { ensureAudioContext, playSharpTone } from '../lib/audio/beeps';
+import { useBatch } from '@/features/batch/hooks/queries/use-batch';
+import ItemDetails from './ItemDetails';
 
 type ScannerProps = {
   onScan?: (code: string) => void;
   isLoading?: boolean;
 };
 
-export default function Scanner({ onScan, isLoading }: ScannerProps) {
+export default function Scanner({ onScan, isLoading: parentLoading }: ScannerProps) {
   const [manualCode, setManualCode] = useState('');
+  const [scannedCode, setScannedCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
@@ -47,6 +59,15 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const [audioBeep, setAudioBeep] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
+  // Hook to fetch batch details when a code is scanned
+  const {
+    data: batch,
+    isLoading: isBatchLoading,
+    isError: isBatchError,
+  } = useBatch(scannedCode ?? '', !!scannedCode);
+
+  const isLoading = parentLoading || isBatchLoading;
+
   const refreshCamera = () => {
     // bumping the key will remount the QrScanner, causing it to re-request the camera
     setScannerKey((k) => k + 1);
@@ -59,16 +80,30 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
         audioCtxRef.current = ensureAudioContext(audioCtxRef.current);
         if (audioCtxRef.current) playSharpTone(audioCtxRef.current, 180, 0.18);
       }
-      onScan?.(code);
+      setScannedCode(code);
+      setError(null);
     }
   };
 
   const handleManualSubmit = (e?: React.SyntheticEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (manualCode.trim() && !isLoading) {
-      onScan?.(manualCode.trim());
+      setScannedCode(manualCode.trim());
       setManualCode('');
+      setError(null);
     }
+  };
+
+  const handleConfirm = () => {
+    if (scannedCode) {
+      onScan?.(scannedCode);
+      setScannedCode(null);
+    }
+  };
+
+  const handleBack = () => {
+    setScannedCode(null);
+    setError(null);
   };
 
   // Narrow local type to allow passing `torch` inside `advanced` without unsafe double-cast
@@ -80,6 +115,42 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
     facingMode: 'environment',
     advanced: [{ torch: torchOn }],
   };
+
+  if (scannedCode) {
+    if (isBatchLoading) {
+      return (
+        <Card className="w-full flex items-center justify-center min-h-[400px]">
+          <Spinner className="size-8 text-primary" />
+        </Card>
+      );
+    }
+
+    if (isBatchError) {
+      return (
+        <Card className="w-full flex items-center justify-center min-h-[400px] p-6">
+          <Empty className="border-none shadow-none">
+            <EmptyHeader>
+              <EmptyMedia variant="icon" className="bg-destructive/10 text-destructive">
+                <AlertCircle className="size-5" />
+              </EmptyMedia>
+              <EmptyTitle>Batch Not Found</EmptyTitle>
+              <EmptyDescription>
+                The code "{scannedCode}" could not be found in our records. Please verify the code
+                and try again.
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button onClick={() => setScannedCode(null)} variant="outline">
+                Back to Scanner
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </Card>
+      );
+    }
+
+    return <ItemDetails batch={batch} onConfirm={handleConfirm} onBack={handleBack} />;
+  }
 
   return (
     <Card className="w-full overflow-hidden border-none shadow-none sm:border sm:shadow-sm">
