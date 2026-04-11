@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { logger } from '@/lib/utils/logger';
-import { type ItemDto } from '../../types/dto';
+import { type ItemDto } from '../../types/item-dto';
 import { z } from 'zod';
 import { itemSchema } from '@/lib/schemas/item.schema';
 import { ItemFormUoMGroupSearchSheet } from './ItemFormUoMGroupSearchSheet';

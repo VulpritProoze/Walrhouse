@@ -2,7 +2,15 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { QrCode, Scan, Smartphone, ChevronRight, ChevronLeft, Search, Download } from 'lucide-react';
+import {
+  QrCode,
+  Scan,
+  Smartphone,
+  ChevronRight,
+  ChevronLeft,
+  Search,
+  Download,
+} from 'lucide-react';
 import { BatchSelectionSheet } from './barcode-generation/BatchSelectionSheet';
 import { getBarcodeImageUrl } from '@/features/barcode/api/barcode.service';
 import { cn } from '@/lib/utils';
@@ -15,9 +23,6 @@ export const BarcodeGenerator = () => {
   const [barcodeUrl, setBarcodeUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
   const [sheetOpen, setSheetOpen] = useState(false);
-
-  // Mocked batches — replace with API hook when available
-  const batches = ['BATCH-2024-001', 'BATCH-2024-002', 'BATCH-2025-001', 'RX-2026-0001'];
 
   const handleGenerate = () => {
     if (formData.batchNumber) {
@@ -97,7 +102,6 @@ export const BarcodeGenerator = () => {
       <BatchSelectionSheet
         open={sheetOpen}
         onOpenChange={setSheetOpen}
-        batches={batches}
         onSelect={(b) => {
           setFormData({ batchNumber: b });
           setBarcodeUrl(null);
@@ -181,4 +185,3 @@ export const BarcodeGenerator = () => {
     </div>
   );
 };
-
