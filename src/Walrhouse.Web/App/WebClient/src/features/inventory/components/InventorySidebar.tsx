@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import {
-  ChevronLeft,
-  ChevronRight,
   Package,
   QrCode,
   ArrowLeftRight,
@@ -10,7 +8,6 @@ import {
   Scale,
   List,
   type LucideIcon,
-  ChevronDown,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -71,9 +68,7 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
           size="icon"
           onClick={() => setCollapsed(!collapsed)}
           className="ml-auto h-8 w-8"
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
+        ></Button>
       </div>
 
       <div className="flex-1 py-4 space-y-2 px-2 overflow-y-auto">
@@ -101,12 +96,6 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
                               <Icon size={20} className={cn(isGroupActive && 'text-primary')} />
                               {!collapsed && <span>{item.label}</span>}
                             </div>
-                            {!collapsed && (
-                              <ChevronDown
-                                size={14}
-                                className="text-muted-foreground transition-transform duration-200 group-data-open/accordion-trigger:rotate-180"
-                              />
-                            )}
                           </AccordionTrigger>
                         }
                       />
