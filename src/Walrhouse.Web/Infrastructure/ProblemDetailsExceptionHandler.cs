@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
+using OpenTelemetry.Trace;
 using Walrhouse.Application.Common.Exceptions;
 
 namespace Walrhouse.Web.Infrastructure;
@@ -12,6 +14,13 @@ namespace Walrhouse.Web.Infrastructure;
 /// </summary>
 public class ProblemDetailsExceptionHandler : IExceptionHandler
 {
+    private readonly ILogger<ProblemDetailsExceptionHandler> logger;
+
+    public ProblemDetailsExceptionHandler(ILogger<ProblemDetailsExceptionHandler> logger)
+    {
+        this.logger = logger;
+    }
+
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
@@ -57,8 +66,21 @@ public class ProblemDetailsExceptionHandler : IExceptionHandler
                     Type = "https://tools.ietf.org/html/rfc9110#section-15.5.4",
                 }
             ),
-            _ => (-1, null),
+            _ => (
+                StatusCodes.Status500InternalServerError,
+                new ProblemDetails
+                {
+                    Status = StatusCodes.Status500InternalServerError,
+                    Title = "An unexpected error occurred.",
+                    Type = "https://tools.ietf.org/html/rfc9110#section-15.5.6",
+                }
+            ),
         };
+
+        if (statusCode == StatusCodes.Status500InternalServerError)
+        {
+            logger.LogError(exception, "An unhandled exception occurred.");
+        }
 
         if (problemDetails is null)
             return false;
