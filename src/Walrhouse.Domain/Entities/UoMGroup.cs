@@ -27,7 +27,7 @@ public class UoMGroup : BaseAuditableEntity
     /// Gets or sets the BaseUoM.
     /// This is where the UoMGroupLines refer to with its BaseQty.
     /// </summary>
-    public required UnitOfMeasurement BaseUoM { get; set; }
+    public required string BaseUoM { get; set; }
 
     /// <summary>
     /// Gets or sets a collection of UoMGroupLines.
@@ -51,7 +51,7 @@ public class UoMGroupLine
     /// This is the unit of measurement that we want to define a conversion factor for.
     /// For example, if the BaseUoM is "piece", we can define a UoMGroupLine with UoM "box" and BaseQty 10,
     /// </summary>
-    public required UnitOfMeasurement UoM { get; set; }
+    public required string UoM { get; set; }
 
     /// <summary>
     /// Gets or sets the conversion factor to the BaseUoM.
