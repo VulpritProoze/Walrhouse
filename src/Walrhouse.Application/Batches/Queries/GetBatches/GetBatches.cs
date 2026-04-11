@@ -29,9 +29,9 @@ public class GetBatchesQueryHandler : IRequestHandler<GetBatchesQuery, Paginated
         return await _context
             .Batches.AsNoTracking()
             .Where(b => !b.IsDeleted)
+            .OrderByDescending(b => b.ExpiryDate)
+            .ThenByDescending(b => b.CreatedAt)
             .ProjectTo<BatchDto>(_mapper.ConfigurationProvider)
-            .OrderBy(b => b.ExpiryDate)
-            .ThenBy(b => b.BatchNumber)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

@@ -154,6 +154,48 @@ namespace Walrhouse.Infrastructure.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Walrhouse.Domain.Entities.BarcodeHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BarcodeFormat")
+                        .HasMaxLength(64)
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BarcodeValue")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)");
+
+                    b.Property<int>("BatchId")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("BatchNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchId");
+
+                    b.ToTable("BarcodeHistories");
+                });
+
             modelBuilder.Entity("Walrhouse.Domain.Entities.Batch", b =>
                 {
                     b.Property<int>("Id")
@@ -277,7 +319,6 @@ namespace Walrhouse.Infrastructure.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("BarcodeValue")
-                        .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)");
 
@@ -314,17 +355,16 @@ namespace Walrhouse.Infrastructure.Migrations
                         .HasMaxLength(1024)
                         .HasColumnType("character varying(1024)");
 
-                    b.Property<string>("UgpEntry")
-                        .IsRequired()
+                    b.Property<int>("UoMGroupId")
                         .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ItemCode")
                         .IsUnique();
 
-                    b.HasIndex("UgpEntry");
+                    b.HasIndex("UoMGroupId");
 
                     b.ToTable("Items");
                 });
@@ -375,8 +415,9 @@ namespace Walrhouse.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BaseUoM")
-                        .HasColumnType("integer");
+                    b.Property<string>("BaseUoM")
+                        .IsRequired()
+                        .HasColumnType("varchar(50)");
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -393,21 +434,43 @@ namespace Walrhouse.Infrastructure.Migrations
                     b.Property<string>("LastModifiedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("UgpEntry")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("character varying(64)");
-
                     b.Property<string>("UoMGroupLinesJson")
                         .HasColumnType("jsonb")
                         .HasColumnName("UoMGroupLines");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UgpEntry")
-                        .IsUnique();
-
                     b.ToTable("UoMGroups");
+                });
+
+            modelBuilder.Entity("Walrhouse.Domain.Entities.VerificationHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BatchNumberVerified")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Remarks")
+                        .HasMaxLength(1024)
+                        .HasColumnType("character varying(1024)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchNumberVerified");
+
+                    b.ToTable("VerificationHistories");
                 });
 
             modelBuilder.Entity("Walrhouse.Domain.Entities.Warehouse", b =>
@@ -579,6 +642,17 @@ namespace Walrhouse.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Walrhouse.Domain.Entities.BarcodeHistory", b =>
+                {
+                    b.HasOne("Walrhouse.Domain.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
+                });
+
             modelBuilder.Entity("Walrhouse.Domain.Entities.Batch", b =>
                 {
                     b.HasOne("Walrhouse.Domain.Entities.Bin", "Bin")
@@ -615,8 +689,7 @@ namespace Walrhouse.Infrastructure.Migrations
                 {
                     b.HasOne("Walrhouse.Domain.Entities.UoMGroup", "UoMGroup")
                         .WithMany()
-                        .HasForeignKey("UgpEntry")
-                        .HasPrincipalKey("UgpEntry")
+                        .HasForeignKey("UoMGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -633,6 +706,18 @@ namespace Walrhouse.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Item");
+                });
+
+            modelBuilder.Entity("Walrhouse.Domain.Entities.VerificationHistory", b =>
+                {
+                    b.HasOne("Walrhouse.Domain.Entities.Batch", "Batch")
+                        .WithMany()
+                        .HasForeignKey("BatchNumberVerified")
+                        .HasPrincipalKey("BatchNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Batch");
                 });
 
             modelBuilder.Entity("Walrhouse.Infrastructure.Identity.ApplicationUser", b =>

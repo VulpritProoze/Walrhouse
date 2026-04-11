@@ -13,7 +13,7 @@ type ScannerProps = {
   isLoading?: boolean;
 };
 
-export default function Scanner({ onScan, isLoading }: ScannerProps) {
+export default function Scanner({ onScan, isLoading: parentLoading }: ScannerProps) {
   const [manualCode, setManualCode] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -47,6 +47,8 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
   const [audioBeep, setAudioBeep] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
+  const isLoading = parentLoading;
+
   const refreshCamera = () => {
     // bumping the key will remount the QrScanner, causing it to re-request the camera
     setScannerKey((k) => k + 1);
@@ -60,6 +62,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
         if (audioCtxRef.current) playSharpTone(audioCtxRef.current, 180, 0.18);
       }
       onScan?.(code);
+      setError(null);
     }
   };
 
@@ -68,6 +71,7 @@ export default function Scanner({ onScan, isLoading }: ScannerProps) {
     if (manualCode.trim() && !isLoading) {
       onScan?.(manualCode.trim());
       setManualCode('');
+      setError(null);
     }
   };
 

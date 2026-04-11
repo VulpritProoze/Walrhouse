@@ -6,8 +6,8 @@ using Walrhouse.Domain.Enums;
 namespace Walrhouse.Application.UoMGroups.Commands.UpdateUoMGroup;
 
 public record UpdateUoMGroupCommand(
-    string UgpEntry,
-    UnitOfMeasurement? BaseUoM,
+    int Id,
+    string? BaseUoM,
     IEnumerable<UoMGroupLineDto>? UoMGroupLines
 ) : IRequest;
 
@@ -23,14 +23,14 @@ public class UpdateUoMGroupCommandHandler : IRequestHandler<UpdateUoMGroupComman
     public async Task Handle(UpdateUoMGroupCommand request, CancellationToken cancellationToken)
     {
         var entity = await _context.UoMGroups.FirstOrDefaultAsync(
-            g => g.UgpEntry == request.UgpEntry && !g.IsDeleted,
+            g => g.Id == request.Id && !g.IsDeleted,
             cancellationToken
         );
 
         Guard.Against.Null(entity, nameof(entity));
 
-        if (request.BaseUoM.HasValue)
-            entity.BaseUoM = request.BaseUoM.Value;
+        if (!String.IsNullOrEmpty(request.BaseUoM))
+            entity.BaseUoM = request.BaseUoM;
 
         if (request.UoMGroupLines is not null)
         {

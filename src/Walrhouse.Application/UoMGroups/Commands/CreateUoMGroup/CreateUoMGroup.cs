@@ -4,15 +4,12 @@ using Walrhouse.Domain.Enums;
 
 namespace Walrhouse.Application.UoMGroups.Commands.CreateUoMGroup;
 
-public record UoMGroupLineDto(UnitOfMeasurement UoM, int BaseQty);
+public record UoMGroupLineDto(string UoM, int BaseQty);
 
-public record CreateUoMGroupCommand(
-    string UgpEntry,
-    UnitOfMeasurement BaseUoM,
-    IEnumerable<UoMGroupLineDto> UoMGroupLines
-) : IRequest<string>;
+public record CreateUoMGroupCommand(string BaseUoM, IEnumerable<UoMGroupLineDto> UoMGroupLines)
+    : IRequest<int>;
 
-public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupCommand, string>
+public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupCommand, int>
 {
     private readonly IApplicationDbContext _context;
 
@@ -21,37 +18,13 @@ public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupComman
         _context = context;
     }
 
-    public async Task<string> Handle(
+    public async Task<int> Handle(
         CreateUoMGroupCommand request,
         CancellationToken cancellationToken
     )
     {
-        var code = (request.UgpEntry ?? string.Empty).Trim();
-
-        var existing = await _context
-            .UoMGroups.AsQueryable()
-            .Where(g => g.UgpEntry == code)
-            .SingleOrDefaultAsync(cancellationToken);
-
-        if (existing is not null)
-        {
-            if (!existing.IsDeleted)
-                return existing.UgpEntry; // idempotent
-
-            existing.BaseUoM = request.BaseUoM;
-            existing.UoMGroupLines = request
-                .UoMGroupLines.Select(l => new UoMGroupLine { UoM = l.UoM, BaseQty = l.BaseQty })
-                .ToList();
-            existing.IsDeleted = false;
-
-            await _context.SaveChangesAsync(cancellationToken);
-
-            return existing.UgpEntry;
-        }
-
         var entity = new UoMGroup
         {
-            UgpEntry = code,
             BaseUoM = request.BaseUoM,
             UoMGroupLines = request
                 .UoMGroupLines.Select(l => new UoMGroupLine { UoM = l.UoM, BaseQty = l.BaseQty })
@@ -62,6 +35,6 @@ public class CreateUoMGroupCommandHandler : IRequestHandler<CreateUoMGroupComman
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return entity.UgpEntry;
+        return entity.Id;
     }
 }

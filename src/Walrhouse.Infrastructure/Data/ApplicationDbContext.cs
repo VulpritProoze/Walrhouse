@@ -19,6 +19,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<UoMGroup> UoMGroups => Set<UoMGroup>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<BarcodeHistory> BarcodeHistories => Set<BarcodeHistory>();
+    public DbSet<VerificationHistory> VerificationHistories => Set<VerificationHistory>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

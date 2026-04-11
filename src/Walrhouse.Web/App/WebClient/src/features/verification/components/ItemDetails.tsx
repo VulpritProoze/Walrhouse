@@ -1,24 +1,45 @@
-import { CheckCircle2, Package, MapPin, Hash, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, MapPin, Hash, ArrowLeft, Calendar, Info, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
+import type { BatchDto } from '../types';
+import { BatchStatus } from '@/features/batch/types';
+import { useCreateVerification } from '../hooks/mutations/use-verification-mutation';
+import { toast } from 'sonner';
+import type { AxiosError } from 'axios';
 
 type ItemDetailsProps = {
-  /** Will be replaced with real data later */
-  itemCode?: string;
+  batch?: BatchDto;
   onConfirm?: () => void;
   onBack?: () => void;
 };
 
-export default function ItemDetails({ itemCode = 'WH-00123', onConfirm, onBack }: ItemDetailsProps) {
-  // Placeholder item data — will come from API later
-  const item = {
-    sku: itemCode,
-    name: 'Industrial Widget A',
-    location: 'Aisle 3, Shelf B-12',
-    quantity: 42,
-    category: 'Hardware',
-    lastVerified: '2026-03-18',
+export default function ItemDetails({ batch, onConfirm, onBack }: ItemDetailsProps) {
+  const { mutate: createVerification, isPending } = useCreateVerification();
+  const navigate = useNavigate();
+
+  if (!batch) return null;
+
+  const handleConfirm = () => {
+    createVerification(
+      {
+        batchNumber: batch.batchNumber,
+        remarks: `Verified at ${new Date().toLocaleString()}`,
+      },
+      {
+        onSuccess: () => {
+          toast.success('Batch verified successfully');
+          onConfirm?.();
+          navigate('/verification');
+        },
+        onError: (error) => {
+          const axiosError = error as AxiosError<{ title?: string }>;
+          toast.error(axiosError.response?.data?.title ?? 'Failed to verify batch');
+        },
+      },
+    );
   };
 
   return (
@@ -28,57 +49,81 @@ export default function ItemDetails({ itemCode = 'WH-00123', onConfirm, onBack }
           <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div>
-            <CardTitle className="text-lg">Item Details</CardTitle>
-            <CardDescription>Scanned: {item.sku}</CardDescription>
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg">Batch Details</CardTitle>
+              <Badge
+                variant={
+                  batch.status === BatchStatus.Released
+                    ? 'success'
+                    : batch.status === BatchStatus.Locked
+                      ? 'destructive'
+                      : 'secondary'
+                }
+              >
+                {batch.status === BatchStatus.Released
+                  ? 'Released'
+                  : batch.status === BatchStatus.Locked
+                    ? 'Locked'
+                    : batch.status === BatchStatus.Restricted
+                      ? 'Restricted'
+                      : 'Unknown'}
+              </Badge>
+            </div>
+            <CardDescription>Batch Number: {batch.batchNumber}</CardDescription>
           </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">SKU</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Item Code</p>
             <p className="flex items-center gap-1.5 text-sm font-medium">
               <Hash className="h-3.5 w-3.5 text-muted-foreground" />
-              {item.sku}
+              {batch.itemCode}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Name</p>
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <Package className="h-3.5 w-3.5 text-muted-foreground" />
-              {item.name}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Location</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Bin Location</p>
             <p className="flex items-center gap-1.5 text-sm font-medium">
               <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-              {item.location}
+              {batch.binNo || 'Unassigned'}
             </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Quantity</p>
-            <p className="text-sm font-medium">{item.quantity} units</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Expiry Date</p>
+            <p className="flex items-center gap-1.5 text-sm font-medium">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+              {batch.expiryDate ? new Date(batch.expiryDate).toLocaleDateString() : 'N/A'}
+            </p>
           </div>
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Category</p>
-            <p className="text-sm font-medium">{item.category}</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Last Verified</p>
-            <p className="text-sm font-medium">{item.lastVerified}</p>
+            <p className="text-xs uppercase tracking-wider text-muted-foreground">Status</p>
+            <p className="flex items-center gap-1.5 text-sm font-medium">
+              <Info className="h-3.5 w-3.5 text-muted-foreground" />
+              {batch.status === BatchStatus.Released
+                ? 'Released'
+                : batch.status === BatchStatus.Locked
+                  ? 'Locked'
+                  : batch.status === BatchStatus.Restricted
+                    ? 'Restricted'
+                    : 'Unknown'}
+            </p>
           </div>
         </div>
 
         <Separator />
 
         <div className="flex items-center justify-end gap-2">
-          <Button variant="outline" onClick={onBack}>
+          <Button variant="outline" onClick={onBack} disabled={isPending}>
             Cancel
           </Button>
-          <Button onClick={onConfirm}>
-            <CheckCircle2 className="mr-2 h-4 w-4" />
+          <Button onClick={handleConfirm} disabled={isPending}>
+            {isPending ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <CheckCircle2 className="mr-2 h-4 w-4" />
+            )}
             Confirm Verification
           </Button>
         </div>

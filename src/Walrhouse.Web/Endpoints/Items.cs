@@ -79,7 +79,7 @@ public class Items : IEndpointGroup
         var cmd = new UpdateItemCommand(
             itemCode,
             payload.ItemName,
-            payload.UgpEntry,
+            payload.UoMGroupId,
             payload.BarcodeValue,
             payload.BarcodeFormat,
             payload.ItemGroup,

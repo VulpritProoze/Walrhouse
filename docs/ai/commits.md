@@ -20,6 +20,7 @@ Commit message structure
 	- `scope` is optional (e.g., `Items`, `Warehouses`).
 - Blank line
 - Body (optional): one or two short paragraphs explaining rationale, migration notes, or steps to review.
+- Keep message concise yet meaningful. Prefer a more specific message, and separate commit if needed.
 
 Example
 - `feat(Warehouses): add CreateWarehouse command handler`  

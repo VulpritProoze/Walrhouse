@@ -33,9 +33,10 @@ public class GetWarehousesQueryHandler
         return await _context
             .Warehouses.AsNoTracking()
             .Where(w => !w.IsDeleted)
-            .ProjectTo<WarehouseDto>(_mapper.ConfigurationProvider)
-            .OrderBy(w => w.WarehouseName)
+            .OrderByDescending(w => w.CreatedAt)
             .ThenBy(w => w.WarehouseCode)
+            .ThenBy(w => w.WarehouseName)
+            .ProjectTo<WarehouseDto>(_mapper.ConfigurationProvider)
             .PaginatedListAsync(pageNumber, pageSize, cancellationToken);
     }
 }

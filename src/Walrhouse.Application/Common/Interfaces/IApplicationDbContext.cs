@@ -11,6 +11,7 @@ public interface IApplicationDbContext
     DbSet<UoMGroup> UoMGroups { get; }
     DbSet<Warehouse> Warehouses { get; }
     DbSet<BarcodeHistory> BarcodeHistories { get; }
+    DbSet<VerificationHistory> VerificationHistories { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

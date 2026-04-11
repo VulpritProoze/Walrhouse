@@ -16,6 +16,12 @@ public class BarcodeHistoryConfiguration : IEntityTypeConfiguration<BarcodeHisto
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
 
         builder
+            .Property(b => b.BatchNumber)
+            .HasMaxLength(64)
+            .IsRequired()
+            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
+
+        builder
             .Property(b => b.BarcodeFormat)
             .HasMaxLength(64)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
@@ -31,14 +37,6 @@ public class BarcodeHistoryConfiguration : IEntityTypeConfiguration<BarcodeHisto
 
         builder
             .Property(b => b.CreatedBy)
-            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-
-        builder
-            .Property(b => b.LastModifiedAt)
-            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
-
-        builder
-            .Property(b => b.LastModifiedBy)
             .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Throw);
 
         // No delete logic is usually handled by not exposing the Command,

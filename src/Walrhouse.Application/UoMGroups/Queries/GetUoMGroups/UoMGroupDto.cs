@@ -5,8 +5,8 @@ namespace Walrhouse.Application.UoMGroups.Queries.GetUoMGroups;
 
 public class UoMGroupDto
 {
-    public string UgpEntry { get; set; } = string.Empty;
-    public UnitOfMeasurement BaseUoM { get; set; }
+    public int Id { get; set; }
+    public string BaseUoM { get; set; } = string.Empty;
     public List<UoMGroupLineDto> UoMGroupLines { get; set; } = new();
 
     public class Mapping : Profile
@@ -21,6 +21,6 @@ public class UoMGroupDto
 
 public class UoMGroupLineDto
 {
-    public UnitOfMeasurement UoM { get; set; }
+    public string UoM { get; set; } = string.Empty;
     public int BaseQty { get; set; }
 }

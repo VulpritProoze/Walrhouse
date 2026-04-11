@@ -6,6 +6,7 @@ import {
 } from '@/features/inventory/components/InventorySidebar';
 import { BarcodeGenerator } from '@/features/inventory/components/BarcodeGenerator';
 import { ItemsMasterList } from '@/features/inventory/components/ItemsMasterList';
+import { UoMGroupManagement } from '@/features/receive/components/UoMGroupManagement';
 import { Button } from '@/components/ui/button';
 import CommonLayout from '@/layouts/CommonLayout';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
@@ -34,6 +35,16 @@ const InventoryPanel = () => {
               description="Manage SKU, item attributes, and stock levels."
             />
             <ItemsMasterList />
+          </div>
+        );
+      case 'uom':
+        return (
+          <div className="space-y-6">
+            <Header
+              title="Unit of Measure Groups"
+              description="Define conversion factors between different units."
+            />
+            <UoMGroupManagement />
           </div>
         );
       case 'barcode':
