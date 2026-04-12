@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   Package,
   QrCode,
@@ -7,6 +7,8 @@ import {
   History,
   Scale,
   List,
+  ChevronLeft,
+  ChevronRight,
   type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -32,11 +34,16 @@ interface MenuItem {
 interface InventorySidebarProps {
   activeFeature: InventoryFeature;
   onSelect: (feature: InventoryFeature) => void;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarProps) => {
-  const [collapsed, setCollapsed] = useState(false);
-
+export const InventorySidebar = ({
+  activeFeature,
+  onSelect,
+  collapsed = false,
+  onToggle,
+}: InventorySidebarProps) => {
   const menuItems: MenuItem[] = [
     {
       id: 'items-group',
@@ -57,23 +64,36 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
   return (
     <div
       className={cn(
-        'flex flex-col h-full border-r bg-muted/30 transition-all duration-300',
-        collapsed ? 'w-[60px]' : 'w-[240px]',
+        'flex flex-col h-full border-r bg-muted/30 transition-all duration-300 ease-in-out relative',
+        collapsed ? 'w-[64px]' : 'w-[260px]',
       )}
     >
-      <div className="flex items-center justify-between p-4 border-b h-[60px]">
-        {!collapsed && <h2 className="text-lg font-bold tracking-tight">Inventory</h2>}
+      <div className="flex items-center justify-between p-4 border-b h-[60px] overflow-hidden whitespace-nowrap">
+        {!collapsed && (
+          <motion.h2
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-lg font-bold tracking-tight text-foreground"
+          >
+            Inventory
+          </motion.h2>
+        )}
         <Button
           variant="ghost"
           size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto h-8 w-8"
-        ></Button>
+          onClick={onToggle}
+          className={cn(
+            'h-8 w-8 ml-auto text-muted-foreground hover:text-primary',
+            collapsed && 'mx-auto',
+          )}
+        >
+          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+        </Button>
       </div>
 
-      <div className="flex-1 py-4 space-y-2 px-2 overflow-y-auto">
+      <div className="flex-1 py-4 space-y-2 px-2 overflow-y-auto overflow-x-hidden no-scrollbar">
         <TooltipProvider delay={0}>
-          <Accordion className="w-full border-none space-y-2">
+          <Accordion className="w-full border-none space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
               const hasSubItems = item.subItems && item.subItems.length > 0;
@@ -81,19 +101,38 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
 
               if (hasSubItems) {
                 return (
-                  <AccordionItem key={item.id} value={item.id} className="border-none">
+                  <AccordionItem
+                    key={item.id}
+                    value={item.id}
+                    className="border-none"
+                    disabled={collapsed}
+                    onClick={() => {
+                      if (collapsed && onToggle) {
+                        onToggle();
+                      }
+                    }}
+                  >
                     <Tooltip>
                       <TooltipTrigger
                         render={
                           <AccordionTrigger
                             className={cn(
-                              'flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground rounded-md',
-                              isGroupActive && 'bg-secondary text-secondary-foreground',
-                              collapsed && 'justify-center px-0',
+                              'group flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent/50 hover:text-accent-foreground rounded-md',
+                              collapsed && '**:data-[slot=accordion-trigger-icon]:hidden',
+                              isGroupActive && 'bg-accent/40 text-primary',
+                              collapsed && 'justify-center px-0 h-10 cursor-default',
                             )}
                           >
                             <div className="flex items-center gap-3">
-                              <Icon size={20} className={cn(isGroupActive && 'text-primary')} />
+                              <Icon
+                                size={20}
+                                className={cn(
+                                  'shrink-0 transition-colors',
+                                  isGroupActive
+                                    ? 'text-primary'
+                                    : 'text-muted-foreground group-hover:text-primary',
+                                )}
+                              />
                               {!collapsed && <span>{item.label}</span>}
                             </div>
                           </AccordionTrigger>
@@ -102,18 +141,23 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
                       {collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
                     </Tooltip>
                     <AccordionContent className={cn('pb-1 pt-1', collapsed && 'hidden')}>
-                      <div className="ml-4 space-y-1">
+                      <div className="ml-4 pl-3 border-l space-y-1 mt-1">
                         {item.subItems?.map((sub) => {
                           const SubIcon = sub.icon;
                           const isSubActive = activeFeature === sub.id;
                           return (
                             <Button
                               key={sub.id}
-                              variant={isSubActive ? 'secondary' : 'ghost'}
-                              className="w-full justify-start gap-3 h-9 text-xs px-3"
+                              variant="ghost"
+                              className={cn(
+                                'w-full justify-start gap-3 h-9 text-xs px-3 transition-colors',
+                                isSubActive
+                                  ? 'bg-primary/10 text-primary font-semibold'
+                                  : 'text-muted-foreground hover:text-foreground hover:bg-accent/30',
+                              )}
                               onClick={() => onSelect(sub.id)}
                             >
-                              <SubIcon size={16} />
+                              <SubIcon size={14} />
                               <span>{sub.label}</span>
                             </Button>
                           );
@@ -129,14 +173,25 @@ export const InventorySidebar = ({ activeFeature, onSelect }: InventorySidebarPr
                   <TooltipTrigger
                     render={
                       <Button
-                        variant={activeFeature === item.id ? 'secondary' : 'ghost'}
+                        variant="ghost"
                         className={cn(
-                          'w-full justify-start gap-3 h-10',
+                          'w-full justify-start gap-3 h-10 transition-colors',
+                          activeFeature === item.id
+                            ? 'bg-primary/10 text-primary font-semibold'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-accent/30',
                           collapsed && 'justify-center px-0',
                         )}
                         onClick={() => onSelect(item.id as InventoryFeature)}
                       >
-                        <Icon size={20} className={cn(isGroupActive && 'text-primary')} />
+                        <Icon
+                          size={20}
+                          className={cn(
+                            'shrink-0',
+                            activeFeature === item.id
+                              ? 'text-primary'
+                              : 'text-muted-foreground group-hover:text-primary',
+                          )}
+                        />
                         {!collapsed && <span>{item.label}</span>}
                       </Button>
                     }
