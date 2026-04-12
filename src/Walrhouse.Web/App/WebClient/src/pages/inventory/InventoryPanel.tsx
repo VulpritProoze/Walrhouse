@@ -23,6 +23,7 @@ const InventoryPanel = () => {
   const { user } = useAuth();
   const roles = (user?.roles as RoleType[]) ?? [];
   const [activeFeature, setActiveFeature] = useState<InventoryFeature>('items');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Placeholder views for other features
   const renderFeatureView = () => {
@@ -90,7 +91,12 @@ const InventoryPanel = () => {
     <CommonLayout roles={roles}>
       <div className="flex h-[calc(100vh-12rem)] w-full bg-background border rounded-lg overflow-hidden">
         {/* Sidebar Navigation */}
-        <InventorySidebar activeFeature={activeFeature} onSelect={(f) => setActiveFeature(f)} />
+        <InventorySidebar
+          activeFeature={activeFeature}
+          onSelect={(f) => setActiveFeature(f)}
+          collapsed={sidebarCollapsed}
+          onToggle={() => setSidebarCollapsed(!sidebarCollapsed)}
+        />
 
         {/* Main Feature Content */}
         <div className="flex-1 overflow-y-auto px-8 py-6 bg-muted/10">
