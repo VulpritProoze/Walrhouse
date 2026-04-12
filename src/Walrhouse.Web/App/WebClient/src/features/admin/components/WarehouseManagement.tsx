@@ -3,6 +3,7 @@
  * Handles warehouses, bins, and system-wide settings via a sidebar layout.
  */
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import {
   LayoutPanelLeft,
   Settings,
@@ -10,18 +11,17 @@ import {
   Layers,
   Warehouse,
   ChevronRight,
+  ChevronLeft,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarProvider,
-} from '@/components/ui/sidebar';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { WarehouseView } from './warehouse-management/WarehouseView';
 import { BinView } from './warehouse-management/BinView';
 import { SettingsView } from './warehouse-management/SettingsView';
@@ -30,96 +30,178 @@ type ViewMode = 'warehouse' | 'bin' | 'settings';
 
 export default function WarehouseManagement() {
   const [view, setView] = useState<ViewMode>('warehouse');
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <SidebarProvider>
-      <div className="flex gap-6 min-h-[600px] w-full">
-        {/* Local Sidebar */}
-        <Sidebar
-          variant="floating"
-          collapsible="none"
-          className="static h-auto border-none shadow-sm bg-muted/20 rounded-xl overflow-hidden"
-        >
-          <SidebarContent>
-            <Collapsible defaultOpen className="group/collapsible">
-              <SidebarGroup>
-                <div className="px-2 mb-2">
-                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-sm font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
-                    <div className="flex items-center gap-2">
-                      <LayoutPanelLeft className="h-4 w-4" />
-                      Infrastructure
-                    </div>
-                    <ChevronRight className="h-3 w-3 transition-transform duration-200" />
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenuSub className="ml-0 border-l px-0">
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={view === 'warehouse'}
-                          onClick={() => setView('warehouse')}
-                          className="pl-6 border-l-2 border-transparent data-active:border-primary rounded-none"
-                        >
-                          <Warehouse className="h-4 w-4" />
-                          <span>Warehouses</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={view === 'bin'}
-                          onClick={() => setView('bin')}
-                          className="pl-6 border-l-2 border-transparent data-active:border-primary rounded-none"
-                        >
-                          <Layers className="h-4 w-4" />
-                          <span>Bins</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
+    <div className="flex gap-6 min-h-[600px] w-full">
+      {/* Local Sidebar */}
+      <div
+        className={cn(
+          'flex flex-col h-full border rounded-xl bg-muted/20 transition-all duration-300 ease-in-out relative overflow-hidden',
+          collapsed ? 'w-[64px]' : 'w-[260px]',
+        )}
+      >
+        <div className="flex items-center justify-between p-4 border-b h-[60px] overflow-hidden whitespace-nowrap">
+          {!collapsed && (
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-sm font-bold tracking-tight text-foreground/70"
+            >
+              Infrastructure
+            </motion.span>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className={cn(
+              'h-8 w-8 ml-auto text-muted-foreground hover:text-primary',
+              collapsed && 'mx-auto',
+            )}
+          >
+            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          </Button>
+        </div>
 
-            <Collapsible defaultOpen className="group/collapsible">
-              <SidebarGroup className="mt-2 pt-2 border-t border-sidebar-border/50">
-                <div className="px-2 mb-2">
-                  <CollapsibleTrigger className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground px-2 py-1.5 rounded-md w-full flex items-center justify-between transition-all text-sm font-medium text-sidebar-foreground/70 ring-sidebar-ring outline-hidden focus-visible:ring-2 [&[data-panel-open]>svg:last-child]:rotate-90">
-                    <div className="flex items-center gap-2">
-                      <ShieldCheck className="h-4 w-4" />
-                      System
-                    </div>
-                    <ChevronRight className="h-3 w-3 transition-transform duration-200" />
-                  </CollapsibleTrigger>
-                </div>
-                <CollapsibleContent>
-                  <SidebarGroupContent>
-                    <SidebarMenuSub className="ml-0 border-l px-0">
-                      <SidebarMenuSubItem>
-                        <SidebarMenuSubButton
-                          isActive={view === 'settings'}
-                          onClick={() => setView('settings')}
-                          className="pl-6 border-l-2 border-transparent data-active:border-primary rounded-none"
-                        >
-                          <Settings className="h-4 w-4" />
-                          <span>UI Settings</span>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    </SidebarMenuSub>
-                  </SidebarGroupContent>
-                </CollapsibleContent>
-              </SidebarGroup>
-            </Collapsible>
-          </SidebarContent>
-        </Sidebar>
+        <div className="flex-1 py-4 space-y-2 px-2 overflow-y-auto overflow-x-hidden no-scrollbar">
+          <TooltipProvider delay={0}>
+            <Accordion className="w-full border-none space-y-1">
+              {/* Infrastructure Group */}
+              <AccordionItem
+                value="infra"
+                className="border-none"
+                disabled={collapsed}
+                onClick={() => {
+                  if (collapsed) setCollapsed(false);
+                }}
+              >
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <AccordionTrigger
+                        className={cn(
+                          'group flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent/50 hover:text-accent-foreground rounded-md',
+                          collapsed && '**:data-[slot=accordion-trigger-icon]:hidden',
+                          (view === 'warehouse' || view === 'bin') && 'bg-accent/40 text-primary',
+                          collapsed && 'justify-center px-0 h-10 cursor-default',
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <LayoutPanelLeft
+                            size={18}
+                            className={cn(
+                              'shrink-0 transition-colors',
+                              view === 'warehouse' || view === 'bin'
+                                ? 'text-primary'
+                                : 'text-muted-foreground group-hover:text-primary',
+                            )}
+                          />
+                          {!collapsed && <span>Infrastucture</span>}
+                        </div>
+                      </AccordionTrigger>
+                    }
+                  />
+                  {collapsed && <TooltipContent side="right">Infrastructure</TooltipContent>}
+                </Tooltip>
+                <AccordionContent className={cn('pb-1 pt-1', collapsed && 'hidden')}>
+                  <div className="ml-4 pl-3 border-l space-y-1 mt-1">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        'w-full justify-start gap-3 h-9 text-xs px-3 transition-colors',
+                        view === 'warehouse'
+                          ? 'bg-primary/10 text-primary font-semibold'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/30',
+                      )}
+                      onClick={() => setView('warehouse')}
+                    >
+                      <Warehouse size={14} />
+                      <span>Warehouses</span>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        'w-full justify-start gap-3 h-9 text-xs px-3 transition-colors',
+                        view === 'bin'
+                          ? 'bg-primary/10 text-primary font-semibold'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/30',
+                      )}
+                      onClick={() => setView('bin')}
+                    >
+                      <Layers size={14} />
+                      <span>Bins</span>
+                    </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-hidden">
-          {view === 'warehouse' && <WarehouseView />}
-          {view === 'bin' && <BinView />}
-          {view === 'settings' && <SettingsView />}
+              {/* System Group */}
+              <AccordionItem
+                value="system"
+                className="border-none pt-2 mt-2 border-t border-sidebar-border/50"
+                disabled={collapsed}
+                onClick={() => {
+                  if (collapsed) setCollapsed(false);
+                }}
+              >
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <AccordionTrigger
+                        className={cn(
+                          'group flex w-full items-center justify-between gap-3 px-3 py-2 text-sm font-medium transition-colors hover:bg-accent/50 hover:text-accent-foreground rounded-md',
+                          collapsed && '**:data-[slot=accordion-trigger-icon]:hidden',
+                          view === 'settings' && 'bg-accent/40 text-primary',
+                          collapsed && 'justify-center px-0 h-10 cursor-default',
+                        )}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ShieldCheck
+                            size={18}
+                            className={cn(
+                              'shrink-0 transition-colors',
+                              view === 'settings'
+                                ? 'text-primary'
+                                : 'text-muted-foreground group-hover:text-primary',
+                            )}
+                          />
+                          {!collapsed && <span>System</span>}
+                        </div>
+                      </AccordionTrigger>
+                    }
+                  />
+                  {collapsed && <TooltipContent side="right">System</TooltipContent>}
+                </Tooltip>
+                <AccordionContent className={cn('pb-1 pt-1', collapsed && 'hidden')}>
+                  <div className="ml-4 pl-3 border-l space-y-1 mt-1">
+                    <Button
+                      variant="ghost"
+                      className={cn(
+                        'w-full justify-start gap-3 h-9 text-xs px-3 transition-colors',
+                        view === 'settings'
+                          ? 'bg-primary/10 text-primary font-semibold'
+                          : 'text-muted-foreground hover:text-foreground hover:bg-accent/30',
+                      )}
+                      onClick={() => setView('settings')}
+                    >
+                      <Settings size={14} />
+                      <span>UI Settings</span>
+                    </Button>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </TooltipProvider>
         </div>
       </div>
-    </SidebarProvider>
+
+      {/* Content Area */}
+      <div className="flex-1 overflow-hidden transition-all duration-300">
+        {view === 'warehouse' && <WarehouseView />}
+        {view === 'bin' && <BinView />}
+        {view === 'settings' && <SettingsView />}
+      </div>
+    </div>
   );
 }
