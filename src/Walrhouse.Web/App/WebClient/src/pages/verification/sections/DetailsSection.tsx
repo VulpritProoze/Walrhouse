@@ -1,5 +1,6 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useBatch } from '@/features/batch/hooks/queries/use-batch';
+import { decodeBatchBarcode } from '@/features/batch/util/barcode';
 import { ItemDetails, SalesOrderItemDetails } from '@/features/verification';
 import { Spinner } from '@/components/ui/spinner';
 import {
@@ -27,7 +28,8 @@ export default function DetailsSection() {
   const code = searchParams.get('code');
   const isSO = searchParams.get('isSO') === 'true';
 
-  const { data: batch, isLoading, isError } = useBatch(code ?? '', !!code);
+  const decodedBatchNum = decodeBatchBarcode(code ?? '');
+  const { data: batch, isLoading, isError } = useBatch(decodedBatchNum, !!decodedBatchNum);
 
   const handleBack = () => {
     navigate(isSO ? '/verification/scan?isSO=true' : '/verification/scan');
