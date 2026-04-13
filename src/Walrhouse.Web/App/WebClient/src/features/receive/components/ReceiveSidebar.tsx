@@ -1,73 +1,35 @@
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, PackageOpen, Layers, Settings2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { PackageOpen, Layers, Settings2 } from 'lucide-react';
+import { Sidebar, type SidebarMenuItem } from '@/components/common/Sidebar';
 
 export type ReceiveFeature = 'receiving' | 'batches' | 'settings';
 
 interface ReceiveSidebarProps {
   activeFeature: ReceiveFeature;
   onSelect: (feature: ReceiveFeature) => void;
+  collapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export const ReceiveSidebar = ({ activeFeature, onSelect }: ReceiveSidebarProps) => {
-  const [collapsed, setCollapsed] = useState(false);
-
-  const menuItems = [
-    { id: 'receiving', label: 'Receiving', icon: PackageOpen },
-    { id: 'batches', label: 'Batch Master List', icon: Layers },
-    { id: 'settings', label: 'Settings', icon: Settings2 },
-  ] as const;
+export const ReceiveSidebar = ({
+  activeFeature,
+  onSelect,
+  collapsed = false,
+  onToggle,
+}: ReceiveSidebarProps) => {
+  const menuItems: SidebarMenuItem<ReceiveFeature>[] = [
+    { id: 'receiving', label: 'Receiving', icon: PackageOpen, features: ['receiving'] },
+    { id: 'batches', label: 'Batch Master List', icon: Layers, features: ['batches'] },
+    { id: 'settings', label: 'Settings', icon: Settings2, features: ['settings'] },
+  ];
 
   return (
-    <div
-      className={cn(
-        'flex flex-col h-full border-r bg-muted/30 transition-all duration-300',
-        collapsed ? 'w-[60px]' : 'w-[240px]',
-      )}
-    >
-      <div className="flex items-center justify-between p-4 border-b h-[60px]">
-        {!collapsed && <h2 className="text-lg font-bold tracking-tight">Receiving</h2>}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto h-8 w-8"
-        >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
-        </Button>
-      </div>
-
-      <div className="flex-1 py-4 space-y-2 px-2">
-        <TooltipProvider delay={0}>
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = activeFeature === item.id;
-
-            return (
-              <Tooltip key={item.id}>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant={isActive ? 'secondary' : 'ghost'}
-                      className={cn(
-                        'w-full justify-start gap-3 h-10',
-                        collapsed && 'justify-center px-0',
-                      )}
-                      onClick={() => onSelect(item.id)}
-                    >
-                      <Icon size={20} className={cn(isActive && 'text-primary')} />
-                      {!collapsed && <span>{item.label}</span>}
-                    </Button>
-                  }
-                />
-                {collapsed && <TooltipContent side="right">{item.label}</TooltipContent>}
-              </Tooltip>
-            );
-          })}
-        </TooltipProvider>
-      </div>
-    </div>
+    <Sidebar
+      title="Receiving"
+      activeFeature={activeFeature}
+      menuItems={menuItems}
+      onSelect={onSelect}
+      collapsed={collapsed}
+      onToggle={onToggle}
+    />
   );
 };
