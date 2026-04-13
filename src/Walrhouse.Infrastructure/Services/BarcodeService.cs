@@ -1,8 +1,13 @@
-using SkiaSharp;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using Walrhouse.Application.Common.Interfaces;
-using ZXing.SkiaSharp;
+using ZXing;
+using ZXing.Common;
 using DomainBarcodeFormat = Walrhouse.Domain.Enums.BarcodeFormat;
 using ZXingBarcodeFormat = ZXing.BarcodeFormat;
+using ZXingBarcodeReader = ZXing.BarcodeReader<SixLabors.ImageSharp.Image>;
+using ZXingBarcodeWriter = ZXing.ImageSharp.BarcodeWriter<SixLabors.ImageSharp.PixelFormats.Rgba32>;
+using ZXingImageSharpLuminanceSource = ZXing.ImageSharp.ImageSharpLuminanceSource<SixLabors.ImageSharp.PixelFormats.Rgba32>;
 
 namespace Walrhouse.Infrastructure.Services;
 
@@ -12,13 +17,13 @@ public class BarcodeService : IBarcodeService
         string content,
         DomainBarcodeFormat format,
         int width = 300,
-        int height = 300
+        int height = 200
     )
     {
-        var writer = new BarcodeWriter
+        var writer = new ZXingBarcodeWriter
         {
             Format = MapBarcodeFormat(format),
-            Options = new ZXing.Common.EncodingOptions
+            Options = new EncodingOptions
             {
                 Height = height,
                 Width = width,
@@ -27,23 +32,26 @@ public class BarcodeService : IBarcodeService
             },
         };
 
-        using var bitmap = writer.Write(content);
-        using var image = SKImage.FromBitmap(bitmap);
-        using var data = image.Encode(SKEncodedImageFormat.Png, 100);
+        using var image = writer.Write(content);
+        using var stream = new MemoryStream();
+        image.SaveAsPng(stream);
 
-        return data.ToArray();
+        return stream.ToArray();
     }
 
     public string? Decode(byte[] barcodeBytes)
     {
         using var stream = new MemoryStream(barcodeBytes);
-        using var bitmap = SKBitmap.Decode(stream);
+        using var image = Image.Load<Rgba32>(stream);
 
-        if (bitmap == null)
-            return null;
+        var luminanceSource = new ZXingImageSharpLuminanceSource(image);
 
-        var reader = new BarcodeReader();
-        var result = reader.Decode(bitmap);
+        var reader = new ZXingBarcodeReader(null, null, ls => new GlobalHistogramBinarizer(ls))
+        {
+            Options = new DecodingOptions { TryHarder = true },
+        };
+
+        var result = reader.Decode(luminanceSource);
 
         return result?.Text;
     }
