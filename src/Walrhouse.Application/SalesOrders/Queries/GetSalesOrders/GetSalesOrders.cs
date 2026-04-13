@@ -1,28 +1,25 @@
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Models;
 
-namespace Walrhouse.Application.SalesOrders.Queries.GetSalesOrdersWithPagination;
+namespace Walrhouse.Application.SalesOrders.Queries.GetSalesOrders;
 
-public record GetSalesOrdersWithPaginationQuery : IRequest<PaginatedList<SalesOrderDto>>
-{
-    public int PageNumber { get; init; } = 1;
-    public int PageSize { get; init; } = 10;
-}
+public record GetSalesOrdersQuery(int PageNumber = 1, int PageSize = 10)
+    : IRequest<PaginatedList<SalesOrderDto>>;
 
-public class GetSalesOrdersWithPaginationQueryHandler
-    : IRequestHandler<GetSalesOrdersWithPaginationQuery, PaginatedList<SalesOrderDto>>
+public class GetSalesOrdersQueryHandler
+    : IRequestHandler<GetSalesOrdersQuery, PaginatedList<SalesOrderDto>>
 {
     private readonly IApplicationDbContext _context;
     private readonly IMapper _mapper;
 
-    public GetSalesOrdersWithPaginationQueryHandler(IApplicationDbContext context, IMapper mapper)
+    public GetSalesOrdersQueryHandler(IApplicationDbContext context, IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
     }
 
     public async Task<PaginatedList<SalesOrderDto>> Handle(
-        GetSalesOrdersWithPaginationQuery request,
+        GetSalesOrdersQuery request,
         CancellationToken cancellationToken
     )
     {
