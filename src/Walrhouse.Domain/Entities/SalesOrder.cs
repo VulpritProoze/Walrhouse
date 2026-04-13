@@ -67,7 +67,7 @@ public class SalesOrder : BaseAuditableEntity
     /// say piece, or box, or bottle, we put those measurements here and their
     /// conversion factor (baseQty) against the BaseUoM (always 1 in baseQty).
     /// </summary>
-    public ICollection<OrderLine> OrderLines { get; set; } = new List<OrderLine>();
+    public required ICollection<OrderLine> OrderLines { get; set; } = new List<OrderLine>();
 }
 
 /// <summary>
@@ -79,11 +79,11 @@ public class OrderLine
     /// <summary>
     /// Gets or sets the DocEntry of the order line.
     /// </summary>
-    public required string DocEntry { get; set; } = Guid.NewGuid().ToString();
+    public string DocEntry { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>
     /// Gets or sets a collection of batch IDs for the order line.
     /// This correlates to BatchNumber in the Batch entity.
     /// </summary>
-    public required ICollection<string> BatchNumbers { get; set; } = new List<string>();
+    public required ICollection<string> BatchNumbers { get; set; }
 }
