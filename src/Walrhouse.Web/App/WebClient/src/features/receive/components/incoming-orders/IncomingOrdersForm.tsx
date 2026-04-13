@@ -11,10 +11,12 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { format, parseISO } from 'date-fns';
-import { CalendarIcon, Loader2, Plus, Trash2 } from 'lucide-react';
+import { CalendarIcon, Loader2, Plus, Trash2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { type IncomingOrderDto, IncomingOrderStatus } from '../../types/incoming-order-dto';
+import { BatchSelectionSheet } from './BatchSelectionSheet';
+import { Badge } from '@/components/ui/badge';
 
 interface IncomingOrderFormProps {
   initial: IncomingOrderDto;
@@ -33,6 +35,7 @@ export function IncomingOrderForm({
 }: IncomingOrderFormProps) {
   const [form, setForm] = useState<IncomingOrderDto>(initial);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
 
   const loading = isLoading || isSubmitting;
   const isAdd = mode === 'add';
@@ -75,12 +78,10 @@ export function IncomingOrderForm({
     });
   };
 
-  const handleBatchChange = (lineIndex: number, value: string) => {
+  const handleBatchSelect = (batchNumbers: string[]) => {
+    if (activeLineIndex === null) return;
     const newLines = [...form.orderLines];
-    newLines[lineIndex].batchNumbers = value
-      .split(',')
-      .map((s) => s.trim())
-      .filter(Boolean);
+    newLines[activeLineIndex].batchNumbers = batchNumbers;
     setForm({ ...form, orderLines: newLines });
   };
 
@@ -193,21 +194,50 @@ export function IncomingOrderForm({
                 <Trash2 className="h-4 w-4" />
               </Button>
               <div className="grid gap-1">
-                <label className="text-xs font-medium text-muted-foreground">
-                  Batches (comma separated)
-                </label>
-                <Input
-                  disabled={loading}
-                  value={line.batchNumbers.join(', ')}
-                  onChange={(e) => handleBatchChange(index, e.target.value)}
-                  placeholder="B001, B002..."
-                  className="h-8 text-xs"
-                />
+                <label className="text-xs font-medium text-muted-foreground">Batches</label>
+                <div className="flex gap-2 items-center min-h-[40px] p-2 bg-muted/30 rounded-md border border-dashed">
+                  <div className="flex flex-wrap gap-1.5 flex-1">
+                    {line.batchNumbers.length === 0 ? (
+                      <span className="text-xs text-muted-foreground italic px-1">
+                        No batches selected
+                      </span>
+                    ) : (
+                      line.batchNumbers.map((batch) => (
+                        <Badge
+                          key={batch}
+                          variant="secondary"
+                          className="text-[10px] py-0 px-1.5 h-5"
+                        >
+                          {batch}
+                        </Badge>
+                      ))
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 flex-shrink-0"
+                    onClick={() => setActiveLineIndex(index)}
+                    disabled={loading}
+                  >
+                    <Search className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <BatchSelectionSheet
+        open={activeLineIndex !== null}
+        onOpenChange={(open) => !open && setActiveLineIndex(null)}
+        selectedBatchNumbers={
+          activeLineIndex !== null ? form.orderLines[activeLineIndex].batchNumbers : []
+        }
+        onSelect={handleBatchSelect}
+      />
 
       <DialogFooter>
         <DialogClose
