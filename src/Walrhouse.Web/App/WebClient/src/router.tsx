@@ -2,7 +2,11 @@ import { createBrowserRouter } from 'react-router-dom';
 import Dashboard from '@/pages/dashboard/Dashboard';
 import Login from '@/pages/auth/Login';
 import VerificationPage from '@/pages/verification/VerificationPage';
+import FrontPageSection from '@/pages/verification/sections/FrontPageSection';
 import ScannerSection from '@/pages/verification/sections/ScannerSection';
+import SalesOrderScanSection from '@/pages/verification/sections/SalesOrderScanSection';
+import SalesOrderDetailsSection from '@/pages/verification/sections/SalesOrderDetailsSection';
+import SalesOrderFulfillmentSection from '@/pages/verification/sections/SalesOrderFulfillmentSection';
 import DetailsSection from '@/pages/verification/sections/DetailsSection';
 import SettingsSection from '@/pages/verification/sections/SettingsSection';
 import InventoryPanel from '@/pages/inventory/InventoryPanel';
@@ -24,7 +28,11 @@ export const router = createBrowserRouter([
             path: '/verification',
             element: <VerificationPage />,
             children: [
-              { index: true, element: <ScannerSection /> },
+              { index: true, element: <FrontPageSection /> },
+              { path: 'scan', element: <ScannerSection /> },
+              { path: 'sales-order', element: <SalesOrderScanSection /> },
+              { path: 'sales-order/details', element: <SalesOrderDetailsSection /> },
+              { path: 'sales-order/fulfillment', element: <SalesOrderFulfillmentSection /> },
               { path: 'details', element: <DetailsSection /> },
               { path: 'settings', element: <SettingsSection /> },
             ],
