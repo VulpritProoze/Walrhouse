@@ -19,6 +19,8 @@ import { OrderSelectionSheet } from './barcode-generation/OrderSelectionSheet';
 import { getBarcodeImageUrl } from '@/features/barcode/api/barcode.service';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getBatchBarcodeValue } from '@/features/batch/util/barcode';
+import { getSalesOrderBarcodeValue } from '@/features/sales-order/util/barcode';
 
 export const BarcodeGenerator = () => {
   const [type, setType] = useState<'batch' | 'order'>('batch');
@@ -33,8 +35,8 @@ export const BarcodeGenerator = () => {
   const [orderSheetOpen, setOrderSheetOpen] = useState(false);
 
   const getIdentifier = () => {
-    if (type === 'batch') return formData.batchNumber ? `BATCH-${formData.batchNumber}` : '';
-    return formData.orderId ? `SALES-ORDER-${formData.orderId}` : '';
+    if (type === 'batch') return getBatchBarcodeValue(formData.batchNumber);
+    return formData.orderId ? getSalesOrderBarcodeValue(formData.orderId) : '';
   };
 
   const handleGenerate = () => {
