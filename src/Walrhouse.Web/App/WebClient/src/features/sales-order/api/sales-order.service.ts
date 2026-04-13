@@ -1,4 +1,6 @@
 import { api } from '@/lib/axios';
+import { type PaginatedList } from '@/lib/types/paginated-list';
+import type { OrderStatus } from '../types';
 
 /**
  * Request payload for an order line.
@@ -7,6 +9,23 @@ export interface OrderLineDto {
   docEntry?: string;
   batchNumbers: string[];
 }
+
+/**
+ * Domain DTO for a sales order.
+ */
+export interface SalesOrderDto {
+  id: number;
+  dueDate: string | null;
+  status: OrderStatus | null;
+  customerName: string | null;
+  remarks: string | null;
+  orderLines: OrderLineDto[];
+}
+
+/**
+ * Response type for paginated sales orders.
+ */
+export type GetSalesOrdersResponse = PaginatedList<SalesOrderDto>;
 
 /**
  * Request payload for creating a new sales order.
@@ -32,7 +51,7 @@ export interface GetSalesOrdersRequest {
 export interface UpdateSalesOrderRequest {
   id: number;
   dueDate?: string | null;
-  status?: string | null;
+  status?: OrderStatus | null;
   customerName?: string | null;
   remarks?: string | null;
   orderLines?: OrderLineDto[] | null;
@@ -51,7 +70,7 @@ export const createSalesOrder = async (data: CreateSalesOrderRequest) => {
  * GET /api/SalesOrder
  */
 export const getSalesOrders = async (params?: GetSalesOrdersRequest) => {
-  return await api.get('/SalesOrder', { params });
+  return await api.get<GetSalesOrdersResponse>('/SalesOrder', { params });
 };
 
 /**
@@ -59,7 +78,7 @@ export const getSalesOrders = async (params?: GetSalesOrdersRequest) => {
  * GET /api/SalesOrder/{id}
  */
 export const getSalesOrder = async (id: number) => {
-  return await api.get(`/SalesOrder/${id}`);
+  return await api.get<SalesOrderDto>(`/SalesOrder/${id}`);
 };
 
 /**
