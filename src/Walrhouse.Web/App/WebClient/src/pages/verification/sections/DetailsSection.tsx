@@ -85,6 +85,7 @@ export default function DetailsSection() {
           salesOrderId={activeSalesOrderId ?? undefined}
           onBack={handleBack}
           onConfirm={handleConfirm}
+          onConfirmAndRescan={handleBack}
         />
       </div>
     );
