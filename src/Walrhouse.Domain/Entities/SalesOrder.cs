@@ -5,7 +5,7 @@ namespace Walrhouse.Domain.Entities;
 /// <summary>
 /// Represents a sales order needed to be fulfilled.
 /// </summary>
-public class SalesOrder : BaseAuditableEntity
+public partial class SalesOrder : BaseAuditableEntity
 {
     private static readonly JsonSerializerOptions _uomJsonOptions = new()
     {
@@ -49,7 +49,12 @@ public class SalesOrder : BaseAuditableEntity
     /// <summary>
     /// This represents the status of the sales order.
     /// </summary>
-    public required SalesOrderStatus Status { get; set; } = SalesOrderStatus.Open;
+    public SalesOrderStatus Status { get; private set; } = SalesOrderStatus.Open;
+
+    /// <summary>
+    /// This represents the identifier of the user who closed the order, if applicable.
+    /// </summary>
+    public string? ClosedBy { get; private set; }
 
     /// <summary>
     /// This represents the CustomerName of the customer who placed the order.
