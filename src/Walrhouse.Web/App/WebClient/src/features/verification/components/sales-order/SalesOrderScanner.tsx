@@ -1,12 +1,25 @@
-import { ScanLine, Maximize, Minimize, Zap, ZapOff, AlertCircle } from 'lucide-react';
+import {
+  ScanLine,
+  Maximize,
+  Minimize,
+  Zap,
+  ZapOff,
+  AlertCircle,
+  Loader2,
+  Plus,
+} from 'lucide-react';
 import ScannerDropdownMenu from '../scanner/ScannerDropdownMenu';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Scanner as QrScanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useRef, useEffect } from 'react';
+import { toast } from 'sonner';
 import { logger } from '@/lib/utils/logger';
 import { ensureAudioContext, playSharpTone } from '../../lib/audio/beeps';
+import { useSalesOrder } from '@/features/sales-order/hooks/queries';
+import { OrderStatus } from '@/features/sales-order/types';
+import type { AxiosError } from 'axios';
 
 type SalesOrderScannerProps = {
   onScan?: (code: string) => void;
@@ -22,10 +35,53 @@ export default function SalesOrderScanner({
   description = 'Scan a barcode or enter the SO number below',
 }: SalesOrderScannerProps) {
   const [manualCode, setManualCode] = useState('');
+  const [targetSoId, setTargetSoId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [torchOn, setTorchOn] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const {
+    data: salesOrder,
+    isLoading: isSoLoading,
+    error: fetchError,
+  } = useSalesOrder(targetSoId!, !!targetSoId);
+
+  useEffect(() => {
+    if (fetchError) {
+      const axiosError = fetchError as AxiosError<{ title?: string }>;
+      const errorMessage = axiosError.response?.data?.title ?? 'Failed to fetch Sales Order';
+
+      toast.error(errorMessage, { id: 'so-fetch' });
+      setError(errorMessage);
+      setTargetSoId(null);
+    }
+  }, [fetchError]);
+
+  useEffect(() => {
+    if (isSoLoading && targetSoId) {
+      toast.loading('Fetching sales order...', { id: 'so-fetch' });
+    }
+  }, [isSoLoading, targetSoId]);
+
+  useEffect(() => {
+    if (salesOrder) {
+      if (salesOrder.status === OrderStatus.Closed) {
+        toast.error(`Sales Order #${salesOrder.id} is already Closed.`, { id: 'so-fetch' });
+        setError(`Sales Order #${salesOrder.id} is already Closed.`);
+        setTargetSoId(null);
+      } else if (salesOrder.status === OrderStatus.Cancelled) {
+        toast.error(`Sales Order #${salesOrder.id} is Cancelled.`, { id: 'so-fetch' });
+        setError(`Sales Order #${salesOrder.id} is Cancelled.`);
+        setTargetSoId(null);
+      } else {
+        toast.success(`Sales Order #${salesOrder.id} loaded.`, { id: 'so-fetch' });
+        onScan?.(salesOrder.id.toString());
+        setTargetSoId(null);
+        setError(null);
+      }
+    }
+  }, [salesOrder, onScan]);
 
   useEffect(() => {
     const handleFullscreenChange = () => {
@@ -54,7 +110,7 @@ export default function SalesOrderScanner({
   const [audioBeep, setAudioBeep] = useState(true);
   const audioCtxRef = useRef<AudioContext | null>(null);
 
-  const isLoading = parentLoading;
+  const isLoading = parentLoading || isSoLoading;
 
   const refreshCamera = () => {
     setScannerKey((k) => k + 1);
@@ -67,17 +123,30 @@ export default function SalesOrderScanner({
         audioCtxRef.current = ensureAudioContext(audioCtxRef.current);
         if (audioCtxRef.current) playSharpTone(audioCtxRef.current, 180, 0.18);
       }
-      onScan?.(code);
-      setError(null);
+
+      const id = parseInt(code, 10);
+      if (!isNaN(id)) {
+        toast.loading('Fetching sales order...', { id: 'so-fetch' });
+        setTargetSoId(id);
+        setError(null);
+      } else {
+        setError('Invalid Sales Order ID scanned');
+      }
     }
   };
 
   const handleManualSubmit = (e?: React.SyntheticEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (manualCode.trim() && !isLoading) {
-      onScan?.(manualCode.trim());
-      setManualCode('');
-      setError(null);
+      const id = parseInt(manualCode.trim(), 10);
+      if (!isNaN(id)) {
+        toast.loading('Fetching sales order...', { id: 'so-fetch' });
+        setTargetSoId(id);
+        setManualCode('');
+        setError(null);
+      } else {
+        setError('Invalid Sales Order ID entered');
+      }
     }
   };
 
@@ -101,7 +170,7 @@ export default function SalesOrderScanner({
             </CardTitle>
             <CardDescription>{description}</CardDescription>
           </div>
-          {isLoading && <div className="h-2 w-2 animate-ping rounded-full bg-primary" />}
+          {isLoading && <Loader2 className="h-5 w-5 animate-spin text-primary" />}
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -200,7 +269,7 @@ export default function SalesOrderScanner({
             className="h-12 w-12"
             disabled={isLoading || !manualCode.trim()}
           >
-            <ScanLine className="h-5 w-5" />
+            <Plus className="h-5 w-5" />
           </Button>
         </form>
       </CardContent>
