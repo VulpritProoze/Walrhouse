@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -13,8 +13,10 @@ import {
 import { format, parseISO } from 'date-fns';
 import { CalendarIcon, Loader2, Plus, Trash2, Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { z } from 'zod';
 import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { type IncomingOrderDto, IncomingOrderStatus } from '../../types/incoming-order-dto';
+import { createSalesOrderSchema, updateSalesOrderSchema } from '../../types/sales-order-schema';
 import { ItemCodeSelectionSheet } from './ItemCodeSelectionSheet';
 
 interface IncomingOrderFormProps {
@@ -33,6 +35,7 @@ export function IncomingOrderForm({
   onSuccess,
 }: IncomingOrderFormProps) {
   const [form, setForm] = useState<IncomingOrderDto>(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeItemLineIndex, setActiveItemLineIndex] = useState<number | null>(null);
 
@@ -43,8 +46,35 @@ export function IncomingOrderForm({
     setForm(initial);
   }, [initial]);
 
+  function validate() {
+    try {
+      if (isAdd) {
+        createSalesOrderSchema.parse(form);
+      } else {
+        updateSalesOrderSchema.parse(form);
+      }
+      setErrors({});
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const formatted: Record<string, string> = {};
+        err.issues.forEach((e) => {
+          const path = e.path.join('.');
+          formatted[path] = e.message;
+        });
+        setErrors(formatted);
+      }
+      return false;
+    }
+  }
+
   async function handleSave(e: React.MouseEvent) {
     e.preventDefault();
+
+    if (!validate()) {
+      return;
+    }
+
     setIsSubmitting(true);
     const toastId = toast.loading(isAdd ? 'Creating order...' : 'Updating order...');
 
@@ -119,9 +149,14 @@ export function IncomingOrderForm({
           <Input
             disabled={loading || isClosed}
             value={form.customerName ?? ''}
-            onChange={(e) => setForm({ ...form, customerName: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, customerName: e.target.value });
+              if (errors.customerName) setErrors((prev) => ({ ...prev, customerName: '' }));
+            }}
             placeholder="e.g. ACME Corp"
+            className={errors.customerName ? 'border-destructive' : ''}
           />
+          {errors.customerName && <p className="text-xs text-destructive">{errors.customerName}</p>}
         </div>
 
         <div className="grid gap-2">
@@ -132,7 +167,9 @@ export function IncomingOrderForm({
                 <Button
                   variant="outline"
                   disabled={loading || isClosed}
-                  className="w-full justify-start text-left font-normal"
+                  className={`w-full justify-start text-left font-normal ${
+                    errors.dueDate ? 'border-destructive' : ''
+                  }`}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {form.dueDate ? format(parseISO(form.dueDate), 'PPP') : <span>Pick a date</span>}
@@ -143,11 +180,15 @@ export function IncomingOrderForm({
               <Calendar
                 mode="single"
                 selected={form.dueDate ? parseISO(form.dueDate) : undefined}
-                onSelect={(date) => setForm({ ...form, dueDate: date ? date.toISOString() : null })}
+                onSelect={(date) => {
+                  setForm({ ...form, dueDate: date ? date.toISOString() : null });
+                  if (errors.dueDate) setErrors((prev) => ({ ...prev, dueDate: '' }));
+                }}
                 initialFocus
               />
             </PopoverContent>
           </Popover>
+          {errors.dueDate && <p className="text-xs text-destructive">{errors.dueDate}</p>}
         </div>
 
         {!isAdd && (
@@ -185,14 +226,24 @@ export function IncomingOrderForm({
           <Input
             disabled={loading || isClosed}
             value={form.remarks ?? ''}
-            onChange={(e) => setForm({ ...form, remarks: e.target.value })}
+            onChange={(e) => {
+              setForm({ ...form, remarks: e.target.value });
+              if (errors.remarks) setErrors((prev) => ({ ...prev, remarks: '' }));
+            }}
             placeholder="Additional notes..."
+            className={errors.remarks ? 'border-destructive' : ''}
           />
+          {errors.remarks && <p className="text-xs text-destructive">{errors.remarks}</p>}
         </div>
 
         <div className="space-y-4 pt-4 border-t">
           <div className="flex items-center justify-between">
-            <h4 className="text-sm font-semibold">Order Lines</h4>
+            <div className="flex flex-col gap-1">
+              <h4 className="text-sm font-semibold">Order Lines</h4>
+              {errors.orderLines && (
+                <p className="text-xs text-destructive">{errors.orderLines}</p>
+              )}
+            </div>
             <Button
               type="button"
               variant="outline"
@@ -221,13 +272,17 @@ export function IncomingOrderForm({
                   <label className="text-xs font-medium text-muted-foreground">Item Code</label>
                   <div className="flex gap-1">
                     <Input
-                      className="h-8 text-xs flex-1"
+                      className={`h-8 text-xs flex-1 ${
+                        errors[`orderLines.${index}.itemCode`] ? 'border-destructive' : ''
+                      }`}
                       placeholder="ITM-001"
                       value={line.itemCode}
                       onChange={(e) => {
                         const newLines = [...form.orderLines];
                         newLines[index].itemCode = e.target.value;
                         setForm({ ...form, orderLines: newLines });
+                        if (errors[`orderLines.${index}.itemCode`])
+                          setErrors((prev) => ({ ...prev, [`orderLines.${index}.itemCode`]: '' }));
                       }}
                       disabled={loading || isClosed}
                     />
@@ -242,20 +297,37 @@ export function IncomingOrderForm({
                       <Search className="h-3 w-3" />
                     </Button>
                   </div>
+                  {errors[`orderLines.${index}.itemCode`] && (
+                    <p className="text-[10px] text-destructive">
+                      {errors[`orderLines.${index}.itemCode`]}
+                    </p>
+                  )}
                 </div>
                 <div className="grid gap-1">
                   <label className="text-xs font-medium text-muted-foreground">UoM</label>
                   <Input
-                    className="h-8 text-xs"
+                    className={`h-8 text-xs ${
+                      errors[`orderLines.${index}.unitOfMeasure`] ? 'border-destructive' : ''
+                    }`}
                     placeholder="BOX"
                     value={line.unitOfMeasure}
                     onChange={(e) => {
                       const newLines = [...form.orderLines];
                       newLines[index].unitOfMeasure = e.target.value;
                       setForm({ ...form, orderLines: newLines });
+                      if (errors[`orderLines.${index}.unitOfMeasure`])
+                        setErrors((prev) => ({
+                          ...prev,
+                          [`orderLines.${index}.unitOfMeasure`]: '',
+                        }));
                     }}
                     disabled={loading || isClosed}
                   />
+                  {errors[`orderLines.${index}.unitOfMeasure`] && (
+                    <p className="text-[10px] text-destructive">
+                      {errors[`orderLines.${index}.unitOfMeasure`]}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -264,15 +336,24 @@ export function IncomingOrderForm({
                   <label className="text-xs font-medium text-muted-foreground">Ordered Qty</label>
                   <Input
                     type="number"
-                    className="h-8 text-xs"
+                    className={`h-8 text-xs ${
+                      errors[`orderLines.${index}.orderedQty`] ? 'border-destructive' : ''
+                    }`}
                     value={line.orderedQty}
                     onChange={(e) => {
                       const newLines = [...form.orderLines];
                       newLines[index].orderedQty = parseInt(e.target.value) || 0;
                       setForm({ ...form, orderLines: newLines });
+                      if (errors[`orderLines.${index}.orderedQty`])
+                        setErrors((prev) => ({ ...prev, [`orderLines.${index}.orderedQty`]: '' }));
                     }}
                     disabled={loading || isClosed}
                   />
+                  {errors[`orderLines.${index}.orderedQty`] && (
+                    <p className="text-[10px] text-destructive">
+                      {errors[`orderLines.${index}.orderedQty`]}
+                    </p>
+                  )}
                 </div>
                 {!isAdd && (
                   <div className="grid gap-1">
