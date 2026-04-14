@@ -48,11 +48,13 @@ public partial class SalesOrder : BaseAuditableEntity
 
     /// <summary>
     /// This represents the status of the sales order.
+    /// Setter is private to enforce domain transitions via methods.
     /// </summary>
     public SalesOrderStatus Status { get; private set; } = SalesOrderStatus.Open;
 
     /// <summary>
     /// This represents the identifier of the user who closed the order, if applicable.
+    /// Setter is private to ensure it's only set during the Close operation.
     /// </summary>
     public string? ClosedBy { get; private set; }
 
