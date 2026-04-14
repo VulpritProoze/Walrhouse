@@ -3,6 +3,7 @@ import { Settings2, FileText, type LucideIcon } from 'lucide-react';
 import { ReceiveSidebar, type ReceiveFeature } from '@/features/receive/components/ReceiveSidebar';
 import { ReceivingView } from '@/features/receive/components/ReceivingView';
 import { BatchMasterList } from '@/features/receive/components/BatchMasterList';
+import { IncomingOrdersView } from '@/features/receive/components/incoming-orders/IncomingOrdersView';
 import { Button } from '@/components/ui/button';
 import CommonLayout from '@/layouts/CommonLayout';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
@@ -19,6 +20,7 @@ const ReceiveDashboard = () => {
   const { user } = useAuth();
   const roles = (user?.roles as RoleType[]) ?? [];
   const [activeFeature, setActiveFeature] = useState<ReceiveFeature>('receiving');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
   const renderFeatureView = () => {
     switch (activeFeature) {
@@ -30,6 +32,16 @@ const ReceiveDashboard = () => {
               description="Manage incoming goods, verification, and initial staging."
             />
             <ReceivingView />
+          </div>
+        );
+      case 'incoming-orders':
+        return (
+          <div className="space-y-6">
+            <Header
+              title="Incoming Orders"
+              description="Manage sales orders and pre-registered shipments for receipt."
+            />
+            <IncomingOrdersView />
           </div>
         );
       case 'batches':
@@ -59,7 +71,12 @@ const ReceiveDashboard = () => {
     <CommonLayout roles={roles}>
       <div className="flex h-[calc(100vh-12rem)] w-full bg-background border rounded-lg overflow-hidden">
         {/* Sidebar Navigation */}
-        <ReceiveSidebar activeFeature={activeFeature} onSelect={(f) => setActiveFeature(f)} />
+        <ReceiveSidebar
+          activeFeature={activeFeature}
+          onSelect={(f) => setActiveFeature(f)}
+          collapsed={isSidebarCollapsed}
+          onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+        />
 
         {/* Main Feature Content */}
         <div className="flex-1 overflow-y-auto px-8 py-6 bg-muted/10">

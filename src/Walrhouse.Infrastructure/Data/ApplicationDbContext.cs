@@ -18,6 +18,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     public DbSet<Stock> Stocks => Set<Stock>();
     public DbSet<UoMGroup> UoMGroups => Set<UoMGroup>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
+    public DbSet<SalesOrder> SalesOrders => Set<SalesOrder>();
     public DbSet<BarcodeHistory> BarcodeHistories => Set<BarcodeHistory>();
     public DbSet<VerificationHistory> VerificationHistories => Set<VerificationHistory>();
 
@@ -25,6 +26,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>, IApplica
     {
         base.OnModelCreating(builder);
         builder.Ignore(typeof(UoMGroupLine));
+        builder.Ignore(typeof(OrderLine));
         builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

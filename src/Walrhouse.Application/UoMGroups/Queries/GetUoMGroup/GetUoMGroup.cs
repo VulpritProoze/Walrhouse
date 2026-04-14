@@ -21,7 +21,7 @@ public class GetUoMGroupQueryHandler : IRequestHandler<GetUoMGroupQuery, UoMGrou
         CancellationToken cancellationToken
     )
     {
-        var query = _context
+        var query = await _context
             .UoMGroups.AsNoTracking()
             .Where(g => !g.IsDeleted && g.Id == request.Id)
             .SingleOrDefaultAsync(cancellationToken);

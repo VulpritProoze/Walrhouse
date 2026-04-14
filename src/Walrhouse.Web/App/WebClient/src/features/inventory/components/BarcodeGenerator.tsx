@@ -10,35 +10,53 @@ import {
   ChevronLeft,
   Search,
   Download,
+  Package,
+  Receipt,
+  CheckCircle2,
 } from 'lucide-react';
 import { BatchSelectionSheet } from './barcode-generation/BatchSelectionSheet';
+import { OrderSelectionSheet } from './barcode-generation/OrderSelectionSheet';
 import { getBarcodeImageUrl } from '@/features/barcode/api/barcode.service';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getBatchBarcodeValue } from '@/features/batch/util/barcode';
+import { getSalesOrderBarcodeValue } from '@/features/sales-order/util/barcode';
 
 export const BarcodeGenerator = () => {
+  const [type, setType] = useState<'batch' | 'order'>('batch');
   const [formData, setFormData] = useState({
     batchNumber: '',
+    orderId: null as number | null,
   });
 
   const [barcodeUrl, setBarcodeUrl] = useState<string | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(true);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const [batchSheetOpen, setBatchSheetOpen] = useState(false);
+  const [orderSheetOpen, setOrderSheetOpen] = useState(false);
+
+  const getIdentifier = () => {
+    if (type === 'batch') return getBatchBarcodeValue(formData.batchNumber);
+    return formData.orderId ? getSalesOrderBarcodeValue(formData.orderId) : '';
+  };
 
   const handleGenerate = () => {
-    if (formData.batchNumber) {
-      setBarcodeUrl(getBarcodeImageUrl(formData.batchNumber));
+    const identifier = getIdentifier();
+    if (identifier) {
+      setBarcodeUrl(getBarcodeImageUrl(identifier));
+      setIsPreviewOpen(true);
     }
   };
 
   const handleDownload = async () => {
-    if (!barcodeUrl) return;
+    const identifier = getIdentifier();
+    if (!barcodeUrl || !identifier) return;
     try {
       const response = await fetch(barcodeUrl);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `barcode-${formData.batchNumber}.png`;
+      link.download = `barcode-${identifier}.png`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -46,6 +64,8 @@ export const BarcodeGenerator = () => {
       console.error('Failed to download barcode', err);
     }
   };
+
+  const identifier = getIdentifier();
 
   return (
     <div className="flex h-full gap-0 overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-400">
@@ -57,42 +77,83 @@ export const BarcodeGenerator = () => {
               Barcode Generation
             </CardTitle>
             <CardDescription>
-              Enter the batch number to generate a unique identifier.
+              Select a batch or sales order to generate a unique barcode identifier.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
+            <Tabs
+              value={type}
+              onValueChange={(v) => {
+                setType(v as 'batch' | 'order');
+                setBarcodeUrl(null);
+              }}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/50">
+                <TabsTrigger
+                  value="batch"
+                  className="gap-2 py-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <Package className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Batch</span>
+                </TabsTrigger>
+                <TabsTrigger
+                  value="order"
+                  className="gap-2 py-2 px-3 data-[state=active]:bg-background data-[state=active]:shadow-sm transition-all"
+                >
+                  <Receipt className="h-4 w-4 shrink-0" />
+                  <span className="truncate">Sales Order</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
             <div className="space-y-2">
-              <Label>Batch Number</Label>
+              <Label>{type === 'batch' ? 'Batch Number' : 'Sales Order'}</Label>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  className="flex-1 justify-between"
-                  onClick={() => setSheetOpen(true)}
+                  className="flex-1 justify-between font-normal"
+                  onClick={() =>
+                    type === 'batch' ? setBatchSheetOpen(true) : setOrderSheetOpen(true)
+                  }
                 >
-                  <span className="truncate">{formData.batchNumber || 'Select batch...'}</span>
-                  <Search className="ml-2 h-4 w-4" />
+                  <span className="truncate">
+                    {type === 'batch'
+                      ? formData.batchNumber || 'Select batch...'
+                      : formData.orderId
+                        ? `Order #${formData.orderId}`
+                        : 'Select sales order...'}
+                  </span>
+                  <Search className="ml-2 h-4 w-4 text-muted-foreground" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    setFormData({ batchNumber: '' });
-                    setBarcodeUrl(null);
-                  }}
-                  title="Clear"
-                >
-                  ✕
-                </Button>
+                {(formData.batchNumber || formData.orderId) && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      setFormData({ batchNumber: '', orderId: null });
+                      setBarcodeUrl(null);
+                    }}
+                    title="Clear"
+                  >
+                    ✕
+                  </Button>
+                )}
               </div>
+              {identifier && (
+                <div className="flex items-center gap-2 px-3 py-2 bg-primary/5 rounded-md border border-primary/10">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs font-mono text-primary font-medium">
+                    Final Identifier: {identifier}
+                  </span>
+                </div>
+              )}
             </div>
+
             <div className="pt-2">
-              <Button
-                className="w-full flex gap-2"
-                onClick={handleGenerate}
-                disabled={!formData.batchNumber}
-              >
+              <Button className="w-full flex gap-2" onClick={handleGenerate} disabled={!identifier}>
                 <Smartphone size={16} />
-                Generate & Assign
+                Generate Barcode
               </Button>
             </div>
           </CardContent>
@@ -100,10 +161,20 @@ export const BarcodeGenerator = () => {
       </div>
 
       <BatchSelectionSheet
-        open={sheetOpen}
-        onOpenChange={setSheetOpen}
+        open={batchSheetOpen}
+        onOpenChange={setBatchSheetOpen}
         onSelect={(b) => {
-          setFormData({ batchNumber: b });
+          setFormData((prev) => ({ ...prev, batchNumber: b }));
+          setBarcodeUrl(null);
+        }}
+      />
+
+      <OrderSelectionSheet
+        open={orderSheetOpen}
+        onOpenChange={setOrderSheetOpen}
+        selectedId={formData.orderId}
+        onSelect={(order) => {
+          setFormData((prev) => ({ ...prev, orderId: order.id }));
           setBarcodeUrl(null);
         }}
       />
@@ -150,16 +221,16 @@ export const BarcodeGenerator = () => {
                 <div className="p-4 bg-muted/20 rounded-md flex items-center justify-center overflow-hidden border">
                   <img
                     src={barcodeUrl}
-                    alt={`Barcode for ${formData.batchNumber}`}
+                    alt={`Barcode for ${identifier}`}
                     className="w-48 h-48 object-contain"
                   />
                 </div>
                 <div className="space-y-1">
                   <span className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest block">
-                    Batch Identifier
+                    {type === 'batch' ? 'Batch Identifier' : 'Order Identifier'}
                   </span>
                   <div className="font-mono text-xl font-bold tracking-tighter break-all">
-                    {formData.batchNumber}
+                    {identifier}
                   </div>
                 </div>
                 <Button
@@ -175,7 +246,7 @@ export const BarcodeGenerator = () => {
               <div className="flex flex-col items-center gap-3 text-muted-foreground/60 transition-transform duration-300 group-hover:scale-105 z-10">
                 <Smartphone size={48} strokeWidth={1} />
                 <p className="text-sm font-medium text-center px-4">
-                  Input batch details to generate barcode
+                  Select {type === 'batch' ? 'batch' : 'order'} and click generate
                 </p>
               </div>
             )}

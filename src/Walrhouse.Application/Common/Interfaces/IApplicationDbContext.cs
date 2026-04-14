@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<Stock> Stocks { get; }
     DbSet<UoMGroup> UoMGroups { get; }
     DbSet<Warehouse> Warehouses { get; }
+    DbSet<SalesOrder> SalesOrders { get; }
     DbSet<BarcodeHistory> BarcodeHistories { get; }
     DbSet<VerificationHistory> VerificationHistories { get; }
 

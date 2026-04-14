@@ -1,0 +1,11 @@
+create entity -> SalesOrder
+
+Sales Order:
+
+DueDate -> when the sales order must be fulfilled at earnest
+CustomerName -> customer name (optional)
+Status -> open / closed / cancelled
+Remarks -> optional
+OrderLines: -> contains items needed in the sales order
+    - DocEntry -> line id
+    - BatchNumber[] -> related Batch in order
