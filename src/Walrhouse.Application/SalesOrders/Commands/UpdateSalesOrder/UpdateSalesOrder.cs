@@ -1,3 +1,4 @@
+using Walrhouse.Application.Common.Exceptions;
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.SalesOrders.Commands.CreateSalesOrder;
 using Walrhouse.Domain.Entities;
@@ -18,10 +19,12 @@ public record UpdateSalesOrderCommand : IRequest
 public class UpdateSalesOrderCommandHandler : IRequestHandler<UpdateSalesOrderCommand>
 {
     private readonly IApplicationDbContext _context;
+    private readonly IUser _user;
 
-    public UpdateSalesOrderCommandHandler(IApplicationDbContext context)
+    public UpdateSalesOrderCommandHandler(IApplicationDbContext context, IUser user)
     {
         _context = context;
+        _user = user;
     }
 
     public async Task Handle(UpdateSalesOrderCommand request, CancellationToken cancellationToken)
@@ -35,8 +38,27 @@ public class UpdateSalesOrderCommandHandler : IRequestHandler<UpdateSalesOrderCo
 
         if (request.DueDate.HasValue)
             entity.DueDate = request.DueDate.Value;
+
         if (request.Status.HasValue)
-            entity.Status = request.Status.Value;
+        {
+            switch (request.Status.Value)
+            {
+                case SalesOrderStatus.Open:
+                    entity.Open();
+                    break;
+                case SalesOrderStatus.Closed:
+                    if (string.IsNullOrEmpty(_user.Id))
+                    {
+                        throw new ForbiddenAccessException();
+                    }
+                    entity.Close(_user.Id);
+                    break;
+                case SalesOrderStatus.Cancelled:
+                    entity.Cancel();
+                    break;
+            }
+        }
+
         if (request.CustomerName != null)
             entity.CustomerName = request.CustomerName;
         if (request.Remarks != null)

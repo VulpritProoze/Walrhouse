@@ -34,7 +34,6 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
         var entity = new SalesOrder
         {
             DueDate = request.DueDate,
-            Status = SalesOrderStatus.Open,
             CustomerName = request.CustomerName,
             Remarks = request.Remarks,
             OrderLines = request

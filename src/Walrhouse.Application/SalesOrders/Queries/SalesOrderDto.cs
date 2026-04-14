@@ -8,6 +8,7 @@ public record SalesOrderDto
     public int Id { get; init; }
     public DateTimeOffset? DueDate { get; init; }
     public SalesOrderStatus? Status { get; init; }
+    public string? ClosedBy { get; init; }
     public string CustomerName { get; init; } = string.Empty;
     public string Remarks { get; init; } = string.Empty;
     public ICollection<OrderLineDto> OrderLines { get; init; } = new List<OrderLineDto>();
