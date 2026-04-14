@@ -15,8 +15,7 @@ import { CalendarIcon, Loader2, Plus, Trash2, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { DialogTitle, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { type IncomingOrderDto, IncomingOrderStatus } from '../../types/incoming-order-dto';
-import { BatchSelectionSheet } from './BatchSelectionSheet';
-import { Badge } from '@/components/ui/badge';
+import { ItemCodeSelectionSheet } from './ItemCodeSelectionSheet';
 
 interface IncomingOrderFormProps {
   initial: IncomingOrderDto;
@@ -35,7 +34,7 @@ export function IncomingOrderForm({
 }: IncomingOrderFormProps) {
   const [form, setForm] = useState<IncomingOrderDto>(initial);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeLineIndex, setActiveLineIndex] = useState<number | null>(null);
+  const [activeItemLineIndex, setActiveItemLineIndex] = useState<number | null>(null);
 
   const loading = isLoading || isSubmitting;
   const isAdd = mode === 'add';
@@ -71,7 +70,14 @@ export function IncomingOrderForm({
   const handleAddLine = () => {
     setForm({
       ...form,
-      orderLines: [...form.orderLines, { batchNumbers: [] }],
+      orderLines: [
+        ...form.orderLines,
+        {
+          itemCode: '',
+          unitOfMeasure: '',
+          orderedQty: 1,
+        },
+      ],
     });
   };
 
@@ -82,11 +88,12 @@ export function IncomingOrderForm({
     });
   };
 
-  const handleBatchSelect = (batchNumbers: string[]) => {
-    if (activeLineIndex === null) return;
-    const newLines = [...form.orderLines];
-    newLines[activeLineIndex].batchNumbers = batchNumbers;
-    setForm({ ...form, orderLines: newLines });
+  const handleSelectItemCode = (itemCode: string) => {
+    if (activeItemLineIndex !== null) {
+      const newLines = [...form.orderLines];
+      newLines[activeItemLineIndex].itemCode = itemCode;
+      setForm({ ...form, orderLines: newLines });
+    }
   };
 
   const statusLabel = {
@@ -209,50 +216,85 @@ export function IncomingOrderForm({
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
-              <div className="grid gap-1">
-                <label className="text-xs font-medium text-muted-foreground">Batches</label>
-                <div className="flex gap-2 items-center min-h-[40px] p-2 bg-muted/30 rounded-md border border-dashed">
-                  <div className="flex flex-wrap gap-1.5 flex-1">
-                    {line.batchNumbers.length === 0 ? (
-                      <span className="text-xs text-muted-foreground italic px-1">
-                        No batches selected
-                      </span>
-                    ) : (
-                      line.batchNumbers.map((batch) => (
-                        <Badge
-                          key={batch}
-                          variant="secondary"
-                          className="text-[10px] py-0 px-1.5 h-5"
-                        >
-                          {batch}
-                        </Badge>
-                      ))
-                    )}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Item Code</label>
+                  <div className="flex gap-1">
+                    <Input
+                      className="h-8 text-xs flex-1"
+                      placeholder="ITM-001"
+                      value={line.itemCode}
+                      onChange={(e) => {
+                        const newLines = [...form.orderLines];
+                        newLines[index].itemCode = e.target.value;
+                        setForm({ ...form, orderLines: newLines });
+                      }}
+                      disabled={loading || isClosed}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-8 w-8"
+                      disabled={loading || isClosed}
+                      onClick={() => setActiveItemLineIndex(index)}
+                    >
+                      <Search className="h-3 w-3" />
+                    </Button>
                   </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className="h-7 w-7 flex-shrink-0"
-                    onClick={() => setActiveLineIndex(index)}
-                    disabled={loading || isClosed}
-                  >
-                    <Search className="h-3.5 w-3.5" />
-                  </Button>
                 </div>
+                <div className="grid gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">UoM</label>
+                  <Input
+                    className="h-8 text-xs"
+                    placeholder="BOX"
+                    value={line.unitOfMeasure}
+                    onChange={(e) => {
+                      const newLines = [...form.orderLines];
+                      newLines[index].unitOfMeasure = e.target.value;
+                      setForm({ ...form, orderLines: newLines });
+                    }}
+                    disabled={loading || isClosed}
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="grid gap-1">
+                  <label className="text-xs font-medium text-muted-foreground">Ordered Qty</label>
+                  <Input
+                    type="number"
+                    className="h-8 text-xs"
+                    value={line.orderedQty}
+                    onChange={(e) => {
+                      const newLines = [...form.orderLines];
+                      newLines[index].orderedQty = parseInt(e.target.value) || 0;
+                      setForm({ ...form, orderLines: newLines });
+                    }}
+                    disabled={loading || isClosed}
+                  />
+                </div>
+                {!isAdd && (
+                  <div className="grid gap-1">
+                    <label className="text-xs font-medium text-muted-foreground">Picked Qty</label>
+                    <Input
+                      type="number"
+                      className="h-8 text-xs"
+                      value={line.pickedQty ?? 0}
+                      disabled
+                    />
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <BatchSelectionSheet
-        open={activeLineIndex !== null}
-        onOpenChange={(open) => !open && setActiveLineIndex(null)}
-        selectedBatchNumbers={
-          activeLineIndex !== null ? form.orderLines[activeLineIndex].batchNumbers : []
-        }
-        onSelect={handleBatchSelect}
+      <ItemCodeSelectionSheet
+        open={activeItemLineIndex !== null}
+        onOpenChange={(open) => !open && setActiveItemLineIndex(null)}
+        onSelect={handleSelectItemCode}
       />
 
       <DialogFooter>

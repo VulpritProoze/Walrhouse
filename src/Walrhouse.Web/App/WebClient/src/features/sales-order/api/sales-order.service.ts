@@ -7,7 +7,10 @@ import type { OrderStatus } from '../types';
  */
 export interface OrderLineDto {
   docEntry?: string;
-  batchNumbers: string[];
+  itemCode: string;
+  unitOfMeasure: string;
+  orderedQty: number;
+  pickedQty?: number;
 }
 
 /**

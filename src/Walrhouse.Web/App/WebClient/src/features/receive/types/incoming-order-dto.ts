@@ -4,7 +4,10 @@ export { OrderStatus as IncomingOrderStatus };
 
 export interface IncomingOrderLineDto {
   docEntry?: string;
-  batchNumbers: string[];
+  itemCode: string;
+  unitOfMeasure: string;
+  orderedQty: number;
+  pickedQty?: number;
 }
 
 export interface IncomingOrderDto {

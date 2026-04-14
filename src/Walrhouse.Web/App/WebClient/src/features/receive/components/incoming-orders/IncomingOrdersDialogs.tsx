@@ -21,6 +21,7 @@ export function AddIncomingOrderDialog({
     remarks: '',
     dueDate: new Date().toISOString(),
     status: IncomingOrderStatus.Open,
+    closedBy: null,
     orderLines: [],
   };
 

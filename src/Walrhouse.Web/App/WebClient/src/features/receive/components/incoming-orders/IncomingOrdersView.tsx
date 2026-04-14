@@ -52,7 +52,11 @@ export const IncomingOrdersView = () => {
       customerName: dto.customerName,
       dueDate: dto.dueDate,
       remarks: dto.remarks,
-      orderLines: (dto.orderLines ?? []).map((l) => ({ batchNumbers: l.batchNumbers })),
+      orderLines: (dto.orderLines ?? []).map((l) => ({
+        itemCode: l.itemCode,
+        unitOfMeasure: l.unitOfMeasure,
+        orderedQty: l.orderedQty,
+      })),
     });
   };
 
@@ -66,7 +70,10 @@ export const IncomingOrdersView = () => {
         remarks: dto.remarks,
         status: dto.status ?? undefined,
         orderLines: (dto.orderLines ?? []).map((l) => ({
-          batchNumbers: l.batchNumbers,
+          itemCode: l.itemCode,
+          unitOfMeasure: l.unitOfMeasure,
+          orderedQty: l.orderedQty,
+          pickedQty: l.pickedQty,
           docEntry: l.docEntry,
         })),
       },
