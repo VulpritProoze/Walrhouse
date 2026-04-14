@@ -1,4 +1,4 @@
-import {
+﻿import {
   CheckCircle2,
   MapPin,
   Hash,
@@ -6,20 +6,22 @@ import {
   Calendar,
   Info,
   Loader2,
-  CheckCircle,
+  Package,
   AlertTriangle,
-} from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
-import type { BatchDto } from '../../types';
-import { BatchStatus } from '@/features/batch/types';
-import { useCreateVerification } from '../../hooks/mutations/use-verification-mutation';
-import { useSalesOrder } from '@/features/sales-order/hooks/queries';
-import { OrderStatus } from '@/features/sales-order/types';
-import { toast } from 'sonner';
-import type { AxiosError } from 'axios';
+  ClipboardList,
+} from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import type { BatchDto } from "../../types";
+import { BatchStatus } from "@/features/batch/types";
+import { useCreateVerification } from "../../hooks/mutations/use-verification-mutation";
+import { useSalesOrder } from "@/features/sales-order/hooks/queries";
+import { OrderStatus } from "@/features/sales-order/types";
+import { useItem } from "@/features/item/hooks/queries/use-item";
+import { toast } from "sonner";
+import type { AxiosError } from "axios";
 
 type SalesOrderItemDetailsProps = {
   batch?: BatchDto;
@@ -39,22 +41,23 @@ export default function SalesOrderItemDetails({
   const { mutate: createVerification, isPending: isVerificationPending } = useCreateVerification();
 
   const { data: salesOrder, isLoading: isSoLoading } = useSalesOrder(salesOrderId!, !!salesOrderId);
+  const { data: item, isLoading: isItemLoading } = useItem(batch?.itemCode ?? "", !!batch?.itemCode);
 
   if (!batch) return null;
 
   const handleVerification = (callback?: () => void) => {
     if (!salesOrder) {
-      toast.error('Sales order data not loaded');
+      toast.error("Sales order data not loaded");
       return;
     }
 
     if (salesOrder.status === OrderStatus.Closed) {
-      toast.error('This Sales Order is already Closed');
+      toast.error("This Sales Order is already Closed");
       return;
     }
 
     if (salesOrder.status === OrderStatus.Cancelled) {
-      toast.error('This Sales Order has been Cancelled');
+      toast.error("This Sales Order has been Cancelled");
       return;
     }
 
@@ -65,7 +68,7 @@ export default function SalesOrderItemDetails({
       },
       {
         onSuccess: () => {
-          toast.success('Item verified for Sales Order');
+          toast.success("Item verified for Sales Order");
           if (callback) {
             callback();
           } else {
@@ -74,155 +77,177 @@ export default function SalesOrderItemDetails({
         },
         onError: (error) => {
           const axiosError = error as AxiosError<{ title?: string }>;
-          toast.error(axiosError.response?.data?.title ?? 'Failed to verify batch');
+          toast.error(axiosError.response?.data?.title ?? "Failed to verify batch");
         },
-      },
+      }
     );
   };
 
   const isTerminalState =
     salesOrder?.status === OrderStatus.Closed || salesOrder?.status === OrderStatus.Cancelled;
 
-  const isLoading = isVerificationPending || isSoLoading;
+  const isLoading = isVerificationPending || isSoLoading || isItemLoading;
+
+  const orderLine = salesOrder?.orderLines.find((ol) => ol.itemCode === batch.itemCode);
+  const pickedQty = orderLine?.pickedQty ?? 0;
+  const orderedQty = orderLine?.orderedQty ?? 0;
+  const isFullyPicked = pickedQty >= orderedQty && orderedQty > 0;
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-          <div className="flex-1">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">Item Verification (SO Mode)</CardTitle>
-              <div className="flex gap-2">
+    <div className="space-y-6">
+      <Card className="w-full border-primary/20 shadow-md">
+        <CardHeader className="bg-primary/5 pb-4">
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={onBack} className="h-8 w-8">
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex-1">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <ClipboardList className="h-5 w-5 text-primary" />
+                    Sales Order #{salesOrderId}
+                  </CardTitle>
+                </div>
                 {salesOrder && (
-                  <Badge variant={isTerminalState ? 'destructive' : 'outline'}>
-                    SO #{salesOrder.id}:{' '}
-                    {salesOrder.status === OrderStatus.Open
-                      ? 'Open'
-                      : salesOrder.status === OrderStatus.Closed
-                        ? 'Closed'
-                        : 'Cancelled'}
+                  <Badge variant={isTerminalState ? "destructive" : "outline"}>
+                    {salesOrder.status}
                   </Badge>
                 )}
-                <Badge
-                  variant={
-                    batch.status === BatchStatus.Released
-                      ? 'outline'
-                      : batch.status === BatchStatus.Locked
-                        ? 'destructive'
-                        : 'secondary'
-                  }
-                  className={
-                    batch.status === BatchStatus.Released ? 'border-green-500 text-green-500' : ''
-                  }
-                >
-                  {batch.status === BatchStatus.Released
-                    ? 'Released'
-                    : batch.status === BatchStatus.Locked
-                      ? 'Locked'
-                      : batch.status === BatchStatus.Restricted
-                        ? 'Restricted'
-                        : 'Unknown'}
-                </Badge>
               </div>
             </div>
-            <CardDescription className="flex items-center gap-2">
-              <span className="font-semibold text-primary">Batch: {batch.batchNumber}</span>
-              <span className="text-muted-foreground">•</span>
-              <span>{batch.itemCode}</span>
-            </CardDescription>
           </div>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {isTerminalState && (
-          <div className="flex items-center gap-3 rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-destructive">
-            <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-semibold">Action Required</p>
-              <p>
-                This Sales Order is{' '}
-                {salesOrder?.status === OrderStatus.Closed ? 'Closed' : 'Cancelled'}. You cannot
-                verify items against it.
+        </CardHeader>
+        <CardContent className="pt-4 space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="space-y-1">
+              <p className="text-muted-foreground flex items-center gap-1.5">
+                <Info className="h-3.5 w-3.5" /> Customer
+              </p>
+              <p className="font-medium truncate">{salesOrder?.customerName || "N/A"}</p>
+            </div>
+            <div className="space-y-1 text-right">
+              <p className="text-muted-foreground flex items-center gap-1.5 justify-end">
+                <Calendar className="h-3.5 w-3.5" /> Due Date
+              </p>
+              <p className="font-medium">
+                {salesOrder?.dueDate ? new Date(salesOrder.dueDate).toLocaleDateString() : "N/A"}
               </p>
             </div>
           </div>
-        )}
+          
+          <Separator />
 
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Item Code</p>
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <Hash className="h-3.5 w-3.5 text-muted-foreground" />
-              {batch.itemCode}
-            </p>
+          <div className="flex items-center justify-between bg-secondary/30 p-3 rounded-lg border border-secondary">
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-full ${isFullyPicked ? "bg-green-100 text-green-700" : "bg-primary/10 text-primary"}`}>
+                <Package className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Scanned Item Progress</p>
+                <p className="text-2xl font-bold">
+                   {pickedQty} <span className="text-sm font-normal text-muted-foreground">/ {orderedQty}</span>
+                </p>
+              </div>
+            </div>
+            {isFullyPicked && (
+              <Badge className="bg-green-600 hover:bg-green-700">Fully Picked</Badge>
+            )}
           </div>
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Bin Location</p>
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-              {batch.binNo || 'Unassigned'}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Expiry Date</p>
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-              {batch.expiryDate ? new Date(batch.expiryDate).toLocaleDateString() : 'N/A'}
-            </p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-xs uppercase tracking-wider text-muted-foreground">Status</p>
-            <p className="flex items-center gap-1.5 text-sm font-medium">
-              <Info className="h-3.5 w-3.5 text-muted-foreground" />
-              {batch.status === BatchStatus.Released
-                ? 'Released'
-                : batch.status === BatchStatus.Locked
-                  ? 'Locked'
-                  : batch.status === BatchStatus.Restricted
-                    ? 'Restricted'
-                    : 'Unknown'}
-            </p>
-          </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <Separator />
+      <Card className="w-full">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Hash className="h-5 w-5 text-primary" />
+                Batch & Item Info
+              </CardTitle>
+              <CardDescription>Details for batch {batch.batchNumber}</CardDescription>
+            </div>
+            <Badge variant={batch.status === BatchStatus.Released ? "outline" : "secondary"}>
+              {batch.status || "Unknown Status"}
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Item Information
+                </label>
+                <div className="rounded-lg border bg-muted/30 p-3 space-y-2">
+                  <div className="flex justify-between items-start">
+                    <span className="text-sm text-muted-foreground">Code:</span>
+                    <span className="text-sm font-bold">{batch.itemCode}</span>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-sm text-muted-foreground shrink-0">Name:</span>
+                    <span className="text-sm font-medium text-right">{item?.itemName || "Loading..."}</span>
+                  </div>
+                </div>
+              </div>
 
-        <div className="flex flex-col gap-2">
-          {!isTerminalState ? (
-            <>
-              <Button className="w-full" onClick={() => handleVerification()} disabled={isLoading}>
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                )}
-                Confirm and Finish
-              </Button>
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  <span>Expiry Date</span>
+                </div>
+                <p className="font-semibold px-1">
+                  {batch.expiryDate ? new Date(batch.expiryDate).toLocaleDateString() : "No expiry"}
+                </p>
+              </div>
+            </div>
 
-              <Button
-                variant="outline"
-                className="w-full border-primary text-primary hover:bg-primary/5 shadow-sm"
-                onClick={() => handleVerification(onConfirmAndRescan)}
-                disabled={isLoading}
-              >
-                <CheckCircle className="mr-2 h-4 w-4" />
-                Pick and Scan Next
-              </Button>
-            </>
-          ) : (
-            <Button variant="outline" className="w-full" onClick={onBack}>
-              Go Back
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="h-4 w-4" />
+                  <span>Current Bin Location</span>
+                </div>
+                <p className="font-semibold px-1">{batch.binNo || "Unassigned"}</p>
+              </div>
+
+              {batch.status !== BatchStatus.Released && (
+                <div className="flex items-center gap-2 rounded-lg bg-orange-50 p-3 text-sm text-orange-800 border border-orange-200">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  <p>Batch is {batch.status}. It can be verified but check status first.</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              className="flex-1 py-6 text-lg"
+              disabled={isLoading || isTerminalState}
+              onClick={() => handleVerification()}
+            >
+              {isLoading ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="mr-2 h-5 w-5" />
+              )}
+              Confirm Verification
             </Button>
-          )}
-
-          <Button variant="ghost" onClick={onBack} disabled={isLoading} className="mt-2 w-full">
-            Cancel
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+            <Button
+              variant="outline"
+              className="flex-1 py-6 text-lg border-2"
+              disabled={isLoading || isTerminalState}
+              onClick={() => handleVerification(onConfirmAndRescan)}
+            >
+              <CheckCircle2 className="mr-2 h-5 w-5" />
+              Confirm & Scan Next
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }
+
