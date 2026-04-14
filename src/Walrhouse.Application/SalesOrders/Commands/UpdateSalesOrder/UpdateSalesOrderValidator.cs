@@ -13,9 +13,17 @@ public class UpdateSalesOrderCommandValidator : AbstractValidator<UpdateSalesOrd
         RuleForEach(v => v.OrderLines)
             .ChildRules(line =>
             {
-                line.RuleFor(l => l.BatchNumbers)
-                    .NotEmpty()
-                    .WithMessage("Batch numbers cannot be empty.");
+                line.RuleFor(l => l.DocEntry).NotEmpty().WithMessage("DocEntry is required.");
+
+                line.RuleFor(l => l.ItemCode).NotEmpty().WithMessage("ItemCode is required.");
+
+                line.RuleFor(l => l.OrderedQty)
+                    .GreaterThan(-1)
+                    .WithMessage("Ordered quantity must be greater than 0.");
+
+                line.RuleFor(l => l.PickedQty)
+                    .GreaterThanOrEqualTo(-1)
+                    .WithMessage("Picked quantity must be a non-negative number.");
             });
     }
 }

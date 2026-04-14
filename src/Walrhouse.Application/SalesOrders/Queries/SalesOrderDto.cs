@@ -17,7 +17,10 @@ public record SalesOrderDto
 public record OrderLineDto
 {
     public string DocEntry { get; init; } = string.Empty;
-    public ICollection<string> BatchNumbers { get; init; } = new List<string>();
+    public string ItemCode { get; init; } = string.Empty;
+    public string UnitOfMeasure { get; init; } = string.Empty;
+    public int OrderedQty { get; init; }
+    public int PickedQty { get; init; }
 }
 
 public class SalesOrderDtoProfile : Profile

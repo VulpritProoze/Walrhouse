@@ -13,7 +13,16 @@ public record UpdateSalesOrderCommand : IRequest
     public SalesOrderStatus? Status { get; init; }
     public string? CustomerName { get; init; }
     public string? Remarks { get; init; }
-    public ICollection<OrderLineDto>? OrderLines { get; init; }
+    public ICollection<UpdateOrderLineDto>? OrderLines { get; init; }
+}
+
+public record UpdateOrderLineDto
+{
+    public string? DocEntry { get; init; }
+    public required string ItemCode { get; init; }
+    public string UnitOfMeasure { get; init; } = string.Empty;
+    public int OrderedQty { get; init; }
+    public int PickedQty { get; init; }
 }
 
 public class UpdateSalesOrderCommandHandler : IRequestHandler<UpdateSalesOrderCommand>
@@ -67,7 +76,14 @@ public class UpdateSalesOrderCommandHandler : IRequestHandler<UpdateSalesOrderCo
         if (request.OrderLines != null)
         {
             entity.OrderLines = request
-                .OrderLines.Select(l => new OrderLine { BatchNumbers = l.BatchNumbers })
+                .OrderLines.Select(l => new OrderLine
+                {
+                    DocEntry = l.DocEntry ?? Guid.NewGuid().ToString(),
+                    ItemCode = l.ItemCode,
+                    UnitOfMeasure = l.UnitOfMeasure,
+                    OrderedQty = l.OrderedQty,
+                    PickedQty = l.PickedQty,
+                })
                 .ToList();
         }
 

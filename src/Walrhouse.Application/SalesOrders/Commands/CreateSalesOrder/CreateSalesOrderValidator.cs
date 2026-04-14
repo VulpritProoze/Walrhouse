@@ -13,9 +13,13 @@ public class CreateSalesOrderCommandValidator : AbstractValidator<CreateSalesOrd
             .WithMessage("Order lines cannot be empty.")
             .ChildRules(line =>
             {
-                line.RuleFor(l => l.BatchNumbers)
-                    .NotEmpty()
-                    .WithMessage("Batch numbers cannot be empty.");
+                line.RuleFor(l => l.DocEntry).NotEmpty().WithMessage("DocEntry is required.");
+
+                line.RuleFor(l => l.ItemCode).NotEmpty().WithMessage("ItemCode is required.");
+
+                line.RuleFor(l => l.OrderedQty)
+                    .GreaterThan(-1)
+                    .WithMessage("Ordered quantity must be greater than 0.");
             });
     }
 }

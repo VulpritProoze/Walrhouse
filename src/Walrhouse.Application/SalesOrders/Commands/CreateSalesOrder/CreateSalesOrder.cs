@@ -14,7 +14,10 @@ public record CreateSalesOrderCommand : IRequest<int>
 
 public record OrderLineDto
 {
-    public required ICollection<string> BatchNumbers { get; init; }
+    public string? DocEntry { get; init; }
+    public required string ItemCode { get; init; }
+    public string UnitOfMeasure { get; init; } = string.Empty;
+    public int OrderedQty { get; init; }
 }
 
 public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCommand, int>
@@ -37,7 +40,14 @@ public class CreateSalesOrderCommandHandler : IRequestHandler<CreateSalesOrderCo
             CustomerName = request.CustomerName,
             Remarks = request.Remarks,
             OrderLines = request
-                .OrderLines.Select(l => new OrderLine { BatchNumbers = l.BatchNumbers })
+                .OrderLines.Select(l => new OrderLine
+                {
+                    DocEntry = l.DocEntry ?? Guid.NewGuid().ToString(),
+                    ItemCode = l.ItemCode,
+                    UnitOfMeasure = l.UnitOfMeasure,
+                    PickedQty = 0,
+                    OrderedQty = l.OrderedQty,
+                })
                 .ToList(),
         };
 

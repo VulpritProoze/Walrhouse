@@ -89,8 +89,22 @@ public class OrderLine
     public string DocEntry { get; set; } = Guid.NewGuid().ToString();
 
     /// <summary>
-    /// Gets or sets a collection of batch IDs for the order line.
-    /// This correlates to BatchNumber in the Batch entity.
+    /// Gets or sets the item code of an order line.
     /// </summary>
-    public required ICollection<string> BatchNumbers { get; set; }
+    public required string ItemCode { get; set; }
+
+    /// <summary>
+    /// Gets or sets the unit of measure for the order line.
+    /// </summary>
+    public required string UnitOfMeasure { get; set; }
+
+    /// <summary>
+    /// Gets or sets the ordered quantity for the order line.
+    /// </summary>
+    public required int OrderedQty { get; set; } = 0;
+
+    /// <summary>
+    /// Gets or sets the picked quantity for the order line.
+    /// </summary>
+    public required int PickedQty { get; set; } = 0;
 }
