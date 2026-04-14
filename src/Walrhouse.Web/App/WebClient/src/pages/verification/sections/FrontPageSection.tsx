@@ -2,9 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { FileSearch, Scan } from 'lucide-react';
+import { useVerificationContext } from '@/features/verification/context/use-verification-context';
+import { useEffect } from 'react';
 
 export default function FrontPageSection() {
   const navigate = useNavigate();
+  const { clearActiveSalesOrder } = useVerificationContext();
+
+  useEffect(() => {
+    // Clear any active SO session when landing on the front page
+    clearActiveSalesOrder();
+  }, [clearActiveSalesOrder]);
 
   return (
     <div className="grid gap-4 sm:grid-cols-2">

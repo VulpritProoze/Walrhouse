@@ -5,6 +5,8 @@ import { ArrowLeft, Loader2 } from 'lucide-react';
 import StepProgress from '../components/StepProgress';
 import { useSalesOrder } from '@/features/sales-order/hooks/queries';
 import { SalesOrderDetails } from '@/features/verification';
+import { useVerificationContext } from '@/features/verification/context/use-verification-context';
+import { useEffect } from 'react';
 
 const steps = [
   { id: 1, title: 'Scan SO' },
@@ -16,9 +18,17 @@ const steps = [
 export default function SalesOrderDetailsSection() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { setActiveSalesOrderId } = useVerificationContext();
   const soId = searchParams.get('soHandle');
 
   const { data: salesOrder, isLoading } = useSalesOrder(Number(soId), !!soId);
+
+  useEffect(() => {
+    // Ensure context is synced with the URL state for consistency
+    if (salesOrder?.id) {
+      setActiveSalesOrderId(salesOrder.id);
+    }
+  }, [salesOrder?.id, setActiveSalesOrderId]);
 
   if (isLoading) {
     return (

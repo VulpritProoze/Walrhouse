@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/components/ui/ca
 import { ArrowLeft, FileSearch } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import StepProgress from '../components/StepProgress';
+import { useVerificationContext } from '@/features/verification/context/use-verification-context';
 
 const steps = [
   { id: 1, title: 'Scan SO' },
@@ -14,9 +15,15 @@ const steps = [
 
 export default function SalesOrderScanSection() {
   const navigate = useNavigate();
+  const { setActiveSalesOrderId } = useVerificationContext();
 
   const handleScan = (code: string) => {
-    // Navigate to dummy details page with the SO barcode
+    // Set the active SO ID in context
+    const soId = Number(code);
+    if (!isNaN(soId)) {
+      setActiveSalesOrderId(soId);
+    }
+    // Navigate to details page with the SO barcode
     navigate(`/verification/sales-order/details?soHandle=${code}`);
   };
 

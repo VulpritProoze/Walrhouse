@@ -1,5 +1,5 @@
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Scanner, SalesOrderScanner } from '@/features/verification';
+import { Scanner, BatchScanner } from '@/features/verification';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import StepProgress from '../components/StepProgress';
@@ -39,7 +39,7 @@ export default function ScannerSection() {
       {isSO && <StepProgress steps={steps} currentStep={3} className="mb-8" />}
 
       {isSO ? (
-        <SalesOrderScanner
+        <BatchScanner
           onScan={handleScan}
           title="Item Verification"
           description="Scan the items for this Sales Order"

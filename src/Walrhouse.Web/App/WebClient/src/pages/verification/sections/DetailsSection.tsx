@@ -3,6 +3,7 @@ import { useBatch } from '@/features/batch/hooks/queries/use-batch';
 import { decodeBatchBarcode } from '@/features/batch/util/barcode';
 import { ItemDetails, SalesOrderItemDetails } from '@/features/verification';
 import { Spinner } from '@/components/ui/spinner';
+import { useVerificationContext } from '@/features/verification/context/use-verification-context';
 import {
   Empty,
   EmptyHeader,
@@ -25,6 +26,7 @@ const steps = [
 export default function DetailsSection() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { activeSalesOrderId } = useVerificationContext();
   const code = searchParams.get('code');
   const isSO = searchParams.get('isSO') === 'true';
 
@@ -61,9 +63,9 @@ export default function DetailsSection() {
             </div>
           </EmptyMedia>
           <EmptyHeader>
-            <EmptyTitle>Item Not Found</EmptyTitle>
+            <EmptyTitle>Batch Not Found</EmptyTitle>
             <EmptyDescription>
-              We couldn't find an item with the code "{code}". Please try scanning again.
+              We couldn't find a batch with the code "{code}". Please try scanning again.
             </EmptyDescription>
           </EmptyHeader>
           <EmptyContent>
@@ -78,7 +80,12 @@ export default function DetailsSection() {
     return (
       <div className="flex flex-col gap-6">
         <StepProgress steps={steps} currentStep={3} className="mb-4" />
-        <SalesOrderItemDetails batch={batch} onBack={handleBack} onConfirm={handleConfirm} />
+        <SalesOrderItemDetails
+          batch={batch}
+          salesOrderId={activeSalesOrderId ?? undefined}
+          onBack={handleBack}
+          onConfirm={handleConfirm}
+        />
       </div>
     );
   }
