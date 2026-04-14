@@ -20,14 +20,13 @@ public class GetSalesOrderQueryHandler : IRequestHandler<GetSalesOrderQuery, Sal
         CancellationToken cancellationToken
     )
     {
-        var query = await _context
+        var entity = await _context
             .SalesOrders.AsNoTracking()
             .Where(o => o.Id == request.Id)
             .OrderByDescending(o => o.CreatedAt)
             .ThenBy(o => o.Id)
-            .ProjectTo<SalesOrderDto>(_mapper.ConfigurationProvider)
             .SingleOrDefaultAsync(cancellationToken);
 
-        return _mapper.Map<SalesOrderDto>(query);
+        return _mapper.Map<SalesOrderDto>(entity);
     }
 }
