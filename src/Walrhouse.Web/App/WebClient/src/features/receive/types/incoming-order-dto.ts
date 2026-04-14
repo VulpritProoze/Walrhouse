@@ -11,6 +11,7 @@ export interface IncomingOrderDto {
   id: number;
   dueDate: string | null;
   status: OrderStatus | null;
+  closedBy: string | null;
   customerName: string | null;
   remarks: string | null;
   orderLines: IncomingOrderLineDto[];

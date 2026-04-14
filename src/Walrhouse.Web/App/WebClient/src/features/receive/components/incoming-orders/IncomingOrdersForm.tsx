@@ -50,6 +50,10 @@ export function IncomingOrderForm({
     const toastId = toast.loading(isAdd ? 'Creating order...' : 'Updating order...');
 
     try {
+      if (isClosed) {
+        toast.error('Cannot update a closed order', { id: toastId });
+        return;
+      }
       await onSave(form);
       toast.success(isAdd ? 'Order created successfully' : 'Order updated successfully', {
         id: toastId,
@@ -91,6 +95,8 @@ export function IncomingOrderForm({
     [IncomingOrderStatus.Cancelled]: 'Cancelled',
   }[form.status || IncomingOrderStatus.Open];
 
+  const isClosed = form.status === IncomingOrderStatus.Closed;
+
   return (
     <>
       <DialogTitle>{isAdd ? 'Add Incoming Order' : 'Edit Incoming Order'}</DialogTitle>
@@ -104,7 +110,7 @@ export function IncomingOrderForm({
         <div className="grid gap-2">
           <label className="text-sm font-medium">Customer Name</label>
           <Input
-            disabled={loading}
+            disabled={loading || isClosed}
             value={form.customerName ?? ''}
             onChange={(e) => setForm({ ...form, customerName: e.target.value })}
             placeholder="e.g. ACME Corp"
@@ -118,7 +124,7 @@ export function IncomingOrderForm({
               render={
                 <Button
                   variant="outline"
-                  disabled={loading}
+                  disabled={loading || isClosed}
                   className="w-full justify-start text-left font-normal"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -139,9 +145,14 @@ export function IncomingOrderForm({
 
         {!isAdd && (
           <div className="grid gap-2">
-            <label className="text-sm font-medium">Status</label>
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-medium">Status</label>
+              {form.closedBy && (
+                <span className="text-xs text-muted-foreground">Closed by: {form.closedBy}</span>
+              )}
+            </div>
             <Select
-              disabled={loading}
+              disabled={loading || isClosed}
               value={form.status?.toString()}
               onValueChange={(v) => setForm({ ...form, status: Number(v) })}
             >
@@ -154,13 +165,18 @@ export function IncomingOrderForm({
                 <SelectItem value={IncomingOrderStatus.Cancelled.toString()}>Cancelled</SelectItem>
               </SelectContent>
             </Select>
+            {isClosed && (
+              <p className="text-xs text-destructive">
+                This order is closed and cannot be modified or reopened.
+              </p>
+            )}
           </div>
         )}
 
         <div className="grid gap-2">
           <label className="text-sm font-medium">Remarks</label>
           <Input
-            disabled={loading}
+            disabled={loading || isClosed}
             value={form.remarks ?? ''}
             onChange={(e) => setForm({ ...form, remarks: e.target.value })}
             placeholder="Additional notes..."
@@ -175,7 +191,7 @@ export function IncomingOrderForm({
               variant="outline"
               size="sm"
               onClick={handleAddLine}
-              disabled={loading}
+              disabled={loading || isClosed}
             >
               <Plus className="h-4 w-4 mr-2" /> Add Line
             </Button>
@@ -189,7 +205,7 @@ export function IncomingOrderForm({
                 size="icon"
                 className="absolute right-1 top-1 h-7 w-7 text-destructive"
                 onClick={() => handleRemoveLine(index)}
-                disabled={loading}
+                disabled={loading || isClosed}
               >
                 <Trash2 className="h-4 w-4" />
               </Button>
@@ -219,7 +235,7 @@ export function IncomingOrderForm({
                     size="icon"
                     className="h-7 w-7 flex-shrink-0"
                     onClick={() => setActiveLineIndex(index)}
-                    disabled={loading}
+                    disabled={loading || isClosed}
                   >
                     <Search className="h-3.5 w-3.5" />
                   </Button>
@@ -247,7 +263,7 @@ export function IncomingOrderForm({
             </Button>
           }
         />
-        <Button onClick={handleSave} disabled={loading}>
+        <Button onClick={handleSave} disabled={loading || isClosed}>
           {loading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

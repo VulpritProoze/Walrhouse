@@ -83,8 +83,8 @@ export const IncomingOrdersView = () => {
     }
   };
 
-  const getStatusBadge = (status: OrderStatus | null) => {
-    switch (status) {
+  const getStatusBadge = (order: IncomingOrderDto) => {
+    switch (order.status) {
       case OrderStatus.Open:
         return (
           <Badge variant="outline" className="border-blue-500 text-blue-600">
@@ -94,7 +94,7 @@ export const IncomingOrdersView = () => {
       case OrderStatus.Closed:
         return (
           <Badge variant="outline" className="border-green-500 text-green-600">
-            Closed
+            {order.closedBy ? `Closed by ${order.closedBy}` : 'Closed'}
           </Badge>
         );
       case OrderStatus.Cancelled:
@@ -157,7 +157,7 @@ export const IncomingOrdersView = () => {
                   <TableCell>
                     {order.dueDate ? format(parseISO(order.dueDate), 'MMM dd, yyyy') : '-'}
                   </TableCell>
-                  <TableCell>{getStatusBadge(order.status)}</TableCell>
+                  <TableCell>{getStatusBadge(order)}</TableCell>
                   <TableCell>
                     <Badge variant="secondary" className="font-normal">
                       {order.orderLines?.length || 0} lines
@@ -174,14 +174,17 @@ export const IncomingOrdersView = () => {
                       />
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setEditingOrder(order)}>
-                          <Edit2 className="h-4 w-4 mr-2" /> Edit
+                          <Edit2 className="h-4 w-4 mr-2" />{' '}
+                          {order.status === OrderStatus.Closed ? 'View' : 'Edit'}
                         </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => handleDelete(order.id)}
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" /> Delete
-                        </DropdownMenuItem>
+                        {order.status !== OrderStatus.Closed && (
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => handleDelete(order.id)}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" /> Delete
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
