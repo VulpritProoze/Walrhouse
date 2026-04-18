@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Walrhouse.Application.Users.Queries.GetAuthenticatedUser;
 using Walrhouse.Application.Users.Queries.GetUser;
+using Walrhouse.Domain.Constants;
 using Walrhouse.Infrastructure.Identity;
 
 namespace Walrhouse.Web.Endpoints;
@@ -14,7 +15,9 @@ public class Users : IEndpointGroup
         groupBuilder.MapIdentityApi<ApplicationUser>();
         groupBuilder.MapPost(Logout, "logout").RequireAuthorization();
         groupBuilder.MapGet(GetAuthenticatedUser, "info").RequireAuthorization();
-        groupBuilder.MapGet(GetUser, "{id}").RequireAuthorization();
+        groupBuilder
+            .MapGet(GetUser, "{id}")
+            .RequireAuthorization(policy => policy.RequireRole(Roles.Administrator));
     }
 
     [EndpointName(nameof(Logout))]
