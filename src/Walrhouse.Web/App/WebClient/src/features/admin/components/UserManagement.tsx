@@ -9,21 +9,17 @@ import {
 } from '@/components/ui/table.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge/badge.tsx';
-import {
-  UserPlus,
-  Search,
-  MoreHorizontal,
-  ShieldCheck,
-  Ban,
-  UserX,
-  UserCog,
-  Mail,
-  Key,
-} from 'lucide-react';
+import { UserPlus, Search, ShieldCheck, Ban, Users } from 'lucide-react';
 import type { AdminUser, UserStatus } from '../types/admin';
-import { Roles, RoleVariant } from '@/features/auth/types/roles';
+import { Roles } from '@/features/auth/types/roles';
 import { Checkbox } from '@/components/ui/checkbox.tsx';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
+} from '@/components/ui/empty';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -34,13 +30,6 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu.tsx';
 import { UserFormDialog } from './dialogs/UserFormDialog';
 import { EmailUpdateDialog } from './dialogs/EmailUpdateDialog';
 import { PasswordUpdateDialog } from './dialogs/PasswordUpdateDialog';
@@ -94,13 +83,13 @@ const MOCK_USERS: AdminUser[] = [
   },
 ];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
-const STATUS_VARIANT: Record<UserStatus, 'default' | 'success' | 'destructive' | 'warning'> = {
-  active: 'success',
-  whitelisted: 'default',
-  blacklisted: 'destructive',
-  suspended: 'warning',
-};
+// // ─── Helpers ─────────────────────────────────────────────────────────────────
+// const STATUS_VARIANT: Record<UserStatus, 'default' | 'success' | 'destructive' | 'warning'> = {
+//   active: 'success',
+//   whitelisted: 'default',
+//   blacklisted: 'destructive',
+//   suspended: 'warning',
+// };
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function UserManagement() {
@@ -111,7 +100,7 @@ export default function UserManagement() {
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [passDialogOpen, setPassDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<AdminUser | null>(null);
-  const [lastClickedId, setLastClickedId] = useState<string | null>(null);
+  // const [lastClickedId, setLastClickedId] = useState<string | null>(null);
 
   const filtered = users.filter((u) =>
     `${u.firstName} ${u.lastName} ${u.email}`.toLowerCase().includes(search.toLowerCase()),
@@ -127,31 +116,31 @@ export default function UserManagement() {
     }
   };
 
-  const toggleSelection = (id: string, shiftKey?: boolean) => {
-    const next = new Set(selectedIds);
+  // const toggleSelection = (id: string, shiftKey?: boolean) => {
+  //   const next = new Set(selectedIds);
 
-    if (shiftKey && lastClickedId) {
-      const fromIndex = filtered.findIndex((u) => u.id === lastClickedId);
-      const toIndex = filtered.findIndex((u) => u.id === id);
+  //   if (shiftKey && lastClickedId) {
+  //     const fromIndex = filtered.findIndex((u) => u.id === lastClickedId);
+  //     const toIndex = filtered.findIndex((u) => u.id === id);
 
-      if (fromIndex !== -1 && toIndex !== -1) {
-        const start = Math.min(fromIndex, toIndex);
-        const end = Math.max(fromIndex, toIndex);
-        const range = filtered.slice(start, end + 1);
+  //     if (fromIndex !== -1 && toIndex !== -1) {
+  //       const start = Math.min(fromIndex, toIndex);
+  //       const end = Math.max(fromIndex, toIndex);
+  //       const range = filtered.slice(start, end + 1);
 
-        range.forEach((u) => next.add(u.id));
-        setSelectedIds(next);
-        setLastClickedId(id);
-        return;
-      }
-    }
+  //       range.forEach((u) => next.add(u.id));
+  //       setSelectedIds(next);
+  //       setLastClickedId(id);
+  //       return;
+  //     }
+  //   }
 
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
+  //   if (next.has(id)) next.delete(id);
+  //   else next.add(id);
 
-    setSelectedIds(next);
-    setLastClickedId(id);
-  };
+  //   setSelectedIds(next);
+  //   setLastClickedId(id);
+  // };
 
   const clearSelection = () => setSelectedIds(new Set());
 
@@ -160,20 +149,20 @@ export default function UserManagement() {
     clearSelection();
   };
 
-  const handleEdit = (user: AdminUser) => {
-    setEditingUser(user);
-    setDialogOpen(true);
-  };
+  // const handleEdit = (user: AdminUser) => {
+  //   setEditingUser(user);
+  //   setDialogOpen(true);
+  // };
 
-  const handleEditEmail = (user: AdminUser) => {
-    setEditingUser(user);
-    setEmailDialogOpen(true);
-  };
+  // const handleEditEmail = (user: AdminUser) => {
+  //   setEditingUser(user);
+  //   setEmailDialogOpen(true);
+  // };
 
-  const handleResetPassword = (user: AdminUser) => {
-    setEditingUser(user);
-    setPassDialogOpen(true);
-  };
+  // const handleResetPassword = (user: AdminUser) => {
+  //   setEditingUser(user);
+  //   setPassDialogOpen(true);
+  // };
 
   const handleCreate = () => {
     setEditingUser(null);
@@ -197,17 +186,17 @@ export default function UserManagement() {
     console.log(`Password reset for ${id} (new pass: ${pass.length} chars)`);
   };
 
-  const handleStatusChange = (id: string, status: UserStatus) => {
-    setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
-  };
+  // const handleStatusChange = (id: string, status: UserStatus) => {
+  //   setUsers((prev) => prev.map((u) => (u.id === id ? { ...u, status } : u)));
+  // };
 
   const [deactivateDialogOpen, setDeactivateDialogOpen] = useState(false);
   const [deactivatingUser, setDeactivatingUser] = useState<AdminUser | null>(null);
 
-  const handleDeactivate = (user: AdminUser) => {
-    setDeactivatingUser(user);
-    setDeactivateDialogOpen(true);
-  };
+  // const handleDeactivate = (user: AdminUser) => {
+  //   setDeactivatingUser(user);
+  //   setDeactivateDialogOpen(true);
+  // };
 
   const confirmDeactivate = () => {
     if (!deactivatingUser) return;
@@ -339,127 +328,22 @@ export default function UserManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filtered.length === 0 && (
-              <TableRow>
-                <TableCell colSpan={9} className="text-center text-muted-foreground py-10">
-                  No users found.
-                </TableCell>
-              </TableRow>
-            )}
-            {filtered.map((user) => (
-              <TableRow
-                key={user.id}
-                data-selected={selectedIds.has(user.id)}
-                className="data-[selected=true]:bg-muted/50"
-              >
-                <TableCell className="w-[50px]">
-                  <div
-                    onClick={(e) => {
-                      // We handle the selection logic here to capture e.shiftKey
-                      // Preventing default on the div avoids double trigger if Checkbox has its own handler
-                      toggleSelection(user.id, e.shiftKey);
-                    }}
-                  >
-                    <Checkbox
-                      checked={selectedIds.has(user.id)}
-                      // We pass an empty function here as we handle logic in the wrapper's onClick
-                      onCheckedChange={() => {}}
-                      aria-label={`Select ${user.firstName}`}
-                      className="cursor-pointer"
-                    />
-                  </div>
-                </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground">{user.id}</TableCell>
-                <TableCell>
-                  <div className="font-medium">
-                    {user.firstName} {user.middleName ? `${user.middleName} ` : ''}
-                    {user.lastName}
-                  </div>
-                  {user.lastLogin && (
-                    <div className="text-xs text-muted-foreground">
-                      Last login: {new Date(user.lastLogin).toLocaleDateString()}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>
-                  {user.phoneNumber ?? <span className="text-muted-foreground">—</span>}
-                </TableCell>
-                <TableCell>
-                  {user.address?.city ? (
-                    `${user.address.city}${user.address.province ? `, ${user.address.province}` : ''}`
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {user.roles.map((r) => (
-                      <Badge
-                        key={r}
-                        variant={RoleVariant[r] || 'default'}
-                        className="text-[10px] whitespace-nowrap"
-                      >
-                        {r}
-                      </Badge>
-                    ))}
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <Badge variant={STATUS_VARIANT[user.status]} className="capitalize text-[10px]">
-                    {user.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                          <span className="sr-only">Actions</span>
-                        </Button>
-                      }
-                    />
-                    <DropdownMenuContent align="end" className="w-48">
-                      <DropdownMenuItem onClick={() => handleEdit(user)} className="gap-2">
-                        <UserCog className="h-4 w-4 text-muted-foreground" />
-                        Edit Profile
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleEditEmail(user)} className="gap-2">
-                        <Mail className="h-4 w-4 text-muted-foreground" />
-                        Update Email
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleResetPassword(user)} className="gap-2">
-                        <Key className="h-4 w-4 text-muted-foreground" />
-                        Reset Password
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="gap-2 text-destructive"
-                        onClick={() => handleDeactivate(user)}
-                      >
-                        <UserX className="h-4 w-4" />
-                        Deactivate
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(user.id, 'whitelisted')}
-                        className="gap-2"
-                      >
-                        <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-                        Whitelist
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleStatusChange(user.id, 'blacklisted')}
-                        className="gap-2"
-                      >
-                        <Ban className="h-4 w-4 text-muted-foreground" />
-                        Blacklist
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            ))}
+            <TableRow>
+              <TableCell colSpan={9} className="h-48 p-0">
+                <Empty className="border-none">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <Users className="size-4" />
+                    </EmptyMedia>
+                    <EmptyTitle>Feature coming soon</EmptyTitle>
+                    <EmptyDescription>
+                      The User Management module is currently under development. This feature will
+                      allow you to manage user profiles, roles, and security statuses.
+                    </EmptyDescription>
+                  </EmptyHeader>
+                </Empty>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
       </div>

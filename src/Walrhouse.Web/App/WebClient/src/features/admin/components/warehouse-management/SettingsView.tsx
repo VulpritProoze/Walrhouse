@@ -8,13 +8,15 @@ export function SettingsView() {
   return (
     <OverlayBlocker
       title="Coming Soon"
-      description="Warehouse management settings are currently under development. This module will allow fine-grained control over layout and automation."
+      description="Warehouse management settings is currently under development. This module will allow fine-grained control over layout and automation."
       icon={Settings2}
     >
       <div className="space-y-6 animate-in fade-in duration-300">
         <div>
           <h4 className="text-lg font-medium">UI Settings</h4>
-          <p className="text-sm text-muted-foreground">Adjust infrastructure display preferences.</p>
+          <p className="text-sm text-muted-foreground">
+            Adjust infrastructure display preferences.
+          </p>
         </div>
 
         <Card className="p-6 border-none shadow-sm space-y-6">
