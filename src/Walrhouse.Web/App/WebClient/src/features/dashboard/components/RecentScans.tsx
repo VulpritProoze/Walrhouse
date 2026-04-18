@@ -51,7 +51,7 @@ const recentScans = [
   },
 ];
 
-export default function MainContent() {
+export default function RecentScans() {
   const navigate = useNavigate();
 
   const isExpired = (dateString: string) => {
@@ -109,7 +109,11 @@ export default function MainContent() {
                     <TableCell>
                       <Badge
                         variant={
-                          expired ? 'destructive' : scan.status === 'Verified' ? 'success' : 'warning'
+                          expired
+                            ? 'destructive'
+                            : scan.status === 'Verified'
+                              ? 'success'
+                              : 'warning'
                         }
                       >
                         {expired ? 'Expired' : scan.status}
