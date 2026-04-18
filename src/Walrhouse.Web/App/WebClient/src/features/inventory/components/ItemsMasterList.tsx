@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ItemGroup, BarcodeFormat } from '@/features/item/types/enums';
+import { ItemGroup } from '@/features/item/types/enums';
 import {
   Table,
   TableHeader,
@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/select';
 import { ItemDialog, DeleteItemAlertDialog } from './item-management/ItemDialogs';
 import { useItems } from '@/features/item/hooks/queries/use-item';
+import { useUoMGroup } from '@/features/uom-group/hooks/queries/use-uom-group';
 import {
   useCreateItem,
   useUpdateItem,
@@ -75,6 +76,16 @@ export function ItemsMasterList() {
 
   const [deleteAlertOpen, setDeleteAlertOpen] = useState(false);
   const [deletingItem, setDeletingItem] = useState<ItemDto | null>(null);
+
+  const BaseUoM = ({ uoMGroupId }: { uoMGroupId: number }) => {
+    const { data: uoMGroup, isLoading } = useUoMGroup(uoMGroupId, !!uoMGroupId);
+
+    if (!uoMGroupId) return '-';
+    if (isLoading) return '...';
+    if (!uoMGroup) return uoMGroupId;
+
+    return uoMGroup.baseUoM;
+  };
 
   const handleOpenAdd = () => {
     setDialogMode('add');
@@ -159,7 +170,6 @@ export function ItemsMasterList() {
                 <TableHead className="w-32">Item Code</TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead className="w-32">Group</TableHead>
-                <TableHead className="w-40">Barcode</TableHead>
                 <TableHead className="w-48">Remarks</TableHead>
                 <TableHead className="w-10"></TableHead>
               </TableRow>
@@ -189,7 +199,7 @@ export function ItemsMasterList() {
                     <TableCell>
                       <div className="font-medium">{item.itemName}</div>
                       <div className="text-[10px] text-muted-foreground uppercase">
-                        UoM Group: {item.uoMGroupId}
+                        Base UOM: <BaseUoM uoMGroupId={item.uoMGroupId || 0} />
                       </div>
                     </TableCell>
                     <TableCell>
@@ -198,15 +208,6 @@ export function ItemsMasterList() {
                           (key) => ItemGroup[key as keyof typeof ItemGroup] === item.itemGroup,
                         ) || 'General'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="text-xs font-mono">{item.barcodeValue || '-'}</div>
-                      <div className="text-[10px] text-muted-foreground uppercase">
-                        {Object.keys(BarcodeFormat).find(
-                          (key) =>
-                            BarcodeFormat[key as keyof typeof BarcodeFormat] === item.barcodeFormat,
-                        ) || '-'}
-                      </div>
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground truncate max-w-37.5">
                       {item.remarks || '-'}
