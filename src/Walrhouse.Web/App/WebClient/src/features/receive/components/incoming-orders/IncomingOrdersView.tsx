@@ -94,18 +94,22 @@ export const IncomingOrdersView = () => {
     switch (order.status) {
       case OrderStatus.Open:
         return (
-          <Badge variant="outline" className="border-blue-500 text-blue-600">
+          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none shadow-none">
             Open
           </Badge>
         );
       case OrderStatus.Closed:
         return (
-          <Badge variant="outline" className="border-green-500 text-green-600">
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none shadow-none">
             {order.closedBy ? `Closed by ${order.closedBy}` : 'Closed'}
           </Badge>
         );
       case OrderStatus.Cancelled:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return (
+          <Badge variant="destructive" className="shadow-none">
+            Cancelled
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }

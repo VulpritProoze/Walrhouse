@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Walrhouse.Application.Users.Queries.GetAuthenticatedUserInfo;
+using Walrhouse.Application.Users.Queries.GetAuthenticatedUser;
+using Walrhouse.Application.Users.Queries.GetUser;
 using Walrhouse.Infrastructure.Identity;
 
 namespace Walrhouse.Web.Endpoints;
@@ -12,7 +13,8 @@ public class Users : IEndpointGroup
     {
         groupBuilder.MapIdentityApi<ApplicationUser>();
         groupBuilder.MapPost(Logout, "logout").RequireAuthorization();
-        groupBuilder.MapGet(GetAuthenticatedUserInfo, "info").RequireAuthorization();
+        groupBuilder.MapGet(GetAuthenticatedUser, "info").RequireAuthorization();
+        groupBuilder.MapGet(GetUser, "{id}").RequireAuthorization();
     }
 
     [EndpointName(nameof(Logout))]
@@ -31,13 +33,22 @@ public class Users : IEndpointGroup
         return TypedResults.Unauthorized();
     }
 
-    [EndpointName(nameof(GetAuthenticatedUserInfo))]
+    [EndpointName(nameof(GetAuthenticatedUser))]
     [EndpointSummary("Get authenticated user's information")]
-    public static async Task<
-        Results<Ok<AuthUserDto>, UnauthorizedHttpResult>
-    > GetAuthenticatedUserInfo(ISender sender)
+    public static async Task<Results<Ok<AuthUserDto>, UnauthorizedHttpResult>> GetAuthenticatedUser(
+        ISender sender
+    )
     {
-        var result = await sender.Send(new GetAuthenticatedUserInfoQuery());
+        var result = await sender.Send(new GetAuthenticatedUserQuery());
+
+        return TypedResults.Ok(result);
+    }
+
+    [EndpointName(nameof(GetUser))]
+    [EndpointSummary("Get specific user information by ID")]
+    public static async Task<Ok<UserDto>> GetUser(ISender sender, string id)
+    {
+        var result = await sender.Send(new GetUserQuery(id));
 
         return TypedResults.Ok(result);
     }

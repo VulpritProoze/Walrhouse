@@ -1,18 +1,18 @@
 using Walrhouse.Application.Common.Interfaces;
 using Walrhouse.Application.Common.Models;
 
-namespace Walrhouse.Application.Users.Queries.GetAuthenticatedUserInfo;
+namespace Walrhouse.Application.Users.Queries.GetAuthenticatedUser;
 
-public record GetAuthenticatedUserInfoQuery : IRequest<AuthUserDto>;
+public record GetAuthenticatedUserQuery : IRequest<AuthUserDto>;
 
-public class GetAuthenticatedUserInfoQueryHandler
-    : IRequestHandler<GetAuthenticatedUserInfoQuery, AuthUserDto>
+public class GetAuthenticatedUserQueryHandler
+    : IRequestHandler<GetAuthenticatedUserQuery, AuthUserDto>
 {
     private readonly IIdentityService _identityService;
     private readonly IMapper _mapper;
     private readonly IUser _currentUser;
 
-    public GetAuthenticatedUserInfoQueryHandler(
+    public GetAuthenticatedUserQueryHandler(
         IIdentityService identityService,
         IMapper mapper,
         IUser currentUser
@@ -24,7 +24,7 @@ public class GetAuthenticatedUserInfoQueryHandler
     }
 
     public async Task<AuthUserDto> Handle(
-        GetAuthenticatedUserInfoQuery request,
+        GetAuthenticatedUserQuery request,
         CancellationToken cancellationToken
     )
     {
