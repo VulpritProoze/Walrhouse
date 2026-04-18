@@ -9,60 +9,23 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Package, Calendar, ExternalLink } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-
-const recentScans = [
-  {
-    id: 'scan-001',
-    sku: 'PH-10023',
-    name: 'Paracetamol 500mg',
-    binLocation: 'Z1-A-1-1',
-    date: '2026-03-19 14:32',
-    expirationDate: '2026-06-01',
-    status: 'Verified',
-  },
-  {
-    id: 'scan-002',
-    sku: 'PH-44056',
-    name: 'Amoxicillin 250mg',
-    binLocation: 'Z1-B-2-4',
-    date: '2026-03-19 13:15',
-    expirationDate: '2026-03-15', // Expired
-    status: 'Verified',
-  },
-  {
-    id: 'scan-003',
-    sku: 'PH-70889',
-    name: 'Metformin 500mg',
-    binLocation: 'Z2-C-1-1',
-    date: '2026-03-18 16:44',
-    expirationDate: '2026-12-31',
-    status: 'Mismatch',
-  },
-  {
-    id: 'scan-004',
-    sku: 'PH-10511',
-    name: 'Atorvastatin 20mg',
-    binLocation: 'Z1-A-04',
-    date: '2026-03-18 09:21',
-    expirationDate: '2026-02-10', // Expired
-    status: 'Verified',
-  },
-];
+import { Package, Calendar, ExternalLink, Loader2 } from 'lucide-react';
+import { useVerificationHistories } from '@/features/verification/hooks/queries/use-verification';
 
 export default function RecentScans() {
   const navigate = useNavigate();
+  const { data, isLoading } = useVerificationHistories({
+    pageNumber: 1,
+    pageSize: 5,
+  });
 
-  const isExpired = (dateString: string) => {
-    return new Date(dateString) < new Date();
-  };
+  const scans = data?.items ?? [];
 
   return (
     <Card className="col-span-2">
       <CardHeader>
-        <CardTitle className="text-lg">Recent Scans</CardTitle>
-        <CardDescription>Your latest item verifications at a glance.</CardDescription>
+        <CardTitle className="text-lg">Recent Verifications</CardTitle>
+        <CardDescription>Your latest batch verifications at a glance.</CardDescription>
       </CardHeader>
       <CardContent>
         <div className="rounded-lg border overflow-hidden">
@@ -70,69 +33,67 @@ export default function RecentScans() {
             <TableHeader className="bg-muted/40">
               <TableRow>
                 <TableHead className="text-xs font-medium uppercase tracking-wider">
+                  Reference ID
+                </TableHead>
+                <TableHead className="text-xs font-medium uppercase tracking-wider">
                   <span className="flex items-center gap-1">
-                    <Package className="h-3 w-3" /> SKU
+                    <Package className="h-3 w-3" /> Batch Number
                   </span>
                 </TableHead>
                 <TableHead className="text-xs font-medium uppercase tracking-wider">
-                  Item Name
-                </TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wider hidden md:table-cell">
-                  Bin Location
+                  Remarks
                 </TableHead>
                 <TableHead className="text-xs font-medium uppercase tracking-wider">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" /> Scan Date
                   </span>
                 </TableHead>
-                <TableHead className="text-xs font-medium uppercase tracking-wider">
-                  Status
-                </TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
             <TableBody>
-              {recentScans.map((scan) => {
-                const expired = isExpired(scan.expirationDate);
-                return (
-                  <TableRow key={scan.id} className={expired ? 'bg-destructive/5' : ''}>
-                    <TableCell className="font-mono text-xs font-medium">{scan.sku}</TableCell>
-                    <TableCell
-                      className={`text-sm ${expired ? 'text-destructive font-medium' : ''}`}
-                    >
-                      {scan.name}
+              {isLoading ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center">
+                    <div className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>Loading verifications...</span>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : scans.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                    No recent verifications found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                scans.map((scan) => (
+                  <TableRow key={scan.id}>
+                    <TableCell className="font-mono text-xs font-medium">#{scan.id}</TableCell>
+                    <TableCell className="text-sm font-medium">
+                      {scan.batchNumberVerified}
                     </TableCell>
-                    <TableCell className="text-muted-foreground font-mono text-xs hidden md:table-cell">
-                      {scan.binLocation}
+                    <TableCell className="text-muted-foreground text-sm truncate max-w-[200px]">
+                      {scan.remarks || '---'}
                     </TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{scan.date}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={
-                          expired
-                            ? 'destructive'
-                            : scan.status === 'Verified'
-                              ? 'success'
-                              : 'warning'
-                        }
-                      >
-                        {expired ? 'Expired' : scan.status}
-                      </Badge>
+                    <TableCell className="text-muted-foreground text-xs">
+                      {new Date(scan.createdAt).toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7"
-                        onClick={() => navigate(`/verification`)}
+                        onClick={() => navigate(`/history`)}
                       >
                         <ExternalLink className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className="sr-only">View scan detail</span>
                       </Button>
                     </TableCell>
                   </TableRow>
-                );
-              })}
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

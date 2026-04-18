@@ -18,18 +18,24 @@ import {
 } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge/badge.tsx';
 import {
   ShieldCheck,
   ShieldX,
-  ShieldAlert,
   Globe,
   Plus,
   Search,
   AlertTriangle,
   Lock,
+  History,
 } from 'lucide-react';
 import type { IpRecord } from '../types/admin';
+import {
+  Empty,
+  EmptyHeader,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyMedia,
+} from '@/components/ui/empty';
 
 // ─── Mock data ────────────────────────────────────────────────────────────────
 const MOCK_IPS: IpRecord[] = [
@@ -66,12 +72,6 @@ const MOCK_IPS: IpRecord[] = [
     country: 'DE',
   },
 ];
-
-const STATUS_VARIANT: Record<IpRecord['status'], 'default' | 'success' | 'warning' | 'destructive'> = {
-  allowed: 'success',
-  flagged: 'warning',
-  blocked: 'destructive',
-};
 
 const SECURITY_STATS = [
   { label: 'Active Sessions', value: '14', icon: ShieldCheck, color: 'text-green-500' },
@@ -116,8 +116,14 @@ function AddIpDialog({ onAdd }: { onAdd: (r: IpRecord) => void }) {
         </DialogHeader>
         <div className="grid gap-3 py-2">
           <div>
-            <label className="text-xs font-medium text-foreground/70 mb-1 block">IP Address *</label>
-            <Input value={ip} onChange={(e) => setIp(e.target.value)} placeholder="e.g. 192.168.1.1" />
+            <label className="text-xs font-medium text-foreground/70 mb-1 block">
+              IP Address *
+            </label>
+            <Input
+              value={ip}
+              onChange={(e) => setIp(e.target.value)}
+              placeholder="e.g. 192.168.1.1"
+            />
           </div>
           <div>
             <label className="text-xs font-medium text-foreground/70 mb-1.5 block">Status</label>
@@ -159,19 +165,12 @@ export default function SecurityModule() {
       (r.country ?? '').toLowerCase().includes(search.toLowerCase()),
   );
 
-  const setStatus = (ip: string, status: IpRecord['status']) => {
-    setRecords((prev) => prev.map((r) => (r.ip === ip ? { ...r, status } : r)));
-  };
-
   return (
     <div className="flex flex-col gap-6">
       {/* Stats row */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         {SECURITY_STATS.map(({ label, value, icon: Icon, color }) => (
-          <div
-            key={label}
-            className="rounded-lg border bg-card p-4 flex items-center gap-3"
-          >
+          <div key={label} className="rounded-lg border bg-card p-4 flex items-center gap-3">
             <div className={`${color} shrink-0`}>
               <Icon className="h-5 w-5" />
             </div>
@@ -224,90 +223,22 @@ export default function SecurityModule() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-10">
-                    No IP records found.
-                  </TableCell>
-                </TableRow>
-              )}
-              {filtered.map((rec) => (
-                <TableRow key={rec.ip}>
-                  <TableCell className="font-mono text-xs">{rec.ip}</TableCell>
-                  <TableCell>
-                    {rec.country ? (
-                      <span className="text-xs font-medium">{rec.country}</span>
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {rec.userName ? (
-                      <div>
-                        <p className="text-xs font-medium">{rec.userName}</p>
-                        {rec.userId && (
-                          <p className="text-[10px] text-muted-foreground font-mono">{rec.userId}</p>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">Unknown</span>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`text-xs font-medium ${
-                        rec.requestCount > 1000 ? 'text-destructive' : ''
-                      }`}
-                    >
-                      {rec.requestCount.toLocaleString()}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(rec.lastSeen).toLocaleString()}
-                    </span>
-                  </TableCell>
-                  <TableCell>
-                    <Badge variant={STATUS_VARIANT[rec.status]} className="capitalize text-[10px]">
-                      {rec.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      {rec.status !== 'allowed' && (
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          title="Allow"
-                          onClick={() => setStatus(rec.ip, 'allowed')}
-                        >
-                          <ShieldCheck className="h-3.5 w-3.5 text-green-500" />
-                        </Button>
-                      )}
-                      {rec.status !== 'flagged' && (
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          title="Flag"
-                          onClick={() => setStatus(rec.ip, 'flagged')}
-                        >
-                          <ShieldAlert className="h-3.5 w-3.5 text-amber-500" />
-                        </Button>
-                      )}
-                      {rec.status !== 'blocked' && (
-                        <Button
-                          size="icon-sm"
-                          variant="ghost"
-                          title="Block"
-                          onClick={() => setStatus(rec.ip, 'blocked')}
-                        >
-                          <ShieldX className="h-3.5 w-3.5 text-destructive" />
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell colSpan={7} className="h-48 p-0">
+                  <Empty className="border-none">
+                    <EmptyHeader>
+                      <EmptyMedia variant="icon">
+                        <History className="size-4" />
+                      </EmptyMedia>
+                      <EmptyTitle>Feature coming soon</EmptyTitle>
+                      <EmptyDescription>
+                        We're currently working on the IP Management module. This feature will allow
+                        you to track, whitelist, and block IP addresses in real-time.
+                      </EmptyDescription>
+                    </EmptyHeader>
+                  </Empty>
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </div>

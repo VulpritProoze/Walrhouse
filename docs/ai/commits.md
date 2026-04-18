@@ -23,7 +23,7 @@ Commit message structure
 - Keep message concise yet meaningful. Prefer a more specific message, and separate commit if needed.
 
 Example
-- `feat(Warehouses): add CreateWarehouse command handler`  
+- `feat(warehouses): add CreateWarehouse command handler`  
 
 Agent rules
 - Agents must create a single commit per prompt/action and include only files they modified.
