@@ -22,6 +22,7 @@ import {
   type IncomingOrderDto,
   IncomingOrderStatus as OrderStatus,
 } from '../../types/incoming-order-dto';
+import { useUser } from '@/features/user/hooks/queries';
 import {
   type CreateSalesOrderRequest,
   type UpdateSalesOrderRequest,
@@ -90,6 +91,15 @@ export const IncomingOrdersView = () => {
     }
   };
 
+  const ClosedByBadge = ({ userId }: { userId: string }) => {
+    const { data: user, isLoading } = useUser(userId);
+
+    if (isLoading) return 'Loading...';
+    if (!user) return userId;
+
+    return `${user.firstName} ${user.lastName}`;
+  };
+
   const getStatusBadge = (order: IncomingOrderDto) => {
     switch (order.status) {
       case OrderStatus.Open:
@@ -100,8 +110,14 @@ export const IncomingOrdersView = () => {
         );
       case OrderStatus.Closed:
         return (
-          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none shadow-none">
-            {order.closedBy ? `Closed by ${order.closedBy}` : 'Closed'}
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none shadow-none text-nowrap">
+            {order.closedBy ? (
+              <>
+                Closed by <ClosedByBadge userId={order.closedBy} />
+              </>
+            ) : (
+              'Closed'
+            )}
           </Badge>
         );
       case OrderStatus.Cancelled:

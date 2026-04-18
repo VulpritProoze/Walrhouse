@@ -59,7 +59,7 @@ public class ApplicationDbContextInitializer
             // See https://jasontaylor.dev/ef-core-database-initialisation-strategies
             // await _context.Database.EnsureDeletedAsync();
             // await _context.Database.EnsureCreatedAsync();
-            _context.Database.Migrate();
+            await _context.Database.MigrateAsync();
         }
         catch (Exception ex)
         {
