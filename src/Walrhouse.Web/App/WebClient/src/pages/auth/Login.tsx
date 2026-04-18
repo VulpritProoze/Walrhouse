@@ -19,15 +19,15 @@ export default function Login() {
         aria-live="polite"
       >
         <CardHeader>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center justify-center gap-3 mb-3">
             <img
-              src="/walrhouse2.png"
-              alt="Walrhouse logo"
-              className="h-10 w-10 rounded-md object-cover"
+              src="/majesty_pharma_logo.png"
+              alt="Majesty Pharma logo"
+              className="h-20 w-20 rounded-md object-cover"
             />
           </div>
-          <CardTitle className="text-2xl font-semibold">Walrhouse</CardTitle>
-          <CardDescription>Strong, social, resilient — storage made simple.</CardDescription>
+          <CardTitle className="text-2xl font-semibold">Majesty Pharma WMS</CardTitle>
+          <CardDescription>Serving health and wellness since 1999</CardDescription>
         </CardHeader>
 
         <CardContent>
@@ -41,9 +41,10 @@ export default function Login() {
       </Card>
 
       <footer className="text-sm text-muted-foreground w-full max-w-md text-center">
-        <div className="mb-2">Integrations: LDAP, SSO, Device scanners — connect in Settings.</div>
+        <div className="mb-2">Quality Medicines. Accessible to All.</div>
         <div className="text-xs">
-          Walrhouse — named after walruses: built to endure, built to work together.
+          Majesty Pharma — Committed to providing affordable and high-quality healthcare for every
+          Filipino.
         </div>
       </footer>
     </div>
