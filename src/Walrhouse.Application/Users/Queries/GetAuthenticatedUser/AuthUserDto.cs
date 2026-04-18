@@ -1,6 +1,6 @@
 using Walrhouse.Application.Common.Interfaces;
 
-namespace Walrhouse.Application.Users.Queries.GetAuthenticatedUserInfo;
+namespace Walrhouse.Application.Users.Queries.GetAuthenticatedUser;
 
 public record AuthUserDto
 {

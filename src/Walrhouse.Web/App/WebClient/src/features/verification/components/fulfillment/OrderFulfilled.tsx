@@ -7,7 +7,7 @@ import {
   CardFooter,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Truck, PackageCheck, Home } from 'lucide-react';
+import { CheckCircle, Truck, PackageCheck, Home, AlertTriangle } from 'lucide-react';
 import type { SalesOrderDto } from '@/features/sales-order/api/sales-order.service';
 
 interface OrderFulfilledProps {
@@ -23,6 +23,7 @@ export function OrderFulfilled({
 }: OrderFulfilledProps) {
   const totalOrdered = salesOrder?.orderLines.reduce((acc, ol) => acc + ol.orderedQty, 0) ?? 0;
   const totalPicked = salesOrder?.orderLines.reduce((acc, ol) => acc + (ol.pickedQty ?? 0), 0) ?? 0;
+  const isPartiallyVerified = totalPicked < totalOrdered;
 
   return (
     <Card className="border-none shadow-none text-center sm:border sm:shadow-sm sm:bg-card">
@@ -45,13 +46,29 @@ export function OrderFulfilled({
               <p className="text-xs text-muted-foreground">Status: {salesOrder?.status}</p>
             </div>
           </div>
-          <div className="flex items-center gap-4 rounded-lg bg-muted/50 p-4 text-left">
-            <PackageCheck className="h-8 w-8 text-primary" />
+          <div
+            className={`flex items-center gap-4 rounded-lg p-4 text-left ${
+              isPartiallyVerified
+                ? 'bg-yellow-50 text-yellow-800 border border-yellow-200'
+                : 'bg-muted/50'
+            }`}
+          >
+            {isPartiallyVerified ? (
+              <AlertTriangle className="h-8 w-8 text-yellow-600" />
+            ) : (
+              <PackageCheck className="h-8 w-8 text-primary" />
+            )}
             <div>
               <p className="text-sm font-semibold">
                 {totalPicked}/{totalOrdered} Items Verified
               </p>
-              <p className="text-xs text-muted-foreground">All conditions matched.</p>
+              <p
+                className={`text-xs ${isPartiallyVerified ? 'text-yellow-700' : 'text-muted-foreground'}`}
+              >
+                {isPartiallyVerified
+                  ? 'Some items have not yet been verified'
+                  : 'All conditions matched.'}
+              </p>
             </div>
           </div>
         </div>

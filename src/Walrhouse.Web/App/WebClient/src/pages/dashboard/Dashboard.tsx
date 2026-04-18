@@ -2,8 +2,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import CommonLayout from '@/layouts/CommonLayout';
 import type { Roles as RoleType } from '@/features/auth/types/roles';
 import { useAuth } from '@/features/auth/hooks/use-auth';
-import MainContent from './sections/MainContent';
-import QuickActions from './sections/QuickActions';
+import RecentScans from '@/features/dashboard/components/RecentScans';
+import QuickActions from '@/features/dashboard/components/QuickActions';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -24,13 +24,15 @@ export default function Dashboard() {
       <div className="min-h-[60vh] flex flex-col gap-6">
         <motion.div {...headerAnim} className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-semibold">Dashboard</h2>
-            <p className="text-sm text-muted-foreground">Overview of warehouse activity</p>
+            <h2 className="text-2xl font-semibold">Inventory Hub</h2>
+            <p className="text-sm text-muted-foreground">
+              Monitoring pharmaceutical distribution and stock health
+            </p>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          <MainContent />
+          <RecentScans />
           <QuickActions />
         </div>
 

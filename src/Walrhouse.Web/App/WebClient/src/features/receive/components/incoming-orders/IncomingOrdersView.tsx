@@ -22,6 +22,7 @@ import {
   type IncomingOrderDto,
   IncomingOrderStatus as OrderStatus,
 } from '../../types/incoming-order-dto';
+import { useUser } from '@/features/user/hooks/queries';
 import {
   type CreateSalesOrderRequest,
   type UpdateSalesOrderRequest,
@@ -90,22 +91,41 @@ export const IncomingOrdersView = () => {
     }
   };
 
+  const ClosedByBadge = ({ userId }: { userId: string }) => {
+    const { data: user, isLoading } = useUser(userId);
+
+    if (isLoading) return 'Loading...';
+    if (!user) return userId;
+
+    return `${user.firstName} ${user.lastName}`;
+  };
+
   const getStatusBadge = (order: IncomingOrderDto) => {
     switch (order.status) {
       case OrderStatus.Open:
         return (
-          <Badge variant="outline" className="border-blue-500 text-blue-600">
+          <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none shadow-none">
             Open
           </Badge>
         );
       case OrderStatus.Closed:
         return (
-          <Badge variant="outline" className="border-green-500 text-green-600">
-            {order.closedBy ? `Closed by ${order.closedBy}` : 'Closed'}
+          <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none shadow-none text-nowrap">
+            {order.closedBy ? (
+              <>
+                Closed by <ClosedByBadge userId={order.closedBy} />
+              </>
+            ) : (
+              'Closed'
+            )}
           </Badge>
         );
       case OrderStatus.Cancelled:
-        return <Badge variant="destructive">Cancelled</Badge>;
+        return (
+          <Badge variant="destructive" className="shadow-none">
+            Cancelled
+          </Badge>
+        );
       default:
         return <Badge variant="secondary">Unknown</Badge>;
     }

@@ -10,9 +10,9 @@ type Props = {
 };
 
 export default function Header({
-  title = 'Walrhouse',
+  title = 'Majesty Pharma',
   roles = [],
-  logoSrc = '/walrhouse2.png',
+  logoSrc = '/majesty_pharma_logo.png',
 }: Props) {
   // Identify the roles by priority
   const sortedRoles = [...roles].sort((a, b) => {

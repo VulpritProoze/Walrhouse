@@ -15,4 +15,5 @@ public interface IIdentityServiceUser
     string FirstName { get; }
     string? MiddleName { get; }
     string LastName { get; }
+    string? PhoneNumber { get; }
 }

@@ -99,15 +99,13 @@ export default function SalesOrderItemDetails({
               id: salesOrder.id,
               data: {
                 ...salesOrder,
-                status: shouldFulfill ? OrderStatus.Closed : salesOrder.status,
+                status: salesOrder.status,
                 orderLines: updatedLines,
               },
             },
             {
               onSuccess: () => {
-                toast.success(
-                  shouldFulfill ? 'Item verified and Order Fulfilled' : 'Item verified and added',
-                );
+                toast.success(shouldFulfill ? 'Item verified' : 'Item verified and added');
                 if (shouldFulfill) {
                   onConfirm?.();
                 } else {

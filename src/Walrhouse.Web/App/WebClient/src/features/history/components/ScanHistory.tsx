@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { ScanDetailsDialog } from './ScanDetailsDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useVerificationHistories } from '@/features/verification/hooks/queries/use-verification';
+import { useUser } from '@/features/user/hooks/queries';
 import { Spinner } from '@/components/ui/spinner';
 import {
   Empty,
@@ -27,6 +28,16 @@ import { type VerificationHistoryDto } from '../types';
 export default function ScanHistory() {
   const [selectedScan, setSelectedScan] = useState<VerificationHistoryDto | null>(null);
   const { data: histories, isLoading, isError } = useVerificationHistories();
+
+  const UserDisplayName = ({ userId }: { userId?: string }) => {
+    const { data: user, isLoading } = useUser(userId || '', !!userId);
+
+    if (!userId) return '-';
+    if (isLoading) return '...';
+    if (!user) return userId;
+
+    return `${user.firstName} ${user.lastName}`;
+  };
 
   if (isLoading) {
     return (
@@ -110,7 +121,7 @@ export default function ScanHistory() {
                         {new Date(scan.createdAt).toLocaleString()}
                       </TableCell>
                       <TableCell className="text-muted-foreground text-xs">
-                        {scan.createdBy}
+                        <UserDisplayName userId={scan.createdBy} />
                       </TableCell>
                       <TableCell className="text-xs text-muted-foreground truncate max-w-[120px]">
                         {scan.remarks || '-'}
