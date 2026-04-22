@@ -23,6 +23,7 @@ export interface SalesOrderDto {
   closedBy: string | null;
   customerName: string | null;
   remarks: string | null;
+  createdAt: string;
   orderLines: OrderLineDto[];
 }
 
