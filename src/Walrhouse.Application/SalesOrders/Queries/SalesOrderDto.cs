@@ -28,7 +28,8 @@ public class SalesOrderDtoProfile : Profile
 {
     public SalesOrderDtoProfile()
     {
-        CreateMap<SalesOrder, SalesOrderDto>();
+        CreateMap<SalesOrder, SalesOrderDto>()
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(s => s.CreatedAt));
         CreateMap<OrderLine, OrderLineDto>();
     }
 }
