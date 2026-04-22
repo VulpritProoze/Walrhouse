@@ -23,6 +23,7 @@ export function AddIncomingOrderDialog({
     status: IncomingOrderStatus.Open,
     closedBy: null,
     orderLines: [],
+    createdAt: new Date().toISOString(),
   };
 
   return (
