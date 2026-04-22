@@ -41,8 +41,12 @@ export const SalesOrderPrintTemplate = ({
     <div className="p-8 bg-white text-black font-sans print:p-0" id="sales-order-print-template">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <img src={barcodeUrl} alt={barcodeValue} className="h-20 w-auto object-contain" />
-          <p className="text-[8px] font-mono mt-1 text-center uppercase tracking-widest">
+          <img
+            src={barcodeUrl}
+            alt={barcodeValue}
+            className="h-32 w-80 object-fill [image-rendering:pixelated]"
+          />
+          <p className="text-[12px] font-mono mt-1 text-center uppercase tracking-widest">
             {barcodeValue}
           </p>
         </div>
@@ -68,7 +72,7 @@ export const SalesOrderPrintTemplate = ({
           <div className="grid grid-cols-[1fr_auto] gap-x-8 items-center border-b pb-1">
             <span className="text-[10px] text-gray-500 uppercase font-semibold">Issue Date</span>
             <span className="font-medium min-w-[120px] text-right">
-              {order.dueDate ? format(parseISO(order.dueDate), 'MMM dd, yyyy') : '-'}
+              {order.createdAt ? format(parseISO(order.createdAt), 'MMM dd, yyyy') : '-'}
             </span>
           </div>
           <div className="grid grid-cols-[1fr_auto] gap-x-8 items-center border-b pb-1">
