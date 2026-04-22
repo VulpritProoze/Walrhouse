@@ -60,12 +60,16 @@ public class SalesOrder : IEndpointGroup
 
     [EndpointName(nameof(GetSalesOrder))]
     [EndpointSummary("Get a single sales order by ID")]
-    public static async Task<Results<Ok<SalesOrderDto>, NotFound>> GetSalesOrder(
-        ISender sender,
-        int id
-    )
+    public static async Task<
+        Results<Ok<SalesOrderDto>, NotFound, BadRequest<string>>
+    > GetSalesOrder(ISender sender, string id)
     {
-        var dto = await sender.Send(new GetSalesOrderQuery(id));
+        if (!int.TryParse(id, out var orderId))
+        {
+            return TypedResults.BadRequest("Invalid Sales Order ID format.");
+        }
+
+        var dto = await sender.Send(new GetSalesOrderQuery(orderId));
         return dto is null ? TypedResults.NotFound() : TypedResults.Ok(dto);
     }
 

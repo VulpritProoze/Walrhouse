@@ -16,8 +16,8 @@ public class BarcodeService : IBarcodeService
     public byte[] Encode(
         string content,
         DomainBarcodeFormat format,
-        int width = 300,
-        int height = 200
+        int width = 600,
+        int height = 500
     )
     {
         var writer = new ZXingBarcodeWriter
@@ -27,14 +27,35 @@ public class BarcodeService : IBarcodeService
             {
                 Height = height,
                 Width = width,
-                Margin = 1,
+                Margin = 0,
+                GS1Format = false,
                 PureBarcode = false,
             },
         };
 
-        using var image = writer.Write(content);
+        var barcodeImage = writer.Write(content);
+
         using var stream = new MemoryStream();
-        image.SaveAsPng(stream);
+        barcodeImage.Save(
+            stream,
+            new SixLabors.ImageSharp.Formats.Png.PngEncoder
+            {
+                BitDepth = SixLabors.ImageSharp.Formats.Png.PngBitDepth.Bit8,
+                ColorType = SixLabors.ImageSharp.Formats.Png.PngColorType.Grayscale,
+                CompressionLevel = SixLabors
+                    .ImageSharp
+                    .Formats
+                    .Png
+                    .PngCompressionLevel
+                    .BestCompression,
+                TransparentColorMode = SixLabors
+                    .ImageSharp
+                    .Formats
+                    .Png
+                    .PngTransparentColorMode
+                    .Preserve,
+            }
+        );
 
         return stream.ToArray();
     }

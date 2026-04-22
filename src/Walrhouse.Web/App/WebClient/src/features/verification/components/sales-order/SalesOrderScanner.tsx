@@ -19,6 +19,7 @@ import { logger } from '@/lib/utils/logger';
 import { ensureAudioContext, playSharpTone } from '../../lib/audio/beeps';
 import { useSalesOrder } from '@/features/sales-order/hooks/queries';
 import { OrderStatus } from '@/features/sales-order/types';
+import { decodeSalesOrderBarcode } from '@/features/sales-order/util/barcode';
 import type { AxiosError } from 'axios';
 
 type SalesOrderScannerProps = {
@@ -118,12 +119,13 @@ export default function SalesOrderScanner({
 
   const handleScan = (detectedCodes: IDetectedBarcode[]) => {
     if (detectedCodes.length > 0 && !isLoading) {
-      const code = detectedCodes[0].rawValue;
+      const rawCode = detectedCodes[0].rawValue;
       if (audioBeep) {
         audioCtxRef.current = ensureAudioContext(audioCtxRef.current);
         if (audioCtxRef.current) playSharpTone(audioCtxRef.current, 180, 0.18);
       }
 
+      const code = decodeSalesOrderBarcode(rawCode);
       const id = parseInt(code, 10);
       if (!isNaN(id)) {
         toast.loading('Fetching sales order...', { id: 'so-fetch' });
@@ -138,7 +140,8 @@ export default function SalesOrderScanner({
   const handleManualSubmit = (e?: React.SyntheticEvent<HTMLFormElement>) => {
     e?.preventDefault();
     if (manualCode.trim() && !isLoading) {
-      const id = parseInt(manualCode.trim(), 10);
+      const code = decodeSalesOrderBarcode(manualCode.trim());
+      const id = parseInt(code, 10);
       if (!isNaN(id)) {
         toast.loading('Fetching sales order...', { id: 'so-fetch' });
         setTargetSoId(id);

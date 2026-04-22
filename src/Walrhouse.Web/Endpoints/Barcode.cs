@@ -34,7 +34,13 @@ public class BarcodeHistory : IEndpointGroup
         IBarcodeService barcodeService
     )
     {
-        var pngBytes = barcodeService.Encode(batchNumber, DomainBarcodeFormat.GS1_128);
+        // Increased to 600x500 for a much taller, clearer barcode
+        var pngBytes = barcodeService.Encode(
+            batchNumber,
+            DomainBarcodeFormat.GS1_128,
+            width: 600,
+            height: 500
+        );
 
         return TypedResults.File(pngBytes, "image/png");
     }

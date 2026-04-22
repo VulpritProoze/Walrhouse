@@ -17,5 +17,6 @@ export interface IncomingOrderDto {
   closedBy: string | null;
   customerName: string | null;
   remarks: string | null;
+  createdAt: string;
   orderLines: IncomingOrderLineDto[];
 }

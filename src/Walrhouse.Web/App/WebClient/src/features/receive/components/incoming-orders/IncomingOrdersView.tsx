@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MoreHorizontal, Plus, Search, Edit2, Trash2, Loader2 } from 'lucide-react';
+import { MoreHorizontal, Plus, Search, Edit2, Trash2, Loader2, Printer } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,6 +28,7 @@ import {
   type UpdateSalesOrderRequest,
 } from '@/features/sales-order/api/sales-order.service';
 import { AddIncomingOrderDialog, EditIncomingOrderDialog } from './IncomingOrdersDialogs';
+import { SalesOrderPrintDialog } from '@/features/sales-order/components/SalesOrderPrintDialog';
 import { useSalesOrders } from '@/features/sales-order/hooks/queries';
 import {
   useCreateSalesOrder,
@@ -40,6 +41,7 @@ export const IncomingOrdersView = () => {
   const [search, setSearch] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState<IncomingOrderDto | null>(null);
+  const [printingOrder, setPrintingOrder] = useState<IncomingOrderDto | null>(null);
 
   const { data, isLoading } = useSalesOrders({ pageNumber: 1, pageSize: 100 });
   const createMutation = useCreateSalesOrder();
@@ -204,6 +206,9 @@ export const IncomingOrdersView = () => {
                           <Edit2 className="h-4 w-4 mr-2" />{' '}
                           {order.status === OrderStatus.Closed ? 'View' : 'Edit'}
                         </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => setPrintingOrder(order)}>
+                          <Printer className="h-4 w-4 mr-2" /> Print
+                        </DropdownMenuItem>
                         {order.status !== OrderStatus.Closed && (
                           <DropdownMenuItem
                             className="text-destructive focus:text-destructive"
@@ -229,6 +234,12 @@ export const IncomingOrdersView = () => {
         open={!!editingOrder}
         onOpenChange={(open) => !open && setEditingOrder(null)}
         onSave={handleUpdate}
+      />
+
+      <SalesOrderPrintDialog
+        order={printingOrder}
+        open={!!printingOrder}
+        onOpenChange={(open) => !open && setPrintingOrder(null)}
       />
     </div>
   );

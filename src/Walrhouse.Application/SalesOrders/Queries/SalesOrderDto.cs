@@ -11,6 +11,7 @@ public record SalesOrderDto
     public string? ClosedBy { get; init; }
     public string CustomerName { get; init; } = string.Empty;
     public string Remarks { get; init; } = string.Empty;
+    public DateTimeOffset CreatedAt { get; init; }
     public ICollection<OrderLineDto> OrderLines { get; init; } = new List<OrderLineDto>();
 }
 
@@ -27,7 +28,8 @@ public class SalesOrderDtoProfile : Profile
 {
     public SalesOrderDtoProfile()
     {
-        CreateMap<SalesOrder, SalesOrderDto>();
+        CreateMap<SalesOrder, SalesOrderDto>()
+            .ForMember(d => d.CreatedAt, opt => opt.MapFrom(s => s.CreatedAt));
         CreateMap<OrderLine, OrderLineDto>();
     }
 }

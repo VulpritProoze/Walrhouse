@@ -69,6 +69,15 @@ export default function BatchScanner({
     }
   };
 
+  type ExtendedMediaTrackConstraints = MediaTrackConstraints & {
+    advanced?: Array<Record<string, unknown>>;
+  };
+
+  const scannerConstraints: ExtendedMediaTrackConstraints = {
+    facingMode: 'environment',
+    advanced: [{ torch: torchOn }],
+  };
+
   return (
     <Card className="w-full overflow-hidden border-none shadow-none sm:border sm:shadow-sm">
       <CardHeader className="pb-3">
@@ -126,12 +135,19 @@ export default function BatchScanner({
           <QrScanner
             key={scannerKey}
             onScan={handleScan}
-            paused={isLoading}
-            styles={{ container: { height: '100%', width: '100%' } }}
+            onError={(err) => {
+              logger.error('Scanner error:', err);
+              setError('Could not access camera. Please check permissions.');
+            }}
+            constraints={scannerConstraints}
+            styles={{
+              container: { width: '100%', height: '100%' },
+              video: { width: '100%', height: '100%', objectFit: 'cover' },
+            }}
             components={{
-              torch: torchOn,
               finder: false,
             }}
+            sound={false}
           />
         </div>
 
@@ -168,4 +184,3 @@ export default function BatchScanner({
     </Card>
   );
 }
-

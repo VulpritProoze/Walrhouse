@@ -13,8 +13,6 @@ public class UpdateSalesOrderCommandValidator : AbstractValidator<UpdateSalesOrd
         RuleForEach(v => v.OrderLines)
             .ChildRules(line =>
             {
-                line.RuleFor(l => l.DocEntry).NotEmpty().WithMessage("DocEntry is required.");
-
                 line.RuleFor(l => l.ItemCode).NotEmpty().WithMessage("ItemCode is required.");
 
                 line.RuleFor(l => l.OrderedQty)

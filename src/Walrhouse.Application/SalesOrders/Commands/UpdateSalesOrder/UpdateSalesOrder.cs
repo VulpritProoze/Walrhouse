@@ -76,13 +76,22 @@ public class UpdateSalesOrderCommandHandler : IRequestHandler<UpdateSalesOrderCo
         if (request.OrderLines != null)
         {
             entity.OrderLines = request
-                .OrderLines.Select(l => new OrderLine
+                .OrderLines.Select(l =>
                 {
-                    DocEntry = l.DocEntry ?? Guid.NewGuid().ToString(),
-                    ItemCode = l.ItemCode,
-                    UnitOfMeasure = l.UnitOfMeasure,
-                    OrderedQty = l.OrderedQty,
-                    PickedQty = l.PickedQty,
+                    var line = new OrderLine
+                    {
+                        ItemCode = l.ItemCode,
+                        UnitOfMeasure = l.UnitOfMeasure,
+                        OrderedQty = l.OrderedQty,
+                        PickedQty = l.PickedQty,
+                    };
+
+                    if (!string.IsNullOrEmpty(l.DocEntry))
+                    {
+                        line.DocEntry = l.DocEntry;
+                    }
+
+                    return line;
                 })
                 .ToList();
         }
