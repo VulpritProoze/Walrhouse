@@ -1,2 +1,6 @@
 .azure
 next-steps.md
+
+# External Seeder
+/src/Walrhouse.ExternalSeeder/Data/Seeders/**
+/src/Walrhouse.ExternalSeeder/appsettings.Development.json
