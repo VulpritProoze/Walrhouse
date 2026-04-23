@@ -21,7 +21,18 @@ if (string.IsNullOrEmpty(connectionString))
 }
 
 var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-optionsBuilder.UseSqlServer(connectionString);
+optionsBuilder.UseNpgsql(
+    connectionString,
+    npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorCodesToAdd: null
+        );
+        npgsqlOptions.CommandTimeout(60);
+    }
+);
 
 using var context = new ExternalDbContext(optionsBuilder.Options);
 
@@ -29,8 +40,8 @@ Console.WriteLine("[System] Checking database...");
 await context.Database.EnsureCreatedAsync();
 
 // Execute modular seeders
-await UoMGroupSeeder.SeedAsync(context);
-await ItemSeeder.SeedAsync(context);
-await BinSeeder.SeedAsync(context);
+// await UoMGroupSeeder.SeedAsync(context);
+// await ItemSeeder.SeedAsync(context);
+// await BinSeeder.SeedAsync(context);
 
 Console.WriteLine("[System] Seeding process finished.");
