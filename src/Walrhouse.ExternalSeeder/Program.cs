@@ -8,8 +8,8 @@ Console.WriteLine("--- Walrhouse External Seeder (.NET 10) ---");
 
 // Load configuration
 var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: false)
     .AddJsonFile("appsettings.Development.json", optional: true)
     .Build();
 
