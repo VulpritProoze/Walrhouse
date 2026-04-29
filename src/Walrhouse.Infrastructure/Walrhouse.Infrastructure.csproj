@@ -17,6 +17,13 @@
     <PackageReference Include="ZXing.Net.Bindings.ImageSharp" Version="0.16.16" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Explicit OpenTelemetry packages to ensure patched versions are used and avoid transitive vulnerable versions -->
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+    <PackageReference Include="OpenTelemetry.Api.ProviderBuilderExtensions" Version="1.15.3" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
