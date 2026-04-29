@@ -99,41 +99,45 @@ export function ItemCodeSelectionSheet({
                       </span>
                     </div>
 
-                      {totalPages > 1 && (
-                        <div className="p-3 border-t bg-muted/5">
-                          <Pagination>
-                            <PaginationContent>
-                              <PaginationItem>
-                                <PaginationPrevious
-                                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                                  className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
-                                />
-                              </PaginationItem>
+                    {totalPages > 1 && (
+                      <div className="p-3 border-t bg-muted/5">
+                        <Pagination>
+                          <PaginationContent>
+                            <PaginationItem>
+                              <PaginationPrevious
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                className={
+                                  page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                                }
+                              />
+                            </PaginationItem>
 
-                              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                                <PaginationItem key={p}>
-                                  <PaginationLink
-                                    isActive={page === p}
-                                    onClick={() => setPage(p)}
-                                    className="cursor-pointer"
-                                  >
-                                    {p}
-                                  </PaginationLink>
-                                </PaginationItem>
-                              ))}
-
-                              <PaginationItem>
-                                <PaginationNext
-                                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                                  className={
-                                    page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
-                                  }
-                                />
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                              <PaginationItem key={p}>
+                                <PaginationLink
+                                  isActive={page === p}
+                                  onClick={() => setPage(p)}
+                                  className="cursor-pointer"
+                                >
+                                  {p}
+                                </PaginationLink>
                               </PaginationItem>
-                            </PaginationContent>
-                          </Pagination>
-                        </div>
-                      )}
+                            ))}
+
+                            <PaginationItem>
+                              <PaginationNext
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                className={
+                                  page === totalPages
+                                    ? 'pointer-events-none opacity-50'
+                                    : 'cursor-pointer'
+                                }
+                              />
+                            </PaginationItem>
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
+                    )}
                     <span className="text-xs text-muted-foreground truncate">{item.itemName}</span>
                   </li>
                 ))
