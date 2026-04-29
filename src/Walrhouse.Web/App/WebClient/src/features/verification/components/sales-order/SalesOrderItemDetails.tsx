@@ -12,6 +12,14 @@
   ArrowRight,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -24,6 +32,7 @@ import { OrderStatus } from '@/features/sales-order/types';
 import { useItem } from '@/features/item/hooks/queries/use-item';
 import { toast } from 'sonner';
 import type { AxiosError } from 'axios';
+import { useState } from 'react';
 
 type SalesOrderItemDetailsProps = {
   batch?: BatchDto;
@@ -42,6 +51,7 @@ export default function SalesOrderItemDetails({
 }: SalesOrderItemDetailsProps) {
   const { mutate: createVerification, isPending: isVerificationPending } = useCreateVerification();
   const { mutate: updateSalesOrder, isPending: isUpdatePending } = useUpdateSalesOrder();
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
 
   const { data: salesOrder, isLoading: isSoLoading } = useSalesOrder(salesOrderId!, !!salesOrderId);
   const { data: item, isLoading: isItemLoading } = useItem(
@@ -141,6 +151,9 @@ export default function SalesOrderItemDetails({
   const totalOrdered = salesOrder?.orderLines.reduce((sum, ol) => sum + ol.orderedQty, 0) ?? 0;
   const totalPicked = salesOrder?.orderLines.reduce((sum, ol) => sum + (ol.pickedQty ?? 0), 0) ?? 0;
   const isOrderReady = totalPicked >= totalOrdered && totalOrdered > 0;
+
+  const incompleteLines =
+    salesOrder?.orderLines.filter((ol) => (ol.pickedQty ?? 0) < (ol.orderedQty ?? 0)) ?? [];
 
   return (
     <div className="space-y-6">
@@ -280,29 +293,31 @@ export default function SalesOrderItemDetails({
           <Separator />
 
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Button
-                className="flex-1 py-6 text-lg"
-                disabled={isLoading || isTerminalState}
-                onClick={() => handleVerification(true)}
-              >
-                {isLoading ? (
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                ) : (
+            {!isOrderReady && (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                  variant="outline"
+                  className="flex-1 py-6 text-lg"
+                  disabled={isLoading || isTerminalState}
+                  onClick={() => setIsConfirmOpen(true)}
+                >
+                  {isLoading ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  ) : (
+                    <CheckCircle2 className="mr-2 h-5 w-5" />
+                  )}
+                  Verify & Proceed to Fulfill
+                </Button>
+                <Button
+                  className="flex-1 py-6 text-lg border-2"
+                  disabled={isLoading || isTerminalState}
+                  onClick={() => handleVerification(false)}
+                >
                   <CheckCircle2 className="mr-2 h-5 w-5" />
-                )}
-                Verify & Proceed to Fulfill
-              </Button>
-              <Button
-                variant="outline"
-                className="flex-1 py-6 text-lg border-2"
-                disabled={isLoading || isTerminalState}
-                onClick={() => handleVerification(false)}
-              >
-                <CheckCircle2 className="mr-2 h-5 w-5" />
-                Verify & Scan Next
-              </Button>
-            </div>
+                  Verify & Scan Next
+                </Button>
+              </div>
+            )}
 
             {isOrderReady && !isTerminalState && (
               <Button
@@ -314,6 +329,50 @@ export default function SalesOrderItemDetails({
                 Skip to Fulfillment (All Items Picked)
               </Button>
             )}
+
+            <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Proceed to Fulfillment?</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to proceed to fulfillment section? Below are items that
+                    haven't been fully picked yet.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="py-2">
+                  {incompleteLines.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">All items are fully picked.</p>
+                  ) : (
+                    <ul className="text-sm space-y-2">
+                      {incompleteLines.map((ol) => (
+                        <li key={ol.itemCode} className="flex justify-between">
+                          <span className="font-medium">{ol.itemCode}</span>
+                          <span className="text-muted-foreground">
+                            Remaining: {(ol.orderedQty ?? 0) - (ol.pickedQty ?? 0)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsConfirmOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setIsConfirmOpen(false);
+                      handleVerification(true);
+                    }}
+                    disabled={isLoading || isTerminalState}
+                  >
+                    Proceed
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>
