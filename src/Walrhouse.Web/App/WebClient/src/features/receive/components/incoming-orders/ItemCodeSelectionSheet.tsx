@@ -1,5 +1,13 @@
 import { Search, Loader2 } from 'lucide-react';
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -31,13 +39,17 @@ export function ItemCodeSelectionSheet({
   onSelect,
 }: ItemCodeSelectionSheetProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
 
   const { data, isLoading } = useItems({
-    pageSize: 50,
+    pageNumber: page,
+    pageSize,
     searchTerm: searchTerm || undefined,
   });
 
   const items = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -54,7 +66,10 @@ export function ItemCodeSelectionSheet({
               className="pl-9"
               placeholder="Search items by code or name..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setPage(1);
+              }}
             />
           </div>
 
@@ -83,6 +98,42 @@ export function ItemCodeSelectionSheet({
                         Select
                       </span>
                     </div>
+
+                      {totalPages > 1 && (
+                        <div className="p-3 border-t bg-muted/5">
+                          <Pagination>
+                            <PaginationContent>
+                              <PaginationItem>
+                                <PaginationPrevious
+                                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                  className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                />
+                              </PaginationItem>
+
+                              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                                <PaginationItem key={p}>
+                                  <PaginationLink
+                                    isActive={page === p}
+                                    onClick={() => setPage(p)}
+                                    className="cursor-pointer"
+                                  >
+                                    {p}
+                                  </PaginationLink>
+                                </PaginationItem>
+                              ))}
+
+                              <PaginationItem>
+                                <PaginationNext
+                                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                  className={
+                                    page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                                  }
+                                />
+                              </PaginationItem>
+                            </PaginationContent>
+                          </Pagination>
+                        </div>
+                      )}
                     <span className="text-xs text-muted-foreground truncate">{item.itemName}</span>
                   </li>
                 ))
