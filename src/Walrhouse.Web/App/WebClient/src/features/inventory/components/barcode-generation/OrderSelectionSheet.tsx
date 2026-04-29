@@ -18,6 +18,7 @@ import {
   Pagination,
   PaginationContent,
   PaginationItem,
+  PaginationLink,
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
@@ -133,9 +134,20 @@ export function OrderSelectionSheet({
                     />
                   </PaginationItem>
 
-                  <div className="flex items-center text-xs text-muted-foreground px-2">
-                    Page {page} of {totalPages}
-                  </div>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setPage(p);
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
 
                   <PaginationItem>
                     <PaginationNext

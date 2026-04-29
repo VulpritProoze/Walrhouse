@@ -7,8 +7,16 @@ import {
   SheetDescription,
 } from '@/components/ui/sheet';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useBatches } from '@/features/batch/hooks/queries';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { type BatchDto } from '../../types';
 
 interface BatchSelectionSheetProps {
@@ -19,12 +27,24 @@ interface BatchSelectionSheetProps {
 
 export function BatchSelectionSheet({ open, onOpenChange, onSelect }: BatchSelectionSheetProps) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [page, setPage] = useState(1);
+  const pageSize = 50;
 
   const { data, isLoading } = useBatches({
-    pageSize: 50,
+    pageNumber: page,
+    pageSize,
   });
 
+  // server-paginated list
   const batches = data?.items ?? [];
+  const totalPages = data?.totalPages ?? 0;
+
+  // client-side search on current page results (server doesn't support search param)
+  const filtered = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return batches;
+    return (batches as BatchDto[]).filter((b: BatchDto) => b.batchNumber.toLowerCase().includes(q));
+  }, [batches, searchTerm]);
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -52,10 +72,10 @@ export function BatchSelectionSheet({ open, onOpenChange, onSelect }: BatchSelec
                   <Loader2 className="h-6 w-6 animate-spin mb-2" />
                   <span className="text-sm">Loading batches...</span>
                 </li>
-              ) : batches.length === 0 ? (
+              ) : filtered.length === 0 ? (
                 <li className="p-4 text-center text-muted-foreground">No batches found.</li>
               ) : (
-                batches.map((b: BatchDto) => (
+                filtered.map((b: BatchDto) => (
                   <li
                     key={b.batchNumber}
                     className="p-3 hover:bg-muted/50 cursor-pointer flex justify-between items-center transition-colors"
@@ -71,6 +91,42 @@ export function BatchSelectionSheet({ open, onOpenChange, onSelect }: BatchSelec
               )}
             </ul>
           </div>
+
+          {totalPages > 1 && (
+            <div className="pt-2">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      className={page === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                    />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                    <PaginationItem key={p}>
+                      <PaginationLink
+                        isActive={page === p}
+                        onClick={() => setPage(p)}
+                        className="cursor-pointer"
+                      >
+                        {p}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      className={
+                        page === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'
+                      }
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </div>
       </SheetContent>
     </Sheet>
