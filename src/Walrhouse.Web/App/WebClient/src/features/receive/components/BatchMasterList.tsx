@@ -35,13 +35,17 @@ import { type BatchDto } from '../types/batch-dto';
 import { BatchStatus } from '@/features/batch/types';
 import { useState } from 'react';
 import { useBatches } from '@/features/batch/hooks/queries/use-batch';
+import { useQuery } from '@tanstack/react-query';
+import { getItem } from '@/features/item/api/item.service';
 import {
   useDeleteBatch,
   useCreateBatch,
   useUpdateBatch,
 } from '@/features/batch/hooks/mutations/use-batch-mutation';
 import { AddBatchDialog, EditBatchDialog } from './batch-management/BatchDialogs';
-import { Loader2, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import { Loader2, MoreVertical, Edit, Trash2, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { parseISO } from 'date-fns';
 
 export const BatchMasterList = () => {
   const [page, setPage] = useState(1);
@@ -55,18 +59,63 @@ export const BatchMasterList = () => {
   const { mutateAsync: createBatch, isPending: isCreating } = useCreateBatch();
   const { mutateAsync: updateBatch, isPending: isUpdating } = useUpdateBatch();
 
-  const batches = data?.items ?? [];
+  const batches: BatchDto[] = (data?.items ?? []) as BatchDto[];
   const totalPages = data?.totalPages ?? 0;
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [active, setActive] = useState<BatchDto | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const openAdd = () => {
     setActive(null);
     setIsAddOpen(true);
   };
+
+  // Prefetch item details for current page batches
+  const itemCodesOnPage = Array.from(
+    new Set(batches.map((b: BatchDto) => b.itemCode).filter((c): c is string => !!c)),
+  );
+
+  const { data: itemsData } = useQuery<Record<string, { itemName?: string }>>({
+    queryKey: ['items', 'byCodes', itemCodesOnPage],
+    queryFn: async () => {
+      const results: Array<{ itemName?: string } | null> = await Promise.all(
+        itemCodesOnPage.map(async (c) => {
+          try {
+            const r = await getItem(c);
+            return r.data as { itemName?: string };
+          } catch {
+            return null;
+          }
+        }),
+      );
+
+      const map: Record<string, { itemName?: string }> = {};
+      itemCodesOnPage.forEach((code, i) => {
+        const res = results[i];
+        map[code] = res ? { itemName: res.itemName } : { itemName: undefined };
+      });
+
+      return map;
+    },
+    enabled: itemCodesOnPage.length > 0,
+  });
+
+  const codeToName: Record<string, { itemName?: string }> = itemsData ?? {};
+
+  // Client-side search over batchNumber, itemCode, itemName
+  const filteredBatches = batches.filter((b: BatchDto) => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return true;
+    const itemName = (codeToName[b.itemCode as string]?.itemName ?? '').toLowerCase();
+    return (
+      (b.batchNumber ?? '').toLowerCase().includes(q) ||
+      (b.itemCode ?? '').toLowerCase().includes(q) ||
+      itemName.includes(q)
+    );
+  });
 
   const openEdit = (b: BatchDto) => {
     setActive(b);
@@ -101,12 +150,44 @@ export const BatchMasterList = () => {
     }
   };
 
+  const formatExpiry = (d?: string | null) => {
+    if (!d) return '';
+    // If it's a plain date like YYYY-MM-DD, convert directly
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+      return `${d}T00:00:00+00:00`;
+    }
+
+    let dt: Date;
+    if (typeof d === 'string') {
+      try {
+        dt = parseISO(d);
+      } catch {
+        dt = new Date(d);
+      }
+    } else {
+      dt = d as Date;
+    }
+
+    if (isNaN(dt.getTime())) return String(d);
+    // toISOString -> "YYYY-MM-DDTHH:mm:ss.sssZ" -> replace Z with +00:00 and drop milliseconds
+    return dt.toISOString().replace(/\.\d{3}Z$/, '+00:00');
+  };
+
   return (
     <Card className="border-none shadow-sm overflow-hidden min-h-[400px] flex flex-col justify-between">
       <div>
         <div className="flex items-center justify-between px-4 py-2 border-b">
           <h3 className="text-sm font-semibold">Batch Master</h3>
           <div className="flex items-center gap-2">
+            <div className="flex items-center border rounded-md px-2 bg-muted/5">
+              <Search className="h-4 w-4 text-muted-foreground mr-2" />
+              <Input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search batches or items"
+                className="w-56 bg-transparent border-0 p-0"
+              />
+            </div>
             <Button onClick={openAdd}>Add Batch</Button>
           </div>
         </div>
@@ -139,15 +220,20 @@ export const BatchMasterList = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              batches.map((batch: BatchDto) => (
+              filteredBatches.map((batch: BatchDto) => (
                 <TableRow
                   key={batch.batchNumber}
                   className="hover:bg-muted/10 group cursor-default"
                 >
                   <TableCell className="font-mono font-bold text-xs">{batch.batchNumber}</TableCell>
-                  <TableCell>{batch.itemCode}</TableCell>
+                  <TableCell>
+                    <div className="text-sm font-medium">
+                      {codeToName[batch.itemCode as string]?.itemName ?? batch.itemCode}
+                    </div>
+                    <div className="text-xs text-muted-foreground">{batch.itemCode}</div>
+                  </TableCell>
                   <TableCell>{batch.binNo}</TableCell>
-                  <TableCell>{batch.expiryDate}</TableCell>
+                  <TableCell>{formatExpiry(batch.expiryDate)}</TableCell>
                   <TableCell>
                     <Badge variant={batch.status === BatchStatus.Released ? 'success' : 'outline'}>
                       {getStatusLabel(batch.status)}
