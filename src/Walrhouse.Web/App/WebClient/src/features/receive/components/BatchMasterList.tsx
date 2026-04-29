@@ -49,7 +49,7 @@ import { parseISO } from 'date-fns';
 
 export const BatchMasterList = () => {
   const [page, setPage] = useState(1);
-  const pageSize = 10;
+  const pageSize = 50;
 
   const { data, isLoading } = useBatches({
     pageNumber: page,
