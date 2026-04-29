@@ -13,6 +13,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- Ensure OpenTelemetry patched packages are used to avoid NU1902 vulnerabilities in CI -->
+    <PackageReference Include="OpenTelemetry.Api" Version="1.15.3" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.15.3" />
+    <PackageReference Include="OpenTelemetry.Api.ProviderBuilderExtensions" Version="1.15.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Walrhouse.Domain\Walrhouse.Domain.csproj" />
     <ProjectReference Include="..\Walrhouse.Infrastructure\Walrhouse.Infrastructure.csproj" />
   </ItemGroup>
